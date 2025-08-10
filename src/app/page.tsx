@@ -6,7 +6,6 @@ const StudySmartAILanding: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [activeFeature, setActiveFeature] = useState(0);
 
-  // Refs for sections
   const featuresRef = useRef<HTMLDivElement>(null) as React.RefObject<HTMLDivElement>;
   const pricingRef = useRef<HTMLDivElement>(null) as React.RefObject<HTMLDivElement>;
   const aboutRef = useRef<HTMLDivElement>(null) as React.RefObject<HTMLDivElement>;
@@ -26,7 +25,6 @@ const StudySmartAILanding: React.FC = () => {
     return () => clearInterval(interval);
   }, []);
 
-  // Scroll handler
   const scrollToSection = (ref: React.RefObject<HTMLDivElement>) => {
     if (ref.current) {
       ref.current.scrollIntoView({ behavior: 'smooth' });
@@ -67,12 +65,15 @@ const StudySmartAILanding: React.FC = () => {
       }`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-2">
+            <div
+              className="flex items-center space-x-2 cursor-pointer"
+              onClick={() => window.location.href = "/"}
+            >
               <div className="w-10 h-10 bg-gradient-to-r from-purple-600 to-blue-600 rounded-xl flex items-center justify-center">
                 <Brain className="w-6 h-6 text-white" />
               </div>
               <span className="text-xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
-                StudySmartAI
+                GudaniSmartAI
               </span>
             </div>
             <div className="hidden md:flex items-center space-x-8">
@@ -97,8 +98,17 @@ const StudySmartAILanding: React.FC = () => {
               >
                 About
               </button>
-              <button className="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-6 py-2 rounded-xl hover:from-purple-700 hover:to-blue-700 transition-all duration-300 transform hover:scale-105 shadow-lg">
+              <button
+                className="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-6 py-2 rounded-xl hover:from-purple-700 hover:to-blue-700 transition-all duration-300 transform hover:scale-105 shadow-lg"
+                onClick={() => window.location.href = "/register"}
+              >
                 Get Started
+              </button>
+              <button
+                className="bg-white text-purple-600 px-6 py-2 rounded-xl font-semibold border border-purple-200 hover:bg-purple-50 transition-all duration-300"
+                onClick={() => window.location.href = "/login"}
+              >
+                Login
               </button>
             </div>
           </div>
@@ -116,7 +126,7 @@ const StudySmartAILanding: React.FC = () => {
               Unlock Your Potential
               <br />
               <span className="bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 bg-clip-text text-transparent">
-                StudySmartAI
+                GudaniSmartAI
               </span>
             </h1>
             <p className="text-2xl text-gray-700 mb-8 max-w-2xl mx-auto font-medium">
@@ -136,24 +146,38 @@ const StudySmartAILanding: React.FC = () => {
       </section>
       <section ref={aboutRef} className="py-20 bg-gradient-to-br from-white to-purple-50">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-4xl font-bold text-gray-900 mb-4">About StudySmartAI</h2>
-          <p className="text-xl text-gray-700 mb-6">
-            StudySmartAI is built for high school learners, parents, and teachers who want smarter, faster, and more personalized study support.
-            Our mission is to make learning accessible and effective for everyone, using the power of AI to simplify complex topics, generate practice questions, and help students achieve their best.
+          <h2 className="text-4xl font-bold text-gray-900 mb-4">About           GudaniSmartAI
+</h2>
+          <p className="text-xl text-gray-700 mb-8">
+            GudaniSmartAI is your personal AI-powered study assistant, designed for high school learners, parents, and educators. 
+            We believe every student deserves access to smart, personalized learning tools that make studying easier, faster, and more effective.
           </p>
-          <div className="flex flex-col sm:flex-row gap-6 justify-center items-center mt-8">
-            <div className="bg-white rounded-xl shadow p-6 border border-gray-200 max-w-xs">
-              <h3 className="text-lg font-semibold text-purple-700 mb-2">Curriculum-Aligned</h3>
-              <p className="text-gray-600 text-sm">Supports CAPS, IEB, and Cambridge (coming soon).</p>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 mt-8">
+            <div className="bg-white rounded-xl shadow p-6 border border-gray-200 flex flex-col items-center">
+              <span className="text-purple-700 text-3xl font-bold mb-2">Curriculum-Aligned</span>
+              <p className="text-gray-600 text-sm text-center">
+                Supports South African CAPS, IEB, and Cambridge (coming soon). Content is tailored to your grade and subject for maximum relevance.
+              </p>
             </div>
-            <div className="bg-white rounded-xl shadow p-6 border border-gray-200 max-w-xs">
-              <h3 className="text-lg font-semibold text-purple-700 mb-2">For Learners & Educators</h3>
-              <p className="text-gray-600 text-sm">Designed for students, parents, tutors, and teachers.</p>
+            <div className="bg-white rounded-xl shadow p-6 border border-gray-200 flex flex-col items-center">
+              <span className="text-purple-700 text-3xl font-bold mb-2">For Learners & Educators</span>
+              <p className="text-gray-600 text-sm text-center">
+                Built for students, parents, tutors, and teachers. Use StudySmartAI for homework help, revision, lesson planning, or extra support.
+              </p>
             </div>
-            <div className="bg-white rounded-xl shadow p-6 border border-gray-200 max-w-xs">
-              <h3 className="text-lg font-semibold text-purple-700 mb-2">AI-Powered</h3>
-              <p className="text-gray-600 text-sm">Instant answers, summaries, quizzes, and flashcards.</p>
+            <div className="bg-white rounded-xl shadow p-6 border border-gray-200 flex flex-col items-center">
+              <span className="text-purple-700 text-3xl font-bold mb-2">AI-Powered Tools</span>
+              <p className="text-gray-600 text-sm text-center">
+                Get instant answers, smart quizzes, flashcards, and note summaries. Our AI adapts to your grade level and learning needs.
+              </p>
             </div>
+          </div>
+          <div className="mt-12">
+            <h3 className="text-2xl font-semibold text-gray-900 mb-2">Our Mission</h3>
+            <p className="text-gray-700 text-lg max-w-3xl mx-auto">
+              To make high-quality, personalized learning accessible to every student. 
+              We use the latest AI technology to simplify complex topics, boost confidence, and help you achieve your best results.
+            </p>
           </div>
         </div>
       </section>
@@ -248,7 +272,10 @@ const StudySmartAILanding: React.FC = () => {
                 Start Standard
               </button>
             </div>
-            <div className="bg-white rounded-2xl p-8 border-2 border-gray-200 hover:border-blue-300 transition-all duration-300">
+            <div className="bg-white rounded-2xl p-8 border-2 border-gray-200 hover:border-blue-300 transition-all duration-300 relative">
+              <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-red-500 text-white px-4 py-1 rounded-full text-sm font-semibold">
+                Coming Soon
+              </div>
               <h3 className="text-2xl font-bold text-gray-900 mb-4">Premium</h3>
               <div className="text-4xl font-bold text-gray-900 mb-6">R99<span className="text-lg text-gray-500">/month</span></div>
               <ul className="space-y-3 mb-8">
@@ -264,7 +291,10 @@ const StudySmartAILanding: React.FC = () => {
                   </li>
                 ))}
               </ul>
-              <button className="w-full bg-blue-600 text-white py-3 rounded-xl font-semibold hover:bg-blue-700 transition-colors">
+              <button
+                className="w-full bg-blue-600 text-white py-3 rounded-xl font-semibold opacity-60 cursor-not-allowed"
+                disabled
+              >
                 Start Premium
               </button>
             </div>

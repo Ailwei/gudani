@@ -1,12 +1,10 @@
 import React from 'react';
 
-// Types matching MVP
 interface UserSelection {
   grade: string;
   subject: string;
 }
 
-// Grade & Subject Selector Component
 const GradeSubjectSelector: React.FC<{
   selection: UserSelection;
   onSelectionChange: (selection: UserSelection) => void;
@@ -23,11 +21,11 @@ const GradeSubjectSelector: React.FC<{
           <select 
             value={selection.grade}
             onChange={(e) => onSelectionChange({ ...selection, grade: e.target.value })}
-            className="w-full border border-gray-300 rounded-lg px-4 py-3 text-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+            className="w-full border border-gray-300 rounded-lg px-4 py-3 text-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white text-gray-900 font-semibold"
           >
-            <option value="">Choose your grade</option>
+            <option value="" className="text-gray-400 font-normal">Choose your grade</option>
             {grades.map(grade => (
-              <option key={grade} value={grade}>{grade}</option>
+              <option key={grade} value={grade} className="text-gray-900 font-semibold">{grade}</option>
             ))}
           </select>
         </div>
@@ -36,11 +34,11 @@ const GradeSubjectSelector: React.FC<{
           <select 
             value={selection.subject}
             onChange={(e) => onSelectionChange({ ...selection, subject: e.target.value })}
-            className="w-full border border-gray-300 rounded-lg px-4 py-3 text-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+            className="w-full border border-gray-300 rounded-lg px-4 py-3 text-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white text-gray-900 font-semibold"
           >
-            <option value="">Choose your subject</option>
+            <option value="" className="text-gray-400 font-normal">Choose your subject</option>
             {subjects.map(subject => (
-              <option key={subject} value={subject}>{subject}</option>
+              <option key={subject} value={subject} className="text-gray-900 font-semibold">{subject}</option>
             ))}
           </select>
         </div>

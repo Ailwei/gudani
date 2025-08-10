@@ -1,13 +1,10 @@
 import React, { useState } from 'react';
 import { Upload, Save, Download } from 'lucide-react';
 
-// Types matching MVP
 interface UserSelection {
   grade: string;
   subject: string;
 }
-
-// Note Upload Tool Component
 const NoteUploadTool: React.FC<{
   selection: UserSelection;
   onBack: () => void;
@@ -18,7 +15,6 @@ const NoteUploadTool: React.FC<{
 
   const generateSummary = () => {
     setIsGenerating(true);
-    // Simulate AI processing
     setTimeout(() => {
       setSummary(`Here's your ${selection.grade} level summary for ${selection.subject}:\n\nKey concepts simplified for your grade level with focus on exam-relevant points...`);
       setIsGenerating(false);
@@ -46,7 +42,7 @@ const NoteUploadTool: React.FC<{
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             placeholder="Paste your study notes here..."
-            className="w-full h-32 border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-purple-500"
+            className="w-full h-32 border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white text-gray-900 font-normal placeholder-gray-400"
           />
           <div className="mt-2">
             <button className="flex items-center text-blue-600 hover:text-blue-700 text-sm">

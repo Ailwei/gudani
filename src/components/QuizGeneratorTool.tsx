@@ -54,7 +54,7 @@ const QuizGeneratorTool: React.FC<{
             value={topic}
             onChange={(e) => setTopic(e.target.value)}
             placeholder="e.g., Quadratic Equations, Photosynthesis, etc."
-            className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-purple-500"
+            className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-purple-500 text-gray-900 font-normal"
           />
         </div>
 

@@ -7,8 +7,7 @@
 ## Target Audience
 
 - High school learners (Grades 8–12)
-- Parents, tutors, and teachers
-- Initially aligned with CAPS and IEB curricula (Cambridge support planned for later phases)
+- Initially aligned with CAPS and IEB curricula
 
 ## Problem Statement
 
@@ -78,7 +77,7 @@ Create a user-friendly web app that empowers Grade 8–12 learners to study smar
 ### Prerequisites
 - Node.js (v16 or higher)
 - npm or yarn
-- Firebase account (for database and auth)
+- superBase(posgrel, prisma)
 - OpenAI API key
 
 ### Installation

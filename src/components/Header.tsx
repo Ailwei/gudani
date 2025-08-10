@@ -1,16 +1,35 @@
 import React from 'react';
 import { Brain, User } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 interface HeaderProps {
   variant?: 'dashboard' | 'landing';
+  isLoggedIn?: boolean;
 }
 
-const Header: React.FC<HeaderProps> = ({ variant = 'landing' }) => {
+const Header: React.FC<HeaderProps> = ({ variant = 'landing', isLoggedIn = false }) => {
+  const router = useRouter();
+
+  const handleLogoClick = () => {
+    if (isLoggedIn) {
+      if (window.location.pathname === '/dashboard') {
+        window.location.reload();
+      } else {
+        router.push('/dashboard');
+      }
+    } else {
+      router.push('/');
+    }
+  };
+
   if (variant === 'dashboard') {
     return (
       <header className="bg-white border-b border-gray-200 px-4 sm:px-6 py-4 sticky top-0 z-40">
         <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-3">
+          <div
+            className="flex items-center space-x-3 cursor-pointer"
+            onClick={handleLogoClick}
+          >
             <div className="w-10 h-10 bg-gradient-to-r from-purple-600 to-blue-600 rounded-xl flex items-center justify-center">
               <Brain className="w-6 h-6 text-white" />
             </div>
@@ -39,7 +58,10 @@ const Header: React.FC<HeaderProps> = ({ variant = 'landing' }) => {
     <nav className="fixed top-0 w-full z-50 transition-all duration-300 bg-white/80 backdrop-blur-lg shadow-lg">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          <div className="flex items-center space-x-2">
+          <div
+            className="flex items-center space-x-2 cursor-pointer"
+            onClick={handleLogoClick}
+          >
             <div className="w-10 h-10 bg-gradient-to-r from-purple-600 to-blue-600 rounded-xl flex items-center justify-center">
               <Brain className="w-6 h-6 text-white" />
             </div>
