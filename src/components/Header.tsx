@@ -5,9 +5,10 @@ import { useRouter } from 'next/navigation';
 interface HeaderProps {
   variant?: 'dashboard' | 'landing';
   isLoggedIn?: boolean;
+  userName?: string;
 }
 
-const Header: React.FC<HeaderProps> = ({ variant = 'landing', isLoggedIn = false }) => {
+const Header: React.FC<HeaderProps> = ({ variant = 'landing', isLoggedIn = false, userName }) => {
   const router = useRouter();
 
   const handleLogoClick = () => {
@@ -19,6 +20,14 @@ const Header: React.FC<HeaderProps> = ({ variant = 'landing', isLoggedIn = false
       }
     } else {
       router.push('/');
+    }
+  };
+
+  const handleLogout = () => {
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("token");
+      localStorage.removeItem("userName");
+      router.push("/login");
     }
   };
 
@@ -42,12 +51,19 @@ const Header: React.FC<HeaderProps> = ({ variant = 'landing', isLoggedIn = false
           </div>
           <div className="flex items-center space-x-3">
             <div className="text-right">
-              <p className="text-sm font-medium text-gray-900">Sarah Johnson</p>
-              <p className="text-xs text-gray-500">Student</p>
+              <p className="text-sm font-medium text-gray-900">
+                {userName || "User"}
+              </p>
             </div>
             <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
               <User className="w-5 h-5 text-purple-600" />
             </div>
+            <button
+              onClick={handleLogout}
+              className="ml-4 px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg font-semibold hover:from-purple-700 hover:to-blue-700 transition-colors"
+            >
+              Logout
+            </button>
           </div>
         </div>
       </header>

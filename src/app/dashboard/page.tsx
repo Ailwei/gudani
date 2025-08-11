@@ -1,5 +1,5 @@
 "use client"
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Brain, User } from 'lucide-react';
 
 import Header from '@/components/Header';
@@ -20,6 +20,21 @@ interface UserSelection {
 const StudySmartDashboard: React.FC = () => {
   const [selection, setSelection] = useState<UserSelection>({ grade: '', subject: '' });
   const [activeTool, setActiveTool] = useState<string>('');
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAuthChecked, setIsAuthChecked] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const token = localStorage.getItem("token");
+      setIsAuthenticated(!!token);
+      setIsAuthChecked(true);
+    }
+  }, []);
+
+  if (!isAuthenticated && isAuthChecked) {
+    window.location.href = "/login";
+    return null;
+  }
 
   const isSelectionComplete = selection.grade && selection.subject;
 
