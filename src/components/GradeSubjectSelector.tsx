@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 interface UserSelection {
   grade: string;
@@ -9,8 +9,17 @@ const GradeSubjectSelector: React.FC<{
   selection: UserSelection;
   onSelectionChange: (selection: UserSelection) => void;
 }> = ({ selection, onSelectionChange }) => {
-  const grades = ['Grade 8', 'Grade 9', 'Grade 10', 'Grade 11', 'Grade 12'];
-  const subjects = ['Mathematics', 'Physical Sciences', 'Life Sciences', 'English', 'History', 'Geography', 'Accounting', 'Business Studies'];
+  const [grades, setGrades] = useState<string[]>([]);
+  const [subjects, setSubjects] = useState<string[]>([]);
+
+  useEffect(() => {
+    fetch('/api/gradesubjectSelector')
+      .then(res => res.json())
+      .then(data => {
+        setGrades(data.grades || []);
+        setSubjects(data.subjects || []);
+      });
+  }, []);
 
   return (
     <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200 mb-6">

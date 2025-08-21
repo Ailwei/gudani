@@ -19,14 +19,16 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Invalid email or password" }, { status: 401 });
     }
 
+    console.log("User role on login:", user.userRole);
+
     const token = jwt.sign(
-      { userId: user.id, email: user.email },
+      { userId: user.id, email: user.email, userRole: user.userRole },
       process.env.JWT_SECRET || "default_secret",
       { expiresIn: "7d" }
     );
 
     return NextResponse.json(
-      { message: "Login successful", userId: user.id, token },
+      { message: "Login successful", userId: user.id, token, userRole: user.userRole },
       { status: 200 }
     );
   } catch (error: any) {

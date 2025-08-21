@@ -1,25 +1,75 @@
-import React from 'react';
-import { Brain, User } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import React, { useEffect, useState } from "react";
+import { Brain, User } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 interface HeaderProps {
-  variant?: 'dashboard' | 'landing';
+  variant?: "dashboard" | "landing";
   isLoggedIn?: boolean;
   userName?: string;
 }
 
-const Header: React.FC<HeaderProps> = ({ variant = 'landing', isLoggedIn = false, userName }) => {
+const Header: React.FC<HeaderProps> = ({
+  variant = "landing",
+  isLoggedIn = false,
+  userName,
+}) => {
   const router = useRouter();
+  const [displayName, setDisplayName] = useState<string>(
+    userName || localStorage.getItem("userName") || ""
+  );
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function fetchUserName() {
+      if (typeof window === "undefined") return;
+
+      const token = localStorage.getItem("token");
+      if (token) {
+        try {
+          const res = await fetch("/api/auth/userDetails", {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          if (res.ok) {
+            const data = await res.json();
+            if (isMounted) {
+              const fullName = data.firstName
+                ? `${data.firstName} ${data.lastName}`
+                : "";
+              setDisplayName(fullName);
+              if (fullName) localStorage.setItem("userName", fullName);
+            }
+            return;
+          } else {
+            console.error("Failed to fetch user details:", res.statusText);
+          }
+        } catch (err) {
+          console.error("Error fetching user details:", err);
+        }
+      }
+      
+      if (isMounted) {
+        const storedName = localStorage.getItem("userName");
+        setDisplayName(userName || storedName || "");
+      }
+    }
+
+    fetchUserName();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [userName]);
 
   const handleLogoClick = () => {
     if (isLoggedIn) {
-      if (window.location.pathname === '/dashboard') {
+      if (window.location.pathname === "/dashboard") {
         window.location.reload();
       } else {
-        router.push('/dashboard');
+        router.push("/dashboard");
       }
     } else {
-      router.push('/');
+      router.push("/");
     }
   };
 
@@ -31,7 +81,8 @@ const Header: React.FC<HeaderProps> = ({ variant = 'landing', isLoggedIn = false
     }
   };
 
-  if (variant === 'dashboard') {
+
+  if (variant === "dashboard") {
     return (
       <header className="bg-white border-b border-gray-200 px-4 sm:px-6 py-4 sticky top-0 z-40">
         <div className="flex items-center justify-between">
@@ -46,13 +97,18 @@ const Header: React.FC<HeaderProps> = ({ variant = 'landing', isLoggedIn = false
               <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
                 StudySmartAI
               </h1>
-              <p className="text-sm text-gray-600">AI Study Assistant for Grades 8-12</p>
+              <p className="text-sm text-gray-600">
+                AI Study Assistant for Grades 8-12
+              </p>
             </div>
           </div>
+
           <div className="flex items-center space-x-3">
             <div className="text-right">
               <p className="text-sm font-medium text-gray-900">
-                {userName || "User"}
+                {displayName || (
+                  <span className="text-gray-400 animate-pulse">...</span>
+                )}
               </p>
             </div>
             <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
@@ -86,9 +142,24 @@ const Header: React.FC<HeaderProps> = ({ variant = 'landing', isLoggedIn = false
             </span>
           </div>
           <div className="hidden md:flex items-center space-x-8">
-            <a href="#features" className="text-gray-700 hover:text-purple-600 transition-colors">Features</a>
-            <a href="#pricing" className="text-gray-700 hover:text-purple-600 transition-colors">Pricing</a>
-            <a href="#about" className="text-gray-700 hover:text-purple-600 transition-colors">About</a>
+            <a
+              href="#features"
+              className="text-gray-700 hover:text-purple-600 transition-colors"
+            >
+              Features
+            </a>
+            <a
+              href="#pricing"
+              className="text-gray-700 hover:text-purple-600 transition-colors"
+            >
+              Pricing
+            </a>
+            <a
+              href="#about"
+              className="text-gray-700 hover:text-purple-600 transition-colors"
+            >
+              About
+            </a>
             <button className="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-6 py-2 rounded-xl hover:from-purple-700 hover:to-blue-700 transition-all duration-300 transform hover:scale-105 shadow-lg">
               Get Started
             </button>

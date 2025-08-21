@@ -1,6 +1,6 @@
 import { resetPasswordSchema } from "@/schemas/auth";
 import { NextRequest, NextResponse } from "next/server";
-import { verifyToken } from "@/utils/middleWare";
+import { verifyToken } from "@/utils/veriffyToken";
 import { db } from "@/lib/prisma";
 import bcrypt from "bcrypt";
 
@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Invalid or expired token" }, { status: 401 });
     }
 
-    const user = await db.user.findUnique({ where: { id: Number(payload.userId) } });
+    const user = await db.user.findUnique({ where: { id:payload.userId } });
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }

@@ -1,9 +1,25 @@
 import React, { useState } from 'react';
 import { Save } from 'lucide-react';
+import axios from 'axios';
 
 interface UserSelection {
   grade: string;
   subject: string;
+}
+
+interface Question {
+  question: string;
+  options: string[];
+  correct: string;
+  explanation: string;
+  diagram?: string | null;
+}
+
+interface QuizData {
+  topic: string;
+  grade: string;
+  subject: string;
+  questions: Question[];
 }
 
 const QuizGeneratorTool: React.FC<{
@@ -11,25 +27,50 @@ const QuizGeneratorTool: React.FC<{
   onBack: () => void;
 }> = ({ selection, onBack }) => {
   const [topic, setTopic] = useState('');
-  const [quiz, setQuiz] = useState<any>(null);
+  const [quiz, setQuiz] = useState<QuizData | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [selectedAnswers, setSelectedAnswers] = useState<{ [key: number]: string }>({});
+  const [showResults, setShowResults] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const generateQuiz = () => {
+  const generateQuiz = async () => {
     setIsGenerating(true);
-    // Simulate quiz generation
-    setTimeout(() => {
-      setQuiz({
-        topic,
-        questions: [
-          {
-            question: `Sample ${selection.subject} question for ${selection.grade} about ${topic}`,
-            options: ['Option A', 'Option B', 'Option C', 'Option D'],
-            correct: 0
-          }
-        ]
+    setShowResults(false);
+    setSelectedAnswers({});
+    setErrorMessage(null);
+    setQuiz(null);
+
+    try {
+      const res = await axios.post('/api/createQuiz', {
+        grade: selection.grade,
+        subject: selection.subject,
+        topic
       });
+
+      setQuiz(res.data.quiz || null);
+    } catch (err: any) {
+      const errorMsg =
+        err.response?.data?.error ||
+        err.response?.data?.message ||
+        "Error generating quiz. Please try again.";
+
+      setErrorMessage(errorMsg);
+    } finally {
       setIsGenerating(false);
-    }, 2000);
+    }
+  };
+
+  const handleAnswerSelect = (qIndex: number, option: string) => {
+    setSelectedAnswers((prev) => ({ ...prev, [qIndex]: option }));
+  };
+
+  const handleSubmitAnswers = () => {
+    setShowResults(true);
+  };
+
+  const handleRetakeQuiz = () => {
+    setSelectedAnswers({});
+    setShowResults(false);
   };
 
   return (
@@ -45,6 +86,12 @@ const QuizGeneratorTool: React.FC<{
       </div>
 
       <div className="p-6 space-y-6">
+        {errorMessage && (
+          <div className="bg-red-100 text-red-700 border border-red-300 rounded-lg p-3">
+            {errorMessage}
+          </div>
+        )}
+
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
             What topic would you like to be quizzed on?
@@ -75,19 +122,67 @@ const QuizGeneratorTool: React.FC<{
                 Save Quiz
               </button>
             </div>
-            <div className="bg-gray-50 rounded-lg p-4">
-              <p className="font-medium text-gray-900 mb-3">{quiz.questions[0].question}</p>
-              <div className="space-y-2">
-                {quiz.questions[0].options.map((option: string, index: number) => (
-                  <label key={index} className="flex items-center space-x-2 cursor-pointer">
-                    <input type="radio" name="answer" className="text-purple-600" />
-                    <span className="text-gray-700">{option}</span>
-                  </label>
-                ))}
+
+            {quiz.questions.map((q, index) => (
+              <div key={index} className="bg-gray-50 rounded-lg p-4 mb-4">
+                <p className="font-medium text-gray-900 mb-3">
+                  {index + 1}. {q.question}
+                </p>
+                {q.diagram && (
+                  <img src={q.diagram} alt="diagram" className="mb-3 max-h-48 object-contain" />
+                )}
+                <div className="space-y-2">
+                  {q.options.map((option, optIndex) => {
+                    const isSelected = selectedAnswers[index] === option;
+                    const isCorrect = showResults && option === q.correct;
+                    const isWrong = showResults && isSelected && option !== q.correct;
+
+                    return (
+                      <label
+                        key={optIndex}
+                        className={`flex items-center space-x-2 cursor-pointer p-2 rounded-lg ${
+                          isCorrect ? 'bg-green-100' :
+                          isWrong ? 'bg-red-100' : 'bg-white'
+                        }`}
+                      >
+                        <input
+                          type="radio"
+                          name={`answer-${index}`}
+                          value={option}
+                          checked={isSelected}
+                          onChange={() => handleAnswerSelect(index, option)}
+                          className="text-purple-600"
+                        />
+                        <span className="text-gray-700">{option}</span>
+                      </label>
+                    );
+                  })}
+                </div>
+                {showResults && (
+                  <p className="mt-2 text-sm text-gray-600">
+                    <strong>Explanation:</strong> {q.explanation}
+                  </p>
+                )}
               </div>
-              <button className="mt-4 bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors">
-                Submit Answer
-              </button>
+            ))}
+
+            <div className="flex space-x-4 mt-4">
+              {!showResults && (
+                <button
+                  onClick={handleSubmitAnswers}
+                  className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors"
+                >
+                  Submit Answers
+                </button>
+              )}
+              {showResults && (
+                <button
+                  onClick={handleRetakeQuiz}
+                  className="bg-yellow-500 text-white px-4 py-2 rounded-lg hover:bg-yellow-600 transition-colors"
+                >
+                  Retake Quiz
+                </button>
+              )}
             </div>
           </div>
         )}
