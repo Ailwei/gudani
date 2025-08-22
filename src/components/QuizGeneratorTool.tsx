@@ -41,11 +41,18 @@ const QuizGeneratorTool: React.FC<{
     setQuiz(null);
 
     try {
+      const token = localStorage.getItem("token")
       const res = await axios.post('/api/createQuiz', {
         grade: selection.grade,
         subject: selection.subject,
-        topic
-      });
+        topic,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
 
       setQuiz(res.data.quiz || null);
     } catch (err: any) {
@@ -72,6 +79,36 @@ const QuizGeneratorTool: React.FC<{
     setSelectedAnswers({});
     setShowResults(false);
   };
+  const handleSaveQuiz = async () => {
+    if(!quiz)
+      return;
+    try {
+      const token = localStorage.getItem("token");
+      const res = await axios.post("/api/saveQuiz", {
+        grade: quiz.grade,
+        subject: quiz.subject,
+        topic: quiz.topic,
+        questions: quiz.questions.map((q) => ({
+          question: q.question,
+          options: q.options,
+          correct: q.correct,
+          explanation: q.explanation,
+          diagram: q.diagram || null
+        }))
+
+      }, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      }
+    );
+      console.log("✅ Saved quiz:", res.data);
+    alert("Quiz saved successfully!");
+  } catch (err: any) {
+    console.error("❌ Save quiz error:", err.response?.data || err.message);
+    alert("Failed to save quiz. Please try again.");
+  }
+};
 
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200">
@@ -117,7 +154,9 @@ const QuizGeneratorTool: React.FC<{
           <div className="border-t border-gray-200 pt-6">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold text-gray-900">Quiz: {quiz.topic}</h3>
-              <button className="flex items-center text-purple-600 hover:text-purple-700 text-sm">
+              <button className="flex items-center text-purple-600 hover:text-purple-700 text-sm"
+              onClick={handleSaveQuiz}
+              >
                 <Save className="w-4 h-4 mr-1" />
                 Save Quiz
               </button>

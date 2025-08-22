@@ -35,13 +35,20 @@ const FlashcardsTool: React.FC<FlashcardsToolProps> = ({ selection, userId, onBa
     setError(null);
 
     try {
+      const token = localStorage.getItem("token");
       const res = await axios.post('/api/flashCard', {
         prompt: `Grade: ${selection.grade}\nSubject: ${selection.subject}\nTopic: ${topic}\nGenerate flashcards for this topic.`,
         userId,
         grade: selection.grade,
         subject: selection.subject,
         topic
-      });
+      },
+       {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
 
       const cards: Flashcard[] = res.data.flashcards || [];
 
@@ -67,6 +74,36 @@ const FlashcardsTool: React.FC<FlashcardsToolProps> = ({ selection, userId, onBa
     setCurrentCard(0);
     setShowAnswer(false);
     setError(null);
+  };
+   const handleSaveFlashcards = async () => {
+    if (!flashcards.length) return;
+
+    try {
+      const token = localStorage.getItem("token");
+      const res = await axios.post(
+        "/api/saveFlashCards",
+        {
+          grade: selection.grade,
+          subject: selection.subject,
+          topic,
+          cards: flashcards.map((c) => ({
+            front: c.front,
+            back: c.back,
+          })),
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      console.log("✅ Saved flashcards:", res.data);
+      alert("Flashcards saved successfully!");
+    } catch (err: any) {
+      console.error("❌ Save flashcards error:", err.response?.data || err.message);
+      alert("Failed to save flashcards. Please try again.");
+    }
   };
 
   return (
@@ -150,7 +187,9 @@ const FlashcardsTool: React.FC<FlashcardsToolProps> = ({ selection, userId, onBa
             </div>
 
             <div className="flex justify-center space-x-2 mt-4">
-              <button className="flex items-center text-purple-600 hover:text-purple-700 text-sm">
+              <button className="flex items-center text-purple-600 hover:text-purple-700 text-sm"
+              onClick={handleSaveFlashcards}
+              >
                 <Save className="w-4 h-4 mr-1" />
                 Save Set
               </button>
