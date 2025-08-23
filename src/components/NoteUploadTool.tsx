@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { Upload, Save, Download, FileText } from 'lucide-react';
+import { Upload, Save, Download, FileText, Copy } from 'lucide-react';
 import axios from 'axios';
 import * as pdfjsLib from "pdfjs-dist";
+import jsPDF from "jspdf";
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = "/pdf.worker.min.js";
 
@@ -78,6 +79,50 @@ const NoteUploadTool: React.FC<{
     }
   };
 
+ const handleSaveSummary = async () => {
+  try {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("You must be logged in to save summaries");
+      return;
+    }
+
+    const res = await axios.post(
+      "/api/SaveSummary",
+      {
+        grade:selection.grade,
+        subject: selection.subject,
+        notes: pastedNotes.trim() || extractedText.trim(),
+        summary,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    if (res.status === 200) {
+      alert("Summary saved successfully");
+    }
+  } catch (error) {
+    console.error("Error saving summary:", error);
+    alert("Failed to save summary");
+  }
+};
+const handleCopySummary = async () => {
+  try {
+    await navigator.clipboard.writeText(summary);
+    alert("Summary copied to clipboard");
+  } catch (err) {
+    alert("Failed to copy");
+  }
+};
+const handleExportSummary = () => {
+  const doc = new jsPDF();
+  doc.text(summary, 10, 10);
+  doc.save(`${selection.subject}-summary.pdf`);
+};
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200">
       <div className="p-6 border-b border-gray-200 flex items-center justify-between mb-2">
@@ -131,11 +176,22 @@ const NoteUploadTool: React.FC<{
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-lg font-semibold text-gray-900">AI Summary</h3>
               <div className="flex space-x-2">
-                <button className="flex items-center text-purple-600 hover:text-purple-700 text-sm">
+                <button className="flex items-center text-purple-600 hover:text-purple-700 text-sm"
+                onClick={handleCopySummary}
+                
+                >
+                  <Copy className="w-4 h-4 mr-1" />
+                  Copy
+                </button>
+                <button className="flex items-center text-purple-600 hover:text-purple-700 text-sm"
+                onClick={handleSaveSummary}
+                >
                   <Save className="w-4 h-4 mr-1" />
                   Save
                 </button>
-                <button className="flex items-center text-purple-600 hover:text-purple-700 text-sm">
+                <button className="flex items-center text-purple-600 hover:text-purple-700 text-sm"
+                onClick={handleExportSummary}
+                >
                   <Download className="w-4 h-4 mr-1" />
                   Export
                 </button>
