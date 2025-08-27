@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Brain, User } from "lucide-react";
+import { Brain, SettingsIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 interface HeaderProps {
@@ -112,7 +112,7 @@ const Header: React.FC<HeaderProps> = ({
               </p>
             </div>
             <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
-              <User className="w-5 h-5 text-purple-600" />
+              <SettingsIcon className="w-5 h-5 text-purple-600" />
             </div>
             <button
               onClick={handleLogout}

@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { grade, subject, notes, summary } = body;
+    const { grade, subject, notes, summary, topic } = body;
 
     const saveSummary = await db.noteSummary.create({
       data: {
@@ -26,6 +26,7 @@ export async function POST(request: NextRequest) {
         subject,
         notes,
         summary,
+        topic
       },
     });
 

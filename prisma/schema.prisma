@@ -78,6 +78,7 @@ model NoteSummary {
   subject String
   notes   String
   summary String
+  topic   String @default("untitled")
   created DateTime @default(now())
   user    user     @relation(fields: [userId], references: [id])
 }

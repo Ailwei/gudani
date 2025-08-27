@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Save } from 'lucide-react';
 import axios from 'axios';
+import QuizList from './Quzes';
 
 interface UserSelection {
   grade: string;
@@ -102,25 +103,37 @@ const QuizGeneratorTool: React.FC<{
         }
       }
     );
-      console.log("✅ Saved quiz:", res.data);
+      console.log("Saved quiz:", res.data);
     alert("Quiz saved successfully!");
   } catch (err: any) {
-    console.error("❌ Save quiz error:", err.response?.data || err.message);
+    console.error("Save quiz error:", err.response?.data || err.message);
     alert("Failed to save quiz. Please try again.");
   }
 };
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-200">
-      <div className="p-6 border-b border-gray-200">
-        <div className="flex items-center justify-between mb-2">
-          <h2 className="text-2xl font-bold text-gray-900">Quiz Generator</h2>
+    
+     <div className="flex h-screen gap-4">
+      <div className="flex-shrink-0 w-64 border-r border-gray-200">
+<QuizList onSelectQuiz={(quiz) =>
+        setQuiz({
+          ...quiz,
+          questions: quiz.questions.map(q => ({
+            ...q,
+            explanation: typeof q.explanation === 'string' ? q.explanation : String(q.explanation)
+          }))
+        })
+      } />      </div>
+      <div className="flex-1 flex flex-col bg-white rounded-xl shadow-sm border border-gray-200 overflow-y-auto">
+        <div className="p-6 border-b border-gray-200 flex items-center justify-between">
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900">Quiz Generator</h2>
+            <p className="text-gray-600">{selection.grade} • {selection.subject}</p>
+          </div>
           <button onClick={onBack} className="text-purple-600 hover:text-purple-700 font-medium">
             ← Back to Tools
           </button>
         </div>
-        <p className="text-gray-600">{selection.grade} • {selection.subject}</p>
-      </div>
 
       <div className="p-6 space-y-6">
         {errorMessage && (
@@ -226,6 +239,7 @@ const QuizGeneratorTool: React.FC<{
           </div>
         )}
       </div>
+    </div>
     </div>
   );
 };

@@ -3,6 +3,7 @@ import { Upload, Save, Download, FileText, Copy } from 'lucide-react';
 import axios from 'axios';
 import * as pdfjsLib from "pdfjs-dist";
 import jsPDF from "jspdf";
+import SummaryList from './GetSummary';
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = "/pdf.worker.min.js";
 
@@ -20,6 +21,7 @@ const NoteUploadTool: React.FC<{
   const [extractedText, setExtractedText] = useState('');
   const [summary, setSummary] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
+  const [topic, setTopic] = useState('');
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const uploadedFile = e.target.files?.[0];
@@ -72,6 +74,7 @@ const NoteUploadTool: React.FC<{
           ? res.data.summary
           : res.data.summary?.choices?.[0]?.text || "No summary generated."
       );
+      setTopic(res.data.topic || "untitled");
     } catch (err) {
       setSummary("Error generating summary. Please try again.");
     } finally {
@@ -79,129 +82,148 @@ const NoteUploadTool: React.FC<{
     }
   };
 
- const handleSaveSummary = async () => {
-  try {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      alert("You must be logged in to save summaries");
-      return;
-    }
-
-    const res = await axios.post(
-      "/api/SaveSummary",
-      {
-        grade:selection.grade,
-        subject: selection.subject,
-        notes: pastedNotes.trim() || extractedText.trim(),
-        summary,
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+  const handleSaveSummary = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        alert("You must be logged in to save summaries");
+        return;
       }
-    );
 
-    if (res.status === 200) {
-      alert("Summary saved successfully");
+      const res = await axios.post(
+        "/api/SaveSummary",
+        {
+          grade: selection.grade,
+          subject: selection.subject,
+          notes: pastedNotes.trim() || extractedText.trim(),
+          summary,
+          topic,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (res.status === 200) {
+        alert("Summary saved successfully");
+      }
+    } catch (error) {
+      console.error("Error saving summary:", error);
+      alert("Failed to save summary");
     }
-  } catch (error) {
-    console.error("Error saving summary:", error);
-    alert("Failed to save summary");
-  }
-};
-const handleCopySummary = async () => {
-  try {
-    await navigator.clipboard.writeText(summary);
-    alert("Summary copied to clipboard");
-  } catch (err) {
-    alert("Failed to copy");
-  }
-};
-const handleExportSummary = () => {
-  const doc = new jsPDF();
-  doc.text(summary, 10, 10);
-  doc.save(`${selection.subject}-summary.pdf`);
-};
+  };
+
+  const handleCopySummary = async () => {
+    try {
+      await navigator.clipboard.writeText(summary);
+      alert("Summary copied to clipboard");
+    } catch (err) {
+      alert("Failed to copy");
+    }
+  };
+
+  const handleExportSummary = () => {
+    const doc = new jsPDF();
+    doc.text(summary, 10, 10);
+    doc.save(`${selection.subject}-summary.pdf`);
+  };
+
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-200">
-      <div className="p-6 border-b border-gray-200 flex items-center justify-between mb-2">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900">Note Upload + Summary</h2>
-          <p className="text-gray-600">{selection.grade} • {selection.subject}</p>
-        </div>
-        <button onClick={onBack} className="text-purple-600 hover:text-purple-700 font-medium">
-          ← Back to Tools
-        </button>
+    <div className="flex h-screen gap-4">
+      <div className="w-64 border-r border-gray-200 overflow-y-auto">
+        <SummaryList
+          onSelectSummary={(summary) => {
+            setSummary(summary.summary);
+            setTopic(summary.topic);
+          }}
+        />
       </div>
-      <div className="p-6 space-y-6">
-        <div>
-          <label className="flex items-center text-sm font-medium text-gray-700 mb-2">
-            <FileText className="w-4 h-4 mr-1" /> Paste Notes Manually
-          </label>
-          <textarea
-            rows={6}
-            value={pastedNotes}
-            onChange={(e) => {
-              setPastedNotes(e.target.value);
-              setFile(null);
-            }}
-            className="w-full border rounded-lg p-3 text-sm"
-            placeholder="Paste your notes here..."
-          />
+      <div className="flex-1 flex flex-col bg-white rounded-xl shadow-sm border border-gray-200 overflow-y-auto">
+        <div className="p-6 border-b border-gray-200 flex items-center justify-between">
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900">Note Upload + Summary</h2>
+            <p className="text-gray-600">{selection.grade} • {selection.subject}</p>
+          </div>
+          <button onClick={onBack} className="text-purple-600 hover:text-purple-700 font-medium">
+            ← Back to Tools
+          </button>
         </div>
 
-        <div className="flex items-center my-4">
-          <div className="flex-grow border-t border-gray-300"></div>
-          <span className="mx-3 text-gray-500 text-sm">OR</span>
-          <div className="flex-grow border-t border-gray-300"></div>
-        </div>
+        <div className="p-6 space-y-6 overflow-y-auto flex-1">
+          {/* Paste Notes */}
+          <div>
+            <label className="flex items-center text-sm font-medium text-gray-700 mb-2">
+              <FileText className="w-4 h-4 mr-1" /> Paste Notes Manually
+            </label>
+            <textarea
+              rows={6}
+              value={pastedNotes}
+              onChange={(e) => {
+                setPastedNotes(e.target.value);
+                setFile(null);
+              }}
+              className="w-full border rounded-lg p-3 text-sm text-gray-900"
+              placeholder="Paste your notes here..."
+            />
+          </div>
 
-        <div>
-          <label className="flex items-center cursor-pointer text-blue-600 hover:text-blue-700 text-sm">
-            <Upload className="w-4 h-4 mr-1" />
-            <span>{file ? `File uploaded: ${file.name}` : "Choose PDF"}</span>
-            <input type="file" accept="application/pdf" className="hidden" onChange={handleFileUpload} />
-          </label>
-        </div>
-        <button
-          onClick={generateSummary}
-          disabled={isGenerating || (!file && !pastedNotes.trim())}
-          className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-        >
-          {isGenerating ? 'Generating Summary...' : 'Generate Grade-Level Summary'}
-        </button>
-        {summary && (
-          <div className="border-t border-gray-200 pt-6">
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="text-lg font-semibold text-gray-900">AI Summary</h3>
-              <div className="flex space-x-2">
-                <button className="flex items-center text-purple-600 hover:text-purple-700 text-sm"
-                onClick={handleCopySummary}
-                
-                >
-                  <Copy className="w-4 h-4 mr-1" />
-                  Copy
-                </button>
-                <button className="flex items-center text-purple-600 hover:text-purple-700 text-sm"
-                onClick={handleSaveSummary}
-                >
-                  <Save className="w-4 h-4 mr-1" />
-                  Save
-                </button>
-                <button className="flex items-center text-purple-600 hover:text-purple-700 text-sm"
-                onClick={handleExportSummary}
-                >
-                  <Download className="w-4 h-4 mr-1" />
-                  Export
-                </button>
+          {/* OR Divider */}
+          <div className="flex items-center my-4">
+            <div className="flex-grow border-t border-gray-300"></div>
+            <span className="mx-3 text-gray-500 text-sm">OR</span>
+            <div className="flex-grow border-t border-gray-300"></div>
+          </div>
+          <div>
+            <label className="flex items-center cursor-pointer text-blue-600 hover:text-blue-700 text-sm">
+              <Upload className="w-4 h-4 mr-1" />
+              <span>{file ? `File uploaded: ${file.name}` : "Choose PDF"}</span>
+              <input type="file" accept="application/pdf" className="hidden" onChange={handleFileUpload} />
+            </label>
+          </div>
+
+          <button
+            onClick={generateSummary}
+            disabled={isGenerating || (!file && !pastedNotes.trim())}
+            className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          >
+            {isGenerating ? 'Generating Summary...' : 'Generate Grade-Level Summary'}
+          </button>
+          {summary && (
+            <div className="border-t border-gray-200 pt-6">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-lg font-semibold text-gray-900">AI Summary</h3>
+                <div className="flex space-x-2">
+                  <button
+                    className="flex items-center text-purple-600 hover:text-purple-700 text-sm"
+                    onClick={handleCopySummary}
+                  >
+                    <Copy className="w-4 h-4 mr-1" />
+                    Copy
+                  </button>
+                  <button
+                    className="flex items-center text-purple-600 hover:text-purple-700 text-sm"
+                    onClick={handleSaveSummary}
+                  >
+                    <Save className="w-4 h-4 mr-1" />
+                    Save
+                  </button>
+                  <button
+                    className="flex items-center text-purple-600 hover:text-purple-700 text-sm"
+                    onClick={handleExportSummary}
+                  >
+                    <Download className="w-4 h-4 mr-1" />
+                    Export
+                  </button>
+                </div>
+              </div>
+              <div className="bg-gray-50 rounded-lg p-4 max-h-80 overflow-y-auto">
+                <p className="text-gray-800 whitespace-pre-wrap">{summary}</p>
               </div>
             </div>
-            <div className="bg-gray-50 rounded-lg p-4">
-              <p className="text-gray-800 whitespace-pre-wrap">{summary}</p>
-            </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </div>
   );

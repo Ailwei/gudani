@@ -103,7 +103,6 @@ const AIChatTool: React.FC<{
   };
 
   const handleSelectChat = (chatId: string) => {
-    console.log("chat ", chatId)
     setSelectedChatId(chatId);
   };
 

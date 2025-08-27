@@ -111,7 +111,7 @@ const StudySmartDashboard: React.FC = () => {
       case 'quiz':
         return <QuizGeneratorTool selection={selection} onBack={() => setActiveTool('')} />;
       case 'flashcards':
-        return <FlashcardsTool selection={selection} onBack={() => setActiveTool('')} />;
+        return <FlashcardsTool selection={selection} onBack={() => setActiveTool('')}  />;
       default:
         return <div>Tool not implemented yet</div>;
     }
