@@ -4,7 +4,8 @@ import { db } from "@/lib/prisma";
 import { getSyllabusChunks } from "@/lib/syllubusChucks";
 import { ChatCompletionMessageParam } from "openai/resources/chat/completions/index.mjs";
 import { verifyToken } from "@/utils/veriffyToken";
-
+import { checkAndConsumeTokens } from "@/utils/tokenManager";
+import { calculateTokens } from "@/utils/calculateToken";
 
 export async function POST(request: NextRequest) {
   try {
@@ -53,6 +54,17 @@ console.log("Full user prompt sent to AI:",
 );
 
     }
+
+    const toknsToUse = calculateTokens(prompt, syllabusText)
+    console.log("toekn to use", toknsToUse)
+    const tokensCheck = await checkAndConsumeTokens(userId, toknsToUse);
+    console.log("token check", tokensCheck)
+if (!tokensCheck.success) {
+  return NextResponse.json(
+    { error: tokensCheck.error }, 
+    { status: 403 }
+  );
+}
 
     const messages: ChatCompletionMessageParam[] = [
       {

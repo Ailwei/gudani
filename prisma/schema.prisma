@@ -16,13 +16,34 @@ model user {
   password     String
   created      DateTime       @default(now())
   userRole     usersRole      @default(USER)
+  tokensUsed   Int            @default(0)
+  planId       String
+  plan         PlanConfig  @relation(fields: [planId], references: [id])
+
+  lastReset    DateTime?
   activities   Activity[]
   ChatHistory  Chat[]
   FlashcardSet FlashcardSet[]
   NoteSummary  NoteSummary[]
   Quiz         Quiz[]
-}
 
+  TokenUsage TokenUsage[]
+}
+model TokenUsage {
+  id        String   @id @default(uuid())
+  userId    String
+  tokens    Int
+  createdAt DateTime @default(now())
+  user      user     @relation(fields: [userId], references: [id])
+}
+model PlanConfig {
+  id           String   @id @default(uuid())
+  type         PlanType @unique
+  dailyLimit   Int?
+  monthlyLimit Int?
+  price        Int?
+  users        user[]
+}
 model Activity {
   id     String   @id @default(uuid())
   userId String
@@ -118,4 +139,9 @@ model SyllabusChunk {
 enum usersRole {
   ADMIN
   USER
+}
+enum PlanType {
+  FREE
+  STANDARD
+  PREMIUM
 }

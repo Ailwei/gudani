@@ -94,13 +94,19 @@ const AIChatTool: React.FC<{
         .replace(/\n{2,}/g, '\n\n');
 
       setMessages(prev => [...prev, { type: 'ai', content: aiContent }]);
-    } catch (err) {
-      setMessages(prev => [...prev, { type: 'ai', content: "Error: Unable to get response from AI." }]);
-    } finally {
-      setLoading(false);
-      setInputMessage('');
+    } catch (err: any) {
+    let errorMsg = "Error: Unable to get response from AI.";
+    
+    if (err.response?.status === 403 && err.response?.data?.error) {
+      errorMsg = `Error: ${err.response.data.error}`;
     }
-  };
+
+    setMessages(prev => [...prev, { type: 'ai', content: errorMsg }]);
+  } finally {
+    setLoading(false);
+    setInputMessage('');
+  }
+};
 
   const handleSelectChat = (chatId: string) => {
     setSelectedChatId(chatId);
