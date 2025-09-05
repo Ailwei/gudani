@@ -13,7 +13,8 @@ import FlashcardsTool from '@/components/FlashcardsTool';
 import RecentActivity from '@/components/RecentActivity';
 import Footer from '@/components/Footer';
 import AdminDashboard from '../adminDashboard/page';
-
+import PlanSelector from '@/components/PlanSelector';
+import SettingsPage from '@/app/settings/page';
 
 interface UserSelection {
   grade: string;
@@ -27,6 +28,10 @@ const StudySmartDashboard: React.FC = () => {
   const [isAuthChecked, setIsAuthChecked] = useState(false);
   const [userRole, setUserRole] = useState<"USER" | "ADMIN" | undefined>(undefined);
   const [roleChecked, setRoleChecked] = useState(false);
+  const [showPlans, setShowPlans] = useState(false);
+  const [userId, setUserId] = useState<string | null>(null);
+  const [showSettings, setShowSettings] = useState(false);
+
 
   useEffect(() => {
     async function fetchUserRole() {
@@ -40,8 +45,9 @@ const StudySmartDashboard: React.FC = () => {
             const res = await axios.get("/api/auth/userDetails", {
               headers: { Authorization: `Bearer ${token}` }
             });
-            if (res.status === 200 && res.data.userRole) {
+            if (res.status === 200 && res.data) {
               setUserRole(res.data.userRole === "ADMIN" ? "ADMIN" : "USER");
+              setUserId(res.data.id);
             } else {
               setUserRole("USER");
             }
@@ -87,6 +93,9 @@ const StudySmartDashboard: React.FC = () => {
   const isSelectionComplete = selection.grade && selection.subject;
 
   const renderContent = () => {
+    if(showSettings){
+      return <SettingsPage/>
+    }
     if (!isSelectionComplete || !activeTool) {
       return (
         <div className="space-y-6">
@@ -119,10 +128,23 @@ const StudySmartDashboard: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-purple-50">
-      <Header variant="dashboard" />
+            <Header variant="dashboard" 
+            onUpgradeClick={() => setShowPlans(true)}
+            onSettingsClick ={() => setShowSettings(prev => !prev)}
+            />
+
       <main className="max-w-6xl mx-auto p-4 sm:p-6">
-        {renderContent()}
-        <RecentActivity />
+{(showPlans && userId) ? (
+  <PlanSelector
+    userId={userId}
+    onClose={() => setShowPlans(false)}
+  />
+) : (
+  <>
+    {renderContent()}
+    <RecentActivity />
+  </>
+)}
       </main>
       <Footer />
     </div>

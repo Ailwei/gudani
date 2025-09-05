@@ -24,7 +24,7 @@ interface FlashcardSet {
 
 interface FlashcardsToolProps {
   selection: UserSelection;
-  userId: number;
+ 
   onBack: () => void;
 }
 

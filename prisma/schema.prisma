@@ -17,9 +17,7 @@ model user {
   created      DateTime       @default(now())
   userRole     usersRole      @default(USER)
   tokensUsed   Int            @default(0)
-  planId       String
-  plan         PlanConfig  @relation(fields: [planId], references: [id])
-
+  stripeCustomerId String? @unique
   lastReset    DateTime?
   activities   Activity[]
   ChatHistory  Chat[]
@@ -28,6 +26,8 @@ model user {
   Quiz         Quiz[]
 
   TokenUsage TokenUsage[]
+
+  Subscription Subscription[]
 }
 model TokenUsage {
   id        String   @id @default(uuid())
@@ -42,7 +42,8 @@ model PlanConfig {
   dailyLimit   Int?
   monthlyLimit Int?
   price        Int?
-  users        user[]
+  stripePriceId String?
+  Subscription Subscription[]
 }
 model Activity {
   id     String   @id @default(uuid())
@@ -135,7 +136,23 @@ model SyllabusChunk {
   topic    String
   created  DateTime @default(now())
 }
-
+model Subscription {
+  id   String @id @default(uuid())
+  userId String
+  planId String
+  startDate DateTime @default(now())
+  endDate DateTime?
+  stripeSubscriptionId String? @unique
+  status SubscriptionStatus @default(ACTIVE)
+  cancelAtPeriodEnd      Boolean            @default(false)
+  cancellationDate       DateTime?
+  user       user     @relation(fields: [userId], references: [id])
+  plan       PlanConfig @relation(fields: [planId], references: [id])
+}
+enum SubscriptionStatus {
+  ACTIVE
+  EXPIRED
+}
 enum usersRole {
   ADMIN
   USER

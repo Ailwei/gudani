@@ -1,3 +1,4 @@
+"use client";
 import React, { JSX, useState, useEffect } from 'react';
 import axios from 'axios';
 import ChatHistory from './chatHistory';

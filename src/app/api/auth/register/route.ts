@@ -33,8 +33,17 @@ export async function POST(req: NextRequest) {
         lastName: body.lastName,
         email: body.email,
         password: hashedPassword,
-        planId: freePlan.id,
+        Subscription: {
+          create: {
+            planId: freePlan.id,
+            status: "ACTIVE",
+            startDate: new Date(),
+          },
+        },
       },
+      include : {
+        Subscription: true,
+      }
     });
 
 return NextResponse.json({ success: true, userId: user.id, email: user.email });
