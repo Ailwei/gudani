@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import React, { useState, useEffect } from 'react';
 import { Brain } from 'lucide-react';
 import axios from 'axios';
@@ -31,7 +31,6 @@ const StudySmartDashboard: React.FC = () => {
   const [showPlans, setShowPlans] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
   const [showSettings, setShowSettings] = useState(false);
-
 
   useEffect(() => {
     async function fetchUserRole() {
@@ -93,21 +92,21 @@ const StudySmartDashboard: React.FC = () => {
   const isSelectionComplete = selection.grade && selection.subject;
 
   const renderContent = () => {
-    if(showSettings){
-      return <SettingsPage/>
-    }
+    if (showSettings) return <SettingsPage />;
+
     if (!isSelectionComplete || !activeTool) {
       return (
-        <div className="space-y-6">
-          <GradeSubjectSelector 
-            selection={selection} 
-            onSelectionChange={setSelection} 
-          />
-          <ToolSelector 
-            selection={selection}
-            onToolSelect={setActiveTool}
-            disabled={!isSelectionComplete}
-          />
+<div className="flex flex-col space-y-6">
+          <div className="flex-1">
+            <GradeSubjectSelector selection={selection} onSelectionChange={setSelection} />
+          </div>
+          <div className="flex-1">
+            <ToolSelector
+              selection={selection}
+              onToolSelect={setActiveTool}
+              disabled={!isSelectionComplete}
+            />
+          </div>
         </div>
       );
     }
@@ -120,32 +119,31 @@ const StudySmartDashboard: React.FC = () => {
       case 'quiz':
         return <QuizGeneratorTool selection={selection} onBack={() => setActiveTool('')} />;
       case 'flashcards':
-        return <FlashcardsTool selection={selection} onBack={() => setActiveTool('')}  />;
+        return <FlashcardsTool selection={selection} onBack={() => setActiveTool('')} />;
       default:
         return <div>Tool not implemented yet</div>;
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-purple-50">
-            <Header variant="dashboard" 
-            onUpgradeClick={() => setShowPlans(true)}
-            onSettingsClick ={() => setShowSettings(prev => !prev)}
-            />
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-purple-50 flex flex-col">
+      <Header
+        variant="dashboard"
+        onUpgradeClick={() => setShowPlans(true)}
+        onSettingsClick={() => setShowSettings(prev => !prev)}
+      />
 
-      <main className="max-w-6xl mx-auto p-4 sm:p-6">
-{(showPlans && userId) ? (
-  <PlanSelector
-    userId={userId}
-    onClose={() => setShowPlans(false)}
-  />
-) : (
-  <>
-    {renderContent()}
-    <RecentActivity />
-  </>
-)}
+      <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 flex flex-col space-y-6">
+        {showPlans && userId ? (
+          <PlanSelector userId={userId} onClose={() => setShowPlans(false)} />
+        ) : (
+          <>
+            {renderContent()}
+            <RecentActivity />
+          </>
+        )}
       </main>
+
       <Footer />
     </div>
   );
