@@ -5,11 +5,17 @@ export async function getLatestUserSubscription(userId?: string, stripeSubscript
     throw new Error("Must provide either userId or stripeSubscriptionId");
   }
 
+  if (stripeSubscriptionId) {
+    const byStripe = await db.subscription.findFirst({
+      where: { stripeSubscriptionId },
+      orderBy: { startDate: "desc" },
+      include: { plan: true },
+    });
+    if (byStripe) return byStripe;
+  }
+
   return await db.subscription.findFirst({
-    where: {
-      ...(userId ? { userId } : {}),
-      ...(stripeSubscriptionId ? { stripeSubscriptionId } : {}),
-    },
+    where: { userId },
     orderBy: { startDate: "desc" },
     include: { plan: true },
   });
