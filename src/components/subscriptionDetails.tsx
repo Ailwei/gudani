@@ -12,13 +12,15 @@ type Subscription = {
   stripeSubscriptionId: string | null;
   cancelAtPeriodEnd?: boolean;
   cancellationDate?: string | null;
+  paymentStatus: "PAID" | "FAILED" | "UNPAID";
+  pastDueAmount: number;
+  pastDueCurrency: string | null;
 };
 
 export default function SubscriptionDetails() {
   const [subscription, setSubscription] = useState<Subscription | null>(null);
   const [loading, setLoading] = useState(true);
   const setPlanType = useSubscriptionStore((state) => state.setPlanType);
-  const planType = useSubscriptionStore((state) => state.planType);
 
   useEffect(() => {
     async function fetchSubscription() {
@@ -29,6 +31,10 @@ export default function SubscriptionDetails() {
         const res = await axios.get("/api/subscriptionDetails", {
           headers: { Authorization: `Bearer ${token}` },
         });
+        console.log("details", res.data)
+        console.log("details", res)
+
+
 
         setSubscription(res.data);
         setPlanType(res.data.planType || "FREE");
@@ -87,6 +93,15 @@ export default function SubscriptionDetails() {
     statusLabel = <span className="text-red-600">{subscription.status}</span>;
   }
 
+  let paymentLabel;
+  if (subscription.paymentStatus === "PAID") {
+    paymentLabel = <span className="text-green-600">{subscription.paymentStatus}</span>;
+  } else if (subscription.paymentStatus === "FAILED") {
+    paymentLabel = <span className="text-red-600">{subscription.paymentStatus}</span>;
+  } else {
+    paymentLabel = <span className="text-yellow-600">{subscription.paymentStatus}</span>;
+  }
+
   return (
     <div className="bg-white shadow-md rounded-xl p-6 max-w-lg border border-gray-200 mb-20">
       <ul className="space-y-2 text-gray-700">
@@ -107,6 +122,15 @@ export default function SubscriptionDetails() {
         {daysLeft !== null && (
           <li>
             <span className="font-semibold">Days Remaining:</span> {daysLeft}
+          </li>
+        )}
+        <li>
+          <span className="font-semibold">Payment Status:</span> {paymentLabel}
+        </li>
+        {subscription.pastDueAmount > 0 && (
+          <li>
+            <span className="font-semibold">Past Due:</span> {subscription.pastDueAmount}{" "}
+            {subscription.pastDueCurrency}
           </li>
         )}
         {subscription.stripeSubscriptionId && (
