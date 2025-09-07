@@ -1,14 +1,15 @@
 "use client";
 import React, { useState, useEffect, useRef } from 'react';
-import { Brain, Zap, BookOpen, Target, CheckCircle, ArrowRight, Sparkles } from 'lucide-react';
+import { Brain, Zap, BookOpen, Target, CheckCircle, ArrowRight, Sparkles, Menu } from 'lucide-react';
 
 const StudySmartAILanding: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [activeFeature, setActiveFeature] = useState(0);
+  const [isMenuOpen, setIsMenuOpen] = useState(false); // Added for mobile menu toggle
 
-  const featuresRef = useRef<HTMLDivElement>(null) as React.RefObject<HTMLDivElement>;
-  const pricingRef = useRef<HTMLDivElement>(null) as React.RefObject<HTMLDivElement>;
-  const aboutRef = useRef<HTMLDivElement>(null) as React.RefObject<HTMLDivElement>;
+  const featuresRef = useRef<HTMLDivElement>(null);
+  const pricingRef = useRef<HTMLDivElement>(null);
+  const aboutRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -25,9 +26,10 @@ const StudySmartAILanding: React.FC = () => {
     return () => clearInterval(interval);
   }, []);
 
-  const scrollToSection = (ref: React.RefObject<HTMLDivElement>) => {
+  const scrollToSection = (ref: React.RefObject<HTMLDivElement | null>) => {
     if (ref.current) {
       ref.current.scrollIntoView({ behavior: 'smooth' });
+      setIsMenuOpen(false);
     }
   };
 
@@ -63,7 +65,7 @@ const StudySmartAILanding: React.FC = () => {
       <nav className={`fixed top-0 w-full z-50 transition-all duration-300 ${
         isScrolled ? 'bg-white/80 backdrop-blur-lg shadow-lg' : 'bg-transparent'
       }`}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div
               className="flex items-center space-x-2 cursor-pointer"
@@ -76,7 +78,7 @@ const StudySmartAILanding: React.FC = () => {
                 GudaniSmartAI
               </span>
             </div>
-            <div className="hidden md:flex items-center space-x-8">
+            <div className="hidden md:flex items-center space-x-4 lg:space-x-8">
               <button
                 className="text-gray-700 hover:text-purple-600 transition-colors"
                 onClick={() => scrollToSection(featuresRef)}
@@ -99,118 +101,164 @@ const StudySmartAILanding: React.FC = () => {
                 About
               </button>
               <button
-                className="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-6 py-2 rounded-xl hover:from-purple-700 hover:to-blue-700 transition-all duration-300 transform hover:scale-105 shadow-lg"
+                className="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-4 py-2 rounded-xl hover:from-purple-700 hover:to-blue-700 transition-all duration-300 transform hover:scale-105 shadow-lg"
                 onClick={() => window.location.href = "/register"}
               >
                 Get Started
               </button>
               <button
-                className="bg-white text-purple-600 px-6 py-2 rounded-xl font-semibold border border-purple-200 hover:bg-purple-50 transition-all duration-300"
+                className="bg-white text-purple-600 px-4 py-2 rounded-xl font-semibold border border-purple-200 hover:bg-purple-50 transition-all duration-300"
                 onClick={() => window.location.href = "/login"}
               >
                 Login
               </button>
             </div>
+            <div className="md:hidden flex items-center">
+              <button
+                className="text-gray-700 hover:text-purple-600"
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
+              >
+                <Menu className="w-6 h-6" />
+              </button>
+            </div>
           </div>
+          {isMenuOpen && (
+            <div className="md:hidden bg-white/95 backdrop-blur-sm">
+              <div className="flex flex-col space-y-2 px-4 py-4">
+                <button
+                  className="text-gray-700 hover:text-purple-600 transition-colors text-left"
+                  onClick={() => scrollToSection(featuresRef)}
+                  type="button"
+                >
+                  Features
+                </button>
+                <button
+                  className="text-gray-700 hover:text-purple-600 transition-colors text-left"
+                  onClick={() => scrollToSection(pricingRef)}
+                  type="button"
+                >
+                  Pricing
+                </button>
+                <button
+                  className="text-gray-700 hover:text-purple-600 transition-colors text-left"
+                  onClick={() => scrollToSection(aboutRef)}
+                  type="button"
+                >
+                  About
+                </button>
+                <button
+                  className="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-4 py-2 rounded-xl hover:from-purple-700 hover:to-blue-700 transition-all duration-300"
+                  onClick={() => window.location.href = "/register"}
+                >
+                  Get Started
+                </button>
+                <button
+                  className="bg-white text-purple-600 px-4 py-2 rounded-xl font-semibold border border-purple-200 hover:bg-purple-50 transition-all duration-300"
+                  onClick={() => window.location.href = "/login"}
+                >
+                  Login
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </nav>
 
-      <section className="pt-32 pb-20 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
+      <section className="pt-20 pb-12 sm:pt-32 sm:pb-20 px-4 sm:px-6 lg:px-8">
+        <div className="container mx-auto">
           <div className="text-center">
-            <div className="inline-flex items-center px-4 py-2 bg-purple-100 rounded-full text-purple-700 text-sm font-medium mb-8 animate-pulse">
+            <div className="inline-flex items-center px-4 py-2 bg-purple-100 rounded-full text-purple-700 text-sm font-medium mb-6 sm:mb-8 animate-pulse">
               <Sparkles className="w-4 h-4 mr-2" />
               Smarter Learning Starts Here
             </div>
-            <h1 className="text-5xl md:text-7xl font-extrabold text-gray-900 mb-6 leading-tight">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-extrabold text-gray-900 mb-6 leading-tight">
               Unlock Your Potential
               <br />
               <span className="bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 bg-clip-text text-transparent">
                 GudaniSmartAI
               </span>
             </h1>
-            <p className="text-2xl text-gray-700 mb-8 max-w-2xl mx-auto font-medium">
+            <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-gray-700 mb-8 max-w-3xl mx-auto font-medium">
               The AI-powered study companion for high school students. Get instant answers, smart quizzes, and easy summaries—so you can learn faster and achieve more.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-16">
-              <button className="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-10 py-5 rounded-2xl text-xl font-bold hover:from-purple-700 hover:to-blue-700 transition-all duration-300 transform hover:scale-105 shadow-2xl flex items-center">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12 sm:mb-16">
+              <button className="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-6 sm:px-8 md:px-10 py-3 sm:py-4 rounded-2xl text-base sm:text-lg font-bold hover:from-purple-700 hover:to-blue-700 transition-all duration-300 transform hover:scale-105 shadow-2xl flex items-center w-full sm:w-auto justify-center">
                 Start Learning Free
-                <ArrowRight className="ml-3 w-6 h-6" />
+                <ArrowRight className="ml-2 sm:ml-3 w-5 sm:w-6 h-5 sm:h-6" />
               </button>
-              <button className="border-2 border-gray-300 text-gray-700 px-10 py-5 rounded-2xl text-xl font-bold hover:border-purple-600 hover:text-purple-600 transition-all duration-300">
+              <button className="border-2 border-gray-300 text-gray-700 px-6 sm:px-8 md:px-10 py-3 sm:py-4 rounded-2xl text-base sm:text-lg font-bold hover:border-purple-600 hover:text-purple-600 transition-all duration-300 w-full sm:w-auto">
                 Watch Demo
               </button>
             </div>
           </div>
         </div>
       </section>
-      <section ref={aboutRef} className="py-20 bg-gradient-to-br from-white to-purple-50">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-4xl font-bold text-gray-900 mb-4">About           GudaniSmartAI
-</h2>
-          <p className="text-xl text-gray-700 mb-8">
-            GudaniSmartAI is your personal AI-powered study assistant, designed for high school learners.
-            We believe every student deserves access to smart, personalized learning tools that make studying easier, faster, and more effective.
+
+      <section ref={aboutRef} className="py-12 sm:py-20 bg-gradient-to-br from-white to-purple-50">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-4">About GudaniSmartAI</h2>
+          <p className="text-base sm:text-lg md:text-xl text-gray-700 mb-8 max-w-3xl mx-auto">
+            GudaniSmartAI is your personal AI-powered study assistant, designed for high school learners. We believe every student deserves access to smart, personalized learning tools that make studying easier, faster, and more effective.
           </p>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 mt-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 mt-8">
             <div className="bg-white rounded-xl shadow p-6 border border-gray-200 flex flex-col items-center">
-              <span className="text-purple-700 text-3xl font-bold mb-2">Curriculum-Aligned</span>
-              <p className="text-gray-600 text-sm text-center">
+              <span className="text-purple-700 text-xl sm:text-2xl md:text-3xl font-bold mb-2">Curriculum-Aligned</span>
+              <p className="text-gray-600 text-sm sm:text-base text-center">
                 Supports South African CAPS, IEB, and Cambridge (coming soon). Content is tailored to your grade and subject for maximum relevance.
               </p>
             </div>
             <div className="bg-white rounded-xl shadow p-6 border border-gray-200 flex flex-col items-center">
-              <span className="text-purple-700 text-3xl font-bold mb-2">For Learners</span>
-              <p className="text-gray-600 text-sm text-center">
+              <span className="text-purple-700 text-xl sm:text-2xl md:text-3xl font-bold mb-2">For Learners</span>
+              <p className="text-gray-600 text-sm sm:text-base text-center">
                 Built for students. Use StudySmartAI for homework help, revision, lesson planning, or extra support.
               </p>
             </div>
             <div className="bg-white rounded-xl shadow p-6 border border-gray-200 flex flex-col items-center">
-              <span className="text-purple-700 text-3xl font-bold mb-2">AI-Powered Tools</span>
-              <p className="text-gray-600 text-sm text-center">
+              <span className="text-purple-700 text-xl sm:text-2xl md:text-3xl font-bold mb-2">AI-Powered Tools</span>
+              <p className="text-gray-600 text-sm sm:text-base text-center">
                 Get instant answers, smart quizzes, flashcards, and note summaries. Our AI adapts to your grade level and learning needs.
               </p>
             </div>
           </div>
-          <div className="mt-12">
-            <h3 className="text-2xl font-semibold text-gray-900 mb-2">Our Mission</h3>
-            <p className="text-gray-700 text-lg max-w-3xl mx-auto">
-              To make high-quality, personalized learning accessible to every student. 
-              We use the latest AI technology to simplify complex topics, boost confidence, and help you achieve your best results.
+          <div className="mt-8 sm:mt-12">
+            <h3 className="text-xl sm:text-2xl font-semibold text-gray-900 mb-2">Our Mission</h3>
+            <p className="text-gray-700 text-base sm:text-lg max-w-3xl mx-auto">
+              To make high-quality, personalized learning accessible to every student. We use the latest AI technology to simplify complex topics, boost confidence, and help you achieve your best results.
             </p>
           </div>
         </div>
       </section>
-      <section ref={featuresRef} className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">
+
+      <section ref={featuresRef} className="py-12 sm:py-20 bg-white">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12 sm:mb-16">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-4">
               Powerful AI Tools for Every Subject
             </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            <p className="text-base sm:text-lg md:text-xl text-gray-600 max-w-3xl mx-auto">
               Four core features designed to revolutionize how you study, practice, and master your coursework.
             </p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 mb-12 sm:mb-16">
             {features.map((feature, index) => {
               const Icon = feature.icon;
               return (
                 <div
                   key={index}
-                  className={`p-8 rounded-2xl transition-all duration-500 cursor-pointer transform hover:scale-105 ${
+                  className={`p-6 sm:p-8 rounded-2xl transition-all duration-500 cursor-pointer transform hover:scale-105 ${
                     activeFeature === index
                       ? 'bg-gradient-to-br from-white to-purple-50 shadow-2xl border-2 border-purple-200'
                       : 'bg-white hover:shadow-xl border-2 border-gray-100'
                   }`}
                   onMouseEnter={() => setActiveFeature(index)}
                 >
-                  <div className={`w-16 h-16 bg-gradient-to-r ${feature.gradient} rounded-xl flex items-center justify-center mb-6 mx-auto transition-transform duration-300 ${
+                  <div className={`w-12 sm:w-16 h-12 sm:h-16 bg-gradient-to-r ${feature.gradient} rounded-xl flex items-center justify-center mb-4 sm:mb-6 mx-auto transition-transform duration-300 ${
                     activeFeature === index ? 'scale-110' : ''
                   }`}>
-                    <Icon className="w-8 h-8 text-white" />
+                    <Icon className="w-6 sm:w-8 h-6 sm:h-8 text-white" />
                   </div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-4 text-center">{feature.title}</h3>
-                  <p className="text-gray-600 text-center leading-relaxed">{feature.description}</p>
+                  <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-4 text-center">{feature.title}</h3>
+                  <p className="text-gray-600 text-sm sm:text-base text-center leading-relaxed">{feature.description}</p>
                 </div>
               );
             })}
@@ -218,20 +266,20 @@ const StudySmartAILanding: React.FC = () => {
         </div>
       </section>
 
-      <section ref={pricingRef} className="py-20 bg-gradient-to-br from-purple-50 to-blue-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">
+      <section ref={pricingRef} className="py-12 sm:py-20 bg-gradient-to-br from-purple-50 to-blue-50">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12 sm:mb-16">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-4">
               Choose Your Learning Plan
             </h2>
-            <p className="text-xl text-gray-600">
+            <p className="text-base sm:text-lg md:text-xl text-gray-600">
               Start free, upgrade when you're ready to unlock your full potential
             </p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-            <div className="bg-white rounded-2xl p-8 border-2 border-gray-200 hover:border-purple-300 transition-all duration-300">
-              <h3 className="text-2xl font-bold text-gray-900 mb-4">Freemium</h3>
-              <div className="text-4xl font-bold text-gray-900 mb-6">R0<span className="text-lg text-gray-500">/month</span></div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 max-w-5xl mx-auto">
+            <div className="bg-white rounded-2xl p-6 sm:p-8 border-2 border-gray-200 hover:border-purple-300 transition-all duration-300">
+              <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4">Freemium</h3>
+              <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-6">R0<span className="text-sm sm:text-lg text-gray-500">/month</span></div>
               <ul className="space-y-3 mb-8">
                 {[
                   "5 AI questions per day",
@@ -241,7 +289,7 @@ const StudySmartAILanding: React.FC = () => {
                 ].map((feature, index) => (
                   <li key={index} className="flex items-center">
                     <CheckCircle className="w-5 h-5 text-green-500 mr-3" />
-                    <span className="text-gray-600">{feature}</span>
+                    <span className="text-gray-600 text-sm sm:text-base">{feature}</span>
                   </li>
                 ))}
               </ul>
@@ -249,12 +297,12 @@ const StudySmartAILanding: React.FC = () => {
                 Get Started Free
               </button>
             </div>
-            <div className="bg-gradient-to-br from-purple-600 to-blue-600 rounded-2xl p-8 text-white relative transform scale-105 shadow-2xl">
-              <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-yellow-400 text-yellow-900 px-4 py-1 rounded-full text-sm font-semibold">
+            <div className="bg-gradient-to-br from-purple-600 to-blue-600 rounded-2xl p-6 sm:p-8 text-white relative transform sm:scale-100 lg:scale-105 shadow-2xl">
+              <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-yellow-400 text-yellow-900 px-4 py-1 rounded-full text-xs sm:text-sm font-semibold">
                 Most Popular
               </div>
-              <h3 className="text-2xl font-bold mb-4">Standard</h3>
-              <div className="text-4xl font-bold mb-6">R29<span className="text-lg opacity-75">/month</span></div>
+              <h3 className="text-xl sm:text-2xl font-bold mb-4">Standard</h3>
+              <div className="text-2xl sm:text-3xl md:text-4xl font-bold mb-6">R29<span className="text-sm sm:text-lg opacity-75">/month</span></div>
               <ul className="space-y-3 mb-8">
                 {[
                   "Limited flashcards, quizzes, and summaries",
@@ -264,7 +312,7 @@ const StudySmartAILanding: React.FC = () => {
                 ].map((feature, index) => (
                   <li key={index} className="flex items-center">
                     <CheckCircle className="w-5 h-5 text-green-400 mr-3" />
-                    <span>{feature}</span>
+                    <span className="text-sm sm:text-base">{feature}</span>
                   </li>
                 ))}
               </ul>
@@ -272,12 +320,12 @@ const StudySmartAILanding: React.FC = () => {
                 Start Standard
               </button>
             </div>
-            <div className="bg-white rounded-2xl p-8 border-2 border-gray-200 hover:border-blue-300 transition-all duration-300 relative">
-              <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-red-500 text-white px-4 py-1 rounded-full text-sm font-semibold">
+            <div className="bg-white rounded-2xl p-6 sm:p-8 border-2 border-gray-200 hover:border-blue-300 transition-all duration-300 relative">
+              <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-red-500 text-white px-4 py-1 rounded-full text-xs sm:text-sm font-semibold">
                 Coming Soon
               </div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-4">Premium</h3>
-              <div className="text-4xl font-bold text-gray-900 mb-6">R99<span className="text-lg text-gray-500">/month</span></div>
+              <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4">Premium</h3>
+              <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-6">R99<span className="text-sm sm:text-lg text-gray-500">/month</span></div>
               <ul className="space-y-3 mb-8">
                 {[
                   "Unlimited flashcards, quizzes, and summaries",
@@ -287,7 +335,7 @@ const StudySmartAILanding: React.FC = () => {
                 ].map((feature, index) => (
                   <li key={index} className="flex items-center">
                     <CheckCircle className="w-5 h-5 text-green-500 mr-3" />
-                    <span className="text-gray-600">{feature}</span>
+                    <span className="text-gray-600 text-sm sm:text-base">{feature}</span>
                   </li>
                 ))}
               </ul>
@@ -302,60 +350,60 @@ const StudySmartAILanding: React.FC = () => {
         </div>
       </section>
 
-      <section className="py-20 bg-gradient-to-r from-purple-600 to-blue-600">
-        <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
-          <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
+      <section className="py-12 sm:py-20 bg-gradient-to-r from-purple-600 to-blue-600">
+        <div className="container mx-auto text-center px-4 sm:px-6 lg:px-8">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-6">
             Ready to Transform Your Studies?
           </h2>
-          <p className="text-xl text-purple-100 mb-8 font-medium">
+          <p className="text-base sm:text-lg md:text-xl text-purple-100 mb-8 font-medium">
             Join thousands of students already studying smarter with AI.
           </p>
           <div className="flex justify-center">
-            <button className="bg-white text-purple-600 px-10 py-5 rounded-2xl text-xl font-bold hover:bg-gray-100 transition-all duration-300 transform hover:scale-105 shadow-2xl">
+            <button className="bg-white text-purple-600 px-6 sm:px-8 md:px-10 py-3 sm:py-4 md:py-5 rounded-2xl text-base sm:text-lg md:text-xl font-bold hover:bg-gray-100 transition-all duration-300 transform hover:scale-105 shadow-2xl">
               Start Free Today
             </button>
           </div>
         </div>
       </section>
 
-      <footer className="bg-gray-900 text-white py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+      <footer className="bg-gray-900 text-white py-8 sm:py-12">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8">
             <div>
               <div className="flex items-center space-x-2 mb-4">
-                <Brain className="w-8 h-8 text-purple-400" />
-                <span className="text-xl font-bold">StudySmartAI</span>
+                <Brain className="w-6 sm:w-8 h-6 sm:h-8 text-purple-400" />
+                <span className="text-lg sm:text-xl font-bold">StudySmartAI</span>
               </div>
-              <p className="text-gray-400">
+              <p className="text-gray-400 text-sm sm:text-base">
                 Empowering high school students with AI-powered learning tools.
               </p>
             </div>
             <div>
-              <h4 className="font-semibold mb-4">Product</h4>
-              <ul className="space-y-2 text-gray-400">
+              <h4 className="font-semibold mb-4 text-sm sm:text-base">Product</h4>
+              <ul className="space-y-2 text-gray-400 text-sm sm:text-base">
                 <li><a href="#" className="hover:text-white transition-colors">Features</a></li>
                 <li><a href="#" className="hover:text-white transition-colors">Pricing</a></li>
                 <li><a href="#" className="hover:text-white transition-colors">API</a></li>
               </ul>
             </div>
             <div>
-              <h4 className="font-semibold mb-4">Support</h4>
-              <ul className="space-y-2 text-gray-400">
+              <h4 className="font-semibold mb-4 text-sm sm:text-base">Support</h4>
+              <ul className="space-y-2 text-gray-400 text-sm sm:text-base">
                 <li><a href="#" className="hover:text-white transition-colors">Help Center</a></li>
                 <li><a href="#" className="hover:text-white transition-colors">Contact</a></li>
                 <li><a href="#" className="hover:text-white transition-colors">Community</a></li>
               </ul>
             </div>
             <div>
-              <h4 className="font-semibold mb-4">Company</h4>
-              <ul className="space-y-2 text-gray-400">
+              <h4 className="font-semibold mb-4 text-sm sm:text-base">Company</h4>
+              <ul className="space-y-2 text-gray-400 text-sm sm:text-base">
                 <li><a href="#" className="hover:text-white transition-colors">About</a></li>
                 <li><a href="#" className="hover:text-white transition-colors">Blog</a></li>
                 <li><a href="#" className="hover:text-white transition-colors">Careers</a></li>
               </ul>
             </div>
           </div>
-          <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
+          <div className="border-t border-gray-800 mt-6 sm:mt-8 pt-6 sm:pt-8 text-center text-gray-400 text-sm sm:text-base">
             <p>&copy; 2025 StudySmartAI. All rights reserved.</p>
           </div>
         </div>

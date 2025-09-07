@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/prisma";
 import { verifyToken } from "@/utils/veriffyToken";
+import { stripe } from "@/lib/stripe";
 
 export async function POST(request: NextRequest) {
   try {
@@ -19,12 +20,20 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
+    const fullName = `${firstName} ${lastName}`;
 
     const updatedUser = await db.user.update({
-      where: { id: user.userId},
+      where: { id: user.userId },
       data: { firstName, lastName, email },
-      select: { id: true, firstName: true, lastName: true, email: true },
+      select: { id: true, firstName: true, lastName: true, email: true, stripeCustomerId: true },
     });
+
+    if (updatedUser.stripeCustomerId) {
+      await stripe.customers.update(updatedUser.stripeCustomerId, {
+        email,
+        name: fullName,
+      });
+    }
 
     return NextResponse.json({ user: updatedUser, message: "Profile updated successfully." }, { status: 200 });
   } catch (error: any) {

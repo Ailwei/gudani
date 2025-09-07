@@ -34,7 +34,7 @@ model TokenUsage {
   userId    String
   tokens    Int
   createdAt DateTime @default(now())
-  user      user     @relation(fields: [userId], references: [id])
+  user      user     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 model PlanConfig {
   id           String   @id @default(uuid())
@@ -51,7 +51,7 @@ model Activity {
   type   String
   detail String
   date   DateTime @default(now())
-  user   user     @relation(fields: [userId], references: [id])
+  user   user     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model FlashcardSet {
@@ -62,7 +62,7 @@ model FlashcardSet {
   topic   String
   created DateTime    @default(now())
   cards   Flashcard[]
-  user    user        @relation(fields: [userId], references: [id])
+  user    user        @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Flashcard {
@@ -81,7 +81,7 @@ model Quiz {
   topic     String
   created   DateTime   @default(now())
   questions Question[]
-  user      user       @relation(fields: [userId], references: [id])
+  user      user       @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Question {
@@ -102,7 +102,7 @@ model NoteSummary {
   summary String
   topic   String @default("untitled")
   created DateTime @default(now())
-  user    user     @relation(fields: [userId], references: [id])
+  user    user     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Chat {
@@ -113,7 +113,7 @@ model Chat {
   title    String
   created  DateTime  @default(now())
   updated  DateTime  @updatedAt
-  user     user      @relation(fields: [userId], references: [id])
+  user     user      @relation(fields: [userId], references: [id], onDelete: Cascade)
   messages Message[]
 }
 
@@ -144,9 +144,12 @@ model Subscription {
   endDate DateTime?
   stripeSubscriptionId String? @unique
   status SubscriptionStatus @default(ACTIVE)
+  paymentStatus PaymentStatus @default(PENDING)
+  pastDueAmount    Float?          @default(0)
+  pastDueCurrency  String?
   cancelAtPeriodEnd      Boolean            @default(false)
   cancellationDate       DateTime?
-  user       user     @relation(fields: [userId], references: [id])
+  user       user     @relation(fields: [userId], references: [id], onDelete: Cascade)
   plan       PlanConfig @relation(fields: [planId], references: [id])
 }
 enum SubscriptionStatus {
@@ -161,4 +164,10 @@ enum PlanType {
   FREE
   STANDARD
   PREMIUM
+}
+enum PaymentStatus {
+  PAID
+  PAST_DUE
+  FAILED
+  PENDING
 }

@@ -5,24 +5,24 @@ async function main() {
   const plans = [
     {
       type: PlanType.FREE,
-      dailyLimit: 10,
+      dailyLimit: 1000,
       monthlyLimit: 300,
       price: 0,
       stripePriceId: null,
     },
     {
       type: PlanType.STANDARD,
-      dailyLimit: 500,
+      dailyLimit: 5000,
       monthlyLimit: 15000,
-      price: 110,
-      stripePriceId: "price_12345_standard_test",
+      price: 50,
+      stripePriceId: "price_1S2b6NRuuRix8vquD9SqCTvM",
     },
     {
       type: PlanType.PREMIUM,
-      dailyLimit: 1000,
+      dailyLimit: 100000,
       monthlyLimit: 30000,
-      price: 250,
-      stripePriceId: "price_67890_premium_test",
+      price: 120,
+      stripePriceId: "price_1S2b6zRuuRix8vquhRTIhKw7",
     },
   ];
 
