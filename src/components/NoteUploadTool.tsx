@@ -20,6 +20,7 @@ const NoteUploadTool: React.FC<{
   const [pastedNotes, setPastedNotes] = useState('');
   const [extractedText, setExtractedText] = useState('');
   const [summary, setSummary] = useState('');
+  const [error, setError] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [topic, setTopic] = useState('');
 
@@ -62,21 +63,42 @@ const NoteUploadTool: React.FC<{
     }
 
     setIsGenerating(true);
+    setError(""); 
     try {
-      const prompt = `Summarize these notes for ${selection.grade} level in ${selection.subject}:`;
-      const res = await axios.post('/api/noteSummary', {
-        document: notesToSummarize,
-        prompt,
-      });
+      const token = localStorage.getItem("token");
+      if (!token) {
+        alert("You must be logged in to save summaries");
+        return;
+      }
+
+      const res = await axios.post(
+        "/api/noteSummary",
+        {
+          document: notesToSummarize,
+          grade: selection.grade,
+          subject: selection.subject,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
       setSummary(
         typeof res.data.summary === "string"
           ? res.data.summary
           : res.data.summary?.choices?.[0]?.text || "No summary generated."
       );
-      setTopic(res.data.topic || "untitled");
-    } catch (err) {
-      setSummary("Error generating summary. Please try again.");
+      setTopic(res.data.topic || "Untitled");
+
+    } catch (err: any) {
+      console.error("Error generating summary:", err.response?.data || err.message);
+      const errorMessage =
+        err.response?.data?.error || "Error generating summary. Please try again.";
+      setError(errorMessage);
+      setSummary("");
     } finally {
       setIsGenerating(false);
     }
@@ -152,7 +174,11 @@ const NoteUploadTool: React.FC<{
         </div>
 
         <div className="p-6 space-y-6 overflow-y-auto flex-1">
-          {/* Paste Notes */}
+           {error && (
+            <div className="mt-4 p-3 bg-red-100 text-red-700 border border-red-300 rounded-lg">
+              {error}
+            </div>
+          )}
           <div>
             <label className="flex items-center text-sm font-medium text-gray-700 mb-2">
               <FileText className="w-4 h-4 mr-1" /> Paste Notes Manually
@@ -169,7 +195,6 @@ const NoteUploadTool: React.FC<{
             />
           </div>
 
-          {/* OR Divider */}
           <div className="flex items-center my-4">
             <div className="flex-grow border-t border-gray-300"></div>
             <span className="mx-3 text-gray-500 text-sm">OR</span>
@@ -190,6 +215,7 @@ const NoteUploadTool: React.FC<{
           >
             {isGenerating ? 'Generating Summary...' : 'Generate Grade-Level Summary'}
           </button>
+
           {summary && (
             <div className="border-t border-gray-200 pt-6">
               <div className="flex items-center justify-between mb-3">

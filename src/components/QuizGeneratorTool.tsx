@@ -47,6 +47,9 @@ const QuizGeneratorTool: React.FC<{
         grade: selection.grade,
         subject: selection.subject,
         topic,
+        useSyllabus: true,
+
+        
       },
       {
         headers: {
@@ -94,7 +97,7 @@ const QuizGeneratorTool: React.FC<{
           options: q.options,
           correct: q.correct,
           explanation: q.explanation,
-          diagram: q.diagram || null
+          diagram: q.diagram || null,
         }))
 
       }, {
