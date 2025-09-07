@@ -34,6 +34,50 @@ export async function POST(req: NextRequest) {
     }
 
     switch (event.type) {
+
+      case "checkout.session.completed": {
+        const session = event.data.object as Stripe.Checkout.Session;
+
+        if (session.payment_intent && session.customer) {
+          const paymentIntent = await stripe.paymentIntents.retrieve(session.payment_intent as string);
+          const paymentMethodId = paymentIntent.payment_method as string;
+          if (paymentMethodId) {
+            await stripe.paymentMethods.attach(paymentMethodId, { customer: session.customer as string });
+            await stripe.customers.update(session.customer as string, {
+              invoice_settings: { default_payment_method: paymentMethodId },
+            });
+            console.log("Default payment method set for customer:", session.customer);
+          }
+        }
+
+        if (session.mode === "subscription" && session.subscription) {
+          const stripeSub = await stripe.subscriptions.retrieve(session.subscription as string) as Stripe.Subscription;
+          const userId = session.metadata?.userId || stripeSub.metadata.userId;
+          const planType = session.metadata?.planType || stripeSub.metadata.planType;
+
+          if (!userId || !planType) break;
+
+          const plan = await db.planConfig.findUnique({ where: { type: planType as any } });
+          if (!plan) break;
+
+          const startDate = new Date((stripeSub as any).current_period_start * 1000);
+          const endDate = new Date((stripeSub as any).current_period_end * 1000);
+
+          const existingSub = await getLatestUserSubscription(userId);
+          if (existingSub) {
+            await db.subscription.update({
+              where: { id: existingSub.id },
+              data: { planId: plan.id, stripeSubscriptionId: stripeSub.id, status: "ACTIVE", startDate, endDate },
+            });
+          } else {
+            await db.subscription.create({
+              data: { userId, planId: plan.id, stripeSubscriptionId: stripeSub.id, status: "ACTIVE", startDate, endDate },
+            });
+          }
+        }
+        break;
+      }
+
       case "customer.subscription.created": {
         const stripeSub = event.data.object as Stripe.Subscription;
         console.log("Subscription created event received:", stripeSub.id);
@@ -97,90 +141,48 @@ export async function POST(req: NextRequest) {
         }
         break;
       }
+      case "customer.subscription.updated": {
+        const stripeSub = event.data.object as Stripe.Subscription;
+        const userId = stripeSub.metadata?.userId;
+        const planType = stripeSub.metadata?.planType;
+        if (!userId || !planType) break;
 
-      case "checkout.session.completed": {
-        const session = event.data.object as Stripe.Checkout.Session;
-        console.log("Checkout session object:", session);
+        const plan = await db.planConfig.findUnique({ where: { type: planType as any } });
+        if (!plan) break;
 
-        if (session.mode === "subscription" && session.subscription) {
-          const stripeSub = await stripe.subscriptions.retrieve(session.subscription as string) as Stripe.Subscription;
-          const userId = session.metadata?.userId || stripeSub.metadata.userId;
-          const planType = session.metadata?.planType || stripeSub.metadata.planType;
+        const startDate = new Date((stripeSub as any).current_period_start * 1000);
+        const endDate = new Date((stripeSub as any).current_period_end * 1000);
 
-          console.log("User ID:", userId, "Plan type:", planType, "Stripe Subscription ID:", stripeSub.id);
+        const existingSub = await getLatestUserSubscription(userId, stripeSub.id);
+        if (!existingSub) break;
 
-          if (!userId || !planType) break;
-
-          const plan = await db.planConfig.findUnique({ where: { type: planType as any } });
-          if (!plan) {
-            console.warn("Plan not found for type:", planType);
-            break;
-          }
-
-          const rawStart = (stripeSub as any).current_period_start;
-          if (!rawStart) throw new Error("Stripe subscription missing current_period_start");
-          const startDate = new Date(rawStart * 1000);
-
-          const rawEnd = (stripeSub as any).current_period_end;
-          if (!rawEnd) throw new Error("Stripe subscription missing current_period_end");
-
-          const endDate = new Date(rawEnd * 1000);
-
-          const existingSub = await db.subscription.findFirst({ where: { userId }, orderBy: { startDate: "desc" } });
-
-          if (existingSub) {
-            await db.subscription.update({
-              where: { id: existingSub.id },
-              data: {
-                planId: plan.id,
-                stripeSubscriptionId: stripeSub.id,
-                status: "ACTIVE",
-                startDate,
-                endDate,
-              },
-            });
-            console.log("Subscription updated in DB for user:", userId);
-          } else {
-            await db.subscription.create({
-              data: {
-                userId,
-                planId: plan.id,
-                stripeSubscriptionId: stripeSub.id,
-                status: "ACTIVE",
-                startDate,
-                endDate,
-              },
-            });
-            console.log("New subscription created in DB for user:", userId);
-          }
+        await db.subscription.update({
+          where: { id: existingSub.id },
+          data: {
+            planId: plan.id,
+            stripeSubscriptionId: stripeSub.id,
+            status: "ACTIVE",
+            startDate,
+            endDate,
+            cancelAtPeriodEnd: stripeSub.cancel_at_period_end,
+            cancellationDate: stripeSub.cancel_at_period_end ? endDate : null,
+          },
+        });
+        const paymentMethodId = stripeSub.default_payment_method as string;
+        if (paymentMethodId && stripeSub.customer) {
+          await stripe.paymentMethods.attach(paymentMethodId, { customer: stripeSub.customer as string });
+          await stripe.customers.update(stripeSub.customer as string, {
+            invoice_settings: { default_payment_method: paymentMethodId },
+          });
         }
         break;
       }
-      case "customer.subscription.updated": {
-  const stripeSub = event.data.object as Stripe.Subscription;
-  const existingSub = await getLatestUserSubscription(undefined, stripeSub.id);
-  if (existingSub) {
-    await db.subscription.update({
-      where: { id: existingSub.id },
-      data: {
-        cancelAtPeriodEnd: stripeSub.cancel_at_period_end,
-        cancellationDate: stripeSub.cancel_at_period_end ? new Date((stripeSub as any)["current_period_end"] * 1000) : null,
-      },
-    });
-  }
-  break;
-}
-
-
       case "customer.subscription.deleted": {
         const stripeSub = event.data.object as Stripe.Subscription;
+        const userId = stripeSub.metadata?.userId;
+        const existingSub = await getLatestUserSubscription(undefined, userId);
+        if (!existingSub) break;
 
-        const existingSub = await getLatestUserSubscription(undefined, stripeSub.id);
-
-        if (!existingSub) {
-          console.warn("No matching subscription found for Stripe ID:", stripeSub.id);
-          break;
-        }
         const freePlan = await db.planConfig.findUnique({ where: { type: "FREE" } });
         if (!freePlan) throw new Error("Free plan not found");
 
@@ -192,52 +194,57 @@ export async function POST(req: NextRequest) {
             status: "ACTIVE",
             startDate: new Date(),
             endDate: null,
-             cancelAtPeriodEnd: false,
-             cancellationDate: null, 
+            paymentStatus: "PENDING",
+            pastDueAmount: 0,
+            pastDueCurrency: null,
+            cancellationDate: null,
           },
         });
+        break;
+      }
+      case "invoice.payment_succeeded": {
+        const invoice = event.data.object as Stripe.Invoice;
+        const subscriptionId = typeof (invoice as any).subscription === "string" ? (invoice as any).subscription : null;
+        if (!subscriptionId) break;
 
-        console.log("Subscription cancelled and downgraded for user:", existingSub.userId);
+        await db.subscription.update({
+          where: { stripeSubscriptionId: subscriptionId },
+          data: {
+            paymentStatus: "PAID",
+            pastDueAmount: 0,
+            pastDueCurrency: invoice.currency.toUpperCase(),
+          },
+        });
+        break;
+      }
+
+      case "invoice.payment_failed": {
+        const invoice = event.data.object as Stripe.Invoice;
+        const subscriptionId = typeof (invoice as any).subscription === "string" ? (invoice as any).subscription : null;
+        if (!subscriptionId) break;
+
+        await db.subscription.updateMany({
+          where: { stripeSubscriptionId: subscriptionId },
+          data: {
+            paymentStatus: "FAILED",
+            pastDueAmount: invoice.amount_due / 100,
+            pastDueCurrency: invoice.currency.toUpperCase(),
+          },
+        });
         break;
       }
 
 
-
-      // case "invoice.payment_succeeded": {
-      //   const invoice = event.data.object as Stripe.Invoice;
-      //   console.log("Invoice payment succeeded event:", invoice);
-
-      //   // @ts-expect-error Stripe types may not include 'subscription' on Invoice, but it exists in the API response
-      //   const subscriptionId = typeof invoice['subscription'] === "string" ? invoice['subscription'] : null;
-      //   console.log("Invoice subscription ID:", subscriptionId);
-
-      //   if (subscriptionId) {
-      //     const stripeSub = await stripe.subscriptions.retrieve(subscriptionId) as Stripe.Subscription;
-      //     const existingSub = await db.subscription.findFirst({
-      //       where: { stripeSubscriptionId: stripeSub.id },
-      //       orderBy: { startDate: "desc" },
-      //     });
-
-
-      //     if (existingSub) {
-      //       let rawEnd = (stripeSub as any)["current_period_end"];
-      //       if (!rawEnd && typeof stripeSub.latest_invoice === "string") {
-      //         const invoice = await stripe.invoices.retrieve(stripeSub.latest_invoice);
-      //         rawEnd = invoice.lines?.data?.[0]?.period?.end;
-      //       }
-      //       const endDate = rawEnd ? new Date(rawEnd * 1000) : null;
-      //       await db.subscription.update({
-      //         where: { id: existingSub.id },
-      //         data: {
-      //           status: "ACTIVE",
-      //           endDate,
-      //         },
-      //       });
-      //       console.log("Subscription updated from invoice payment for user:", existingSub.userId);
-      //     }
-      //   }
-      //   break;
-      // }
+      case "customer.updated": {
+        const customer = event.data.object as Stripe.Customer;
+        const [firstName, ...rest] = (customer.name ?? "").split(" ");
+        const lastName = rest.join(" ");
+        await db.user.update({
+          where: { stripeCustomerId: customer.id },
+          data: { email: customer.email ?? undefined, firstName: firstName || undefined, lastName: lastName || undefined },
+        });
+        break;
+      }
 
       default:
         console.log("Unhandled Stripe event type:", event.type);
