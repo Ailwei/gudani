@@ -1,12 +1,29 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getOpenAICompletion } from "@/utils/openAi";
+import { checkAndConsumeTokens } from "@/utils/tokenManager";
+import { calculateTokens } from "@/utils/calculateToken";
+import { getSyllabusChunks } from "@/lib/syllubusChucks";
+import { verifyToken } from "@/utils/veriffyToken";
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
-    const { topic, grade, subject } = body;
 
-    if (!topic || !grade || !subject) {
+    const authHeader = request.headers.get("authorization");
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const token = authHeader.split(" ")[1];
+    const user = verifyToken(token);
+    if (!user) {
+      return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+    }
+
+    const userId = String(user.userId)
+    const body = await request.json();
+    const { topic, grade, subject, useSyllabus } = body;
+
+    if (!topic || !grade || !subject || !userId || !useSyllabus) {
       return NextResponse.json(
         { error: "Missing required fields: topic, grade, or subject." },
         { status: 400 }
@@ -20,7 +37,9 @@ export async function POST(request: NextRequest) {
         { status: 500 }
       );
     }
-    const validationPrompt = `
+    
+        
+    const prompt = `
 You are a South African CAPS curriculum expert.
 Subject: "${subject}"
 Grade: "${grade}"
@@ -29,7 +48,33 @@ Question: Is this topic relevant to this subject at this grade level?
 Respond with only "yes" or "no".
     `;
 
-    const validationResponse = await getOpenAICompletion(validationPrompt, apiKey);
+    let syllabusText = "";
+        if (useSyllabus && grade && subject) {
+          const syllabusChunks = await getSyllabusChunks(grade, subject);
+          
+          syllabusText = syllabusChunks.map((c: any) => c.chunk).join("\n\n");
+          console.log(
+      "Syllabus chunks being sent with prompt:",
+      syllabusChunks.map((c: any) => c.chunk)
+    );
+    console.log("Full user prompt sent to AI:", 
+      `${syllabusText ? `Syllabus:\n${syllabusText}\n\n` : ""}${prompt}`
+    );
+    
+        }
+    const validationToken = calculateTokens(prompt, syllabusText)
+    const validationConsumed = await checkAndConsumeTokens(userId, validationToken)
+
+    if(!validationConsumed.success){
+      return NextResponse.json({
+        error: validationConsumed.error
+      },
+    {
+      status: 403
+    })
+    }
+
+    const validationResponse = await getOpenAICompletion(prompt, apiKey);
     const validationText = (validationResponse.choices?.[0]?.message?.content || "")
       .trim()
       .toLowerCase();
@@ -75,6 +120,16 @@ Topic: "${topic}"
 Subject: "${subject}"
 Grade: "${grade}"
     `;
+
+    const quizTokens = calculateTokens(quizPrompt);
+    const quaizConsume = await checkAndConsumeTokens(userId, quizTokens);
+    if(!quaizConsume.success){
+      return NextResponse.json({
+        error: quaizConsume.error
+      }, {
+        status: 403
+      })
+    }
 
     const aiResponse = await getOpenAICompletion(quizPrompt, apiKey);
 
