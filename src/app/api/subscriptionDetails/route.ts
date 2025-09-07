@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getLatestUserSubscription } from "@/lib/getLatestSubscription";
 import { verifyToken } from "@/utils/veriffyToken";
+
 export async function GET(req: NextRequest) {
   try {
     const authHeader = req.headers.get("authorization");
@@ -23,15 +24,19 @@ export async function GET(req: NextRequest) {
 
     const plan = subscription.plan;
 
-    return NextResponse.json({
-      planType: subscription.plan.type,
-      status: subscription.status,
-      startDate: subscription.startDate,
-      endDate: subscription.endDate,
-      stripeSubscriptionId: subscription.stripeSubscriptionId,
-      cancelAtPeriodEnd: subscription.cancelAtPeriodEnd,
-      cancellationDate: subscription.cancellationDate,
-    });
+   return NextResponse.json({
+  planType: subscription.plan.type,
+  status: subscription.status,
+  paymentStatus: subscription.paymentStatus ?? "UNPAID",
+  pastDueAmount: subscription.pastDueAmount ?? 0,
+  pastDueCurrency: subscription.pastDueCurrency ?? null,
+  startDate: subscription.startDate,
+  endDate: subscription.endDate,
+  stripeSubscriptionId: subscription.stripeSubscriptionId,
+  cancelAtPeriodEnd: subscription.cancelAtPeriodEnd,
+  cancellationDate: subscription.cancellationDate,
+});
+
   } catch (err: any) {
     console.error("Subscription fetch error:", err);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
