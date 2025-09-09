@@ -10,7 +10,8 @@ export async function GET() {
     'History',
     'Geography',
     'Accounting',
-    'Business Studies'
+    'Business Studies',
+    'Technollogy'
 ];
 
   return NextResponse.json({ grades, subjects }, { status: 200 });
