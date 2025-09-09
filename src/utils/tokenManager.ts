@@ -49,6 +49,11 @@ export async function checkAndConsumeTokens(
       data: { userId, tokens },
     });
 
+   await tx.user.update({
+  where: { id: userId },
+  data: { tokensUsed: { increment: tokens } },
+});
+
     return { success: true };
   });
 }
