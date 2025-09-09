@@ -33,7 +33,6 @@ const SyllabusForm: React.FC = () => {
     if (current.length > 0) chunks.push(current.join(" "));
     return chunks;
   };
-
   const extractPdfText = async (file: File) => {
     const reader = new FileReader();
     return new Promise<string>((resolve, reject) => {
@@ -57,49 +56,31 @@ const SyllabusForm: React.FC = () => {
       reader.readAsArrayBuffer(file);
     });
   };
-  const topicRules: Record<string, (line: string) => boolean> = {
-    "Grade 10 Physical Science": line => /^\d+\.\s/.test(line),
-    "Grade 12 Mathematics": line => /^[A-Z\s]{5,}$/.test(line),
-    "Grade 11 Life Sciences": line => /^[A-Z][A-Za-z\s-]{5,}$/.test(line),
-    default: line =>
-      line.length > 3 &&
-      (/^[A-Z0-9][A-Z0-9\s&-:()]+$/i.test(line) || /^\d+\./.test(line)),
-  };
-
-  const getTopicDetector = (grade: string, subject: string) => {
-    const key = `${grade} ${subject}`;
-    return topicRules[key] || topicRules.default;
-  };
-
-  const extractTopics = (text: string) => {
-    const lines = text
+  const preprocessPdfText = (text: string) => {
+    let processed = text.replace(/●/g, "\n");
+    processed = processed.replace(/(\d+)\.\s*/g, "\n$1. ");
+    processed = processed
       .split("\n")
-      .map(l => l.replace(/[\x00-\x1F\x7F]/g, "").trim())
-      .filter(l => l.length > 0 && !/Copyright|Page|ANSWERS|EXERCISE/i.test(l));
-
-    const topics: { topic: string; content: string }[] = [];
-    let currentTopic = "";
-    let currentContent: string[] = [];
-
-    const isTopic = getTopicDetector(selection.grade, selection.subject);
+      .map(line => line.trim())
+      .filter(line => line.length > 0)
+      .join("\n");
+    return processed;
+  };
+  const extractTopicsAndChunks = (text: string) => {
+    const lines = text.split("\n");
+    const topics: { topic: string; chunks: string[] }[] = [];
+    let currentTopic: { topic: string; chunks: string[] } | null = null;
 
     for (const line of lines) {
-      if (/^TERM\s*\d+/i.test(line)) continue;
-      if (isTopic(line)) {
-        if (currentTopic) {
-          topics.push({ topic: currentTopic, content: currentContent.join(" ") });
-        }
-        currentTopic = line;
-        currentContent = [];
-      } else {
-        currentContent.push(line);
+      if (/^\d+\.\s/.test(line)) {
+        if (currentTopic) topics.push(currentTopic);
+        currentTopic = { topic: line.replace(/^\d+\.\s*/, ""), chunks: [] };
+      } else if (currentTopic) {
+        currentTopic.chunks.push(line);
       }
     }
 
-    if (currentTopic) {
-      topics.push({ topic: currentTopic, content: currentContent.join(" ") });
-    }
-
+    if (currentTopic) topics.push(currentTopic);
     return topics;
   };
 
@@ -114,17 +95,19 @@ const SyllabusForm: React.FC = () => {
 
     try {
       const pdfText = await extractPdfText(file);
-      const topics = extractTopics(pdfText);
+
+      const preprocessedText = preprocessPdfText(pdfText);
+
+      const topics = extractTopicsAndChunks(preprocessedText);
 
       if (topics.length === 0) {
         setError("No topics detected in PDF.");
         return;
       }
-
-      const payload = topics.map(t => ({
+const payload = topics.map(t => ({
         topic: t.topic,
-        chunks: chunkText(t.content),
-      }));
+        chunks: t.chunks.filter(c => c.trim()).map(c => c.trim()),
+}));
 
       const res = await axios.post("/api/syllabusPDFupload", {
         grade: selection.grade,

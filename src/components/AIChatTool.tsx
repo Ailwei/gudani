@@ -145,9 +145,6 @@ const AIChatTool: React.FC<{
     </div>
   ))}
 </div>
-
-
-        {/* Input */}
         <div className="p-6 border-t border-gray-200">
           <div className="flex space-x-3">
             <input

@@ -9,26 +9,25 @@ datasource db {
 }
 
 model user {
-  id           String         @id @default(uuid())
-  firstName    String
-  lastName     String
-  email        String         @unique
-  password     String
-  created      DateTime       @default(now())
-  userRole     usersRole      @default(USER)
-  tokensUsed   Int            @default(0)
-  stripeCustomerId String? @unique
-  lastReset    DateTime?
-  activities   Activity[]
-  ChatHistory  Chat[]
-  FlashcardSet FlashcardSet[]
-  NoteSummary  NoteSummary[]
-  Quiz         Quiz[]
-
-  TokenUsage TokenUsage[]
-
-  Subscription Subscription[]
+  id               String         @id @default(uuid())
+  firstName        String
+  lastName         String
+  email            String         @unique
+  password         String
+  created          DateTime       @default(now())
+  userRole         usersRole      @default(USER)
+  lastReset        DateTime?
+  tokensUsed       Int            @default(0)
+  stripeCustomerId String?        @unique
+  activities       Activity[]
+  ChatHistory      Chat[]
+  FlashcardSet     FlashcardSet[]
+  NoteSummary      NoteSummary[]
+  Quiz             Quiz[]
+  Subscription     Subscription[]
+  TokenUsage       TokenUsage[]
 }
+
 model TokenUsage {
   id        String   @id @default(uuid())
   userId    String
@@ -36,15 +35,17 @@ model TokenUsage {
   createdAt DateTime @default(now())
   user      user     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
+
 model PlanConfig {
-  id           String   @id @default(uuid())
-  type         PlanType @unique
-  dailyLimit   Int?
-  monthlyLimit Int?
-  price        Int?
+  id            String         @id @default(uuid())
+  type          PlanType       @unique
+  dailyLimit    Int?
+  monthlyLimit  Int?
+  price         Int?
   stripePriceId String?
-  Subscription Subscription[]
+  Subscription  Subscription[]
 }
+
 model Activity {
   id     String   @id @default(uuid())
   userId String
@@ -100,8 +101,8 @@ model NoteSummary {
   subject String
   notes   String
   summary String
-  topic   String @default("untitled")
   created DateTime @default(now())
+  topic   String   @default("untitled")
   user    user     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
@@ -135,36 +136,42 @@ model SyllabusChunk {
   fileName String?
   topic    String
   created  DateTime @default(now())
+  order   Int
 }
+
 model Subscription {
-  id   String @id @default(uuid())
-  userId String
-  planId String
-  startDate DateTime @default(now())
-  endDate DateTime?
-  stripeSubscriptionId String? @unique
-  status SubscriptionStatus @default(ACTIVE)
-  paymentStatus PaymentStatus @default(PENDING)
-  pastDueAmount    Float?          @default(0)
-  pastDueCurrency  String?
-  cancelAtPeriodEnd      Boolean            @default(false)
-  cancellationDate       DateTime?
-  user       user     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  plan       PlanConfig @relation(fields: [planId], references: [id])
+  id                   String             @id @default(uuid())
+  userId               String
+  planId               String
+  startDate            DateTime           @default(now())
+  endDate              DateTime?
+  status               SubscriptionStatus @default(ACTIVE)
+  stripeSubscriptionId String?            @unique
+  cancelAtPeriodEnd    Boolean            @default(false)
+  cancellationDate     DateTime?
+  pastDueAmount        Float?             @default(0)
+  pastDueCurrency      String?
+  paymentStatus        PaymentStatus      @default(PENDING)
+  plan                 PlanConfig         @relation(fields: [planId], references: [id])
+  user                 user               @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
+
 enum SubscriptionStatus {
   ACTIVE
   EXPIRED
 }
+
 enum usersRole {
   ADMIN
   USER
 }
+
 enum PlanType {
   FREE
   STANDARD
   PREMIUM
 }
+
 enum PaymentStatus {
   PAID
   PAST_DUE
