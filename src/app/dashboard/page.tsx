@@ -92,7 +92,7 @@ const StudySmartDashboard: React.FC = () => {
   const isSelectionComplete = selection.grade && selection.subject;
 
   const renderContent = () => {
-    if (showSettings) return <SettingsPage />;
+    if (showSettings) return <SettingsPage onClose={() => setShowSettings(false)}/>;
 
     if (!isSelectionComplete || !activeTool) {
       return (

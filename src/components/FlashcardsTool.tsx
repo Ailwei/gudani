@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from "react";
-import { Save } from "lucide-react";
+import { Save, Menu, X } from "lucide-react";
 import axios from "axios";
 import FlashcardList from "./getFlashCard";
 
@@ -24,13 +24,11 @@ interface FlashcardSet {
 
 interface FlashcardsToolProps {
   selection: UserSelection;
- 
   onBack: () => void;
 }
 
 const FlashcardsTool: React.FC<FlashcardsToolProps> = ({
   selection,
-  userId,
   onBack,
 }) => {
   const [topic, setTopic] = useState("");
@@ -40,6 +38,7 @@ const FlashcardsTool: React.FC<FlashcardsToolProps> = ({
   const [showAnswer, setShowAnswer] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isSavedSet, setIsSavedSet] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const handleTopicSelect = (set: FlashcardSet) => {
     setTopic(set.topic);
@@ -48,6 +47,7 @@ const FlashcardsTool: React.FC<FlashcardsToolProps> = ({
     setShowAnswer(false);
     setError(null);
     setIsSavedSet(true);
+    setSidebarOpen(false);
   };
 
   const generateFlashcardsForTopic = async (chosenTopic: string) => {
@@ -65,7 +65,6 @@ const FlashcardsTool: React.FC<FlashcardsToolProps> = ({
         "/api/flashCard",
         {
           prompt: `Grade: ${selection.grade}\nSubject: ${selection.subject}\nTopic: ${chosenTopic}\nGenerate flashcards for this topic.`,
-          userId,
           grade: selection.grade,
           subject: selection.subject,
           topic: chosenTopic,
@@ -76,7 +75,6 @@ const FlashcardsTool: React.FC<FlashcardsToolProps> = ({
       );
 
       const cards: Flashcard[] = res.data.flashcards || [];
-
       if (cards.length === 0) {
         setError("No flashcards generated. Try a different topic.");
       } else {
@@ -85,19 +83,18 @@ const FlashcardsTool: React.FC<FlashcardsToolProps> = ({
     } catch (err: any) {
       setError(
         err?.response?.data?.error ||
-        err.message ||
-        "Failed to generate flashcards."
+          err.message ||
+          "Failed to generate flashcards."
       );
     } finally {
       setIsGenerating(false);
     }
   };
+
   const handleNext = () =>
     setCurrentCard(Math.min(flashcards.length - 1, currentCard + 1));
-  const handlePrev = () =>
-    setCurrentCard(Math.max(0, currentCard - 1));
+  const handlePrev = () => setCurrentCard(Math.max(0, currentCard - 1));
   const handleShowAnswer = () => setShowAnswer(!showAnswer);
-
 
   const handleGenerateNewSet = () => {
     setFlashcards([]);
@@ -107,6 +104,7 @@ const FlashcardsTool: React.FC<FlashcardsToolProps> = ({
     setError(null);
     setIsSavedSet(false);
   };
+
   const handleSaveFlashcards = async () => {
     if (!flashcards.length) return;
 
@@ -136,16 +134,41 @@ const FlashcardsTool: React.FC<FlashcardsToolProps> = ({
   };
 
   return (
-    <div className="flex h-screen gap-4">
-      <div className="flex-shrink-0 w-64 border-r border-gray-200">
+    <div className="flex h-screen">
+      <div className="hidden md:block w-64 border-r border-gray-200">
         <FlashcardList onSelectSet={handleTopicSelect} />
-
       </div>
+      {sidebarOpen && (
+        <div className="fixed inset-0 z-40 flex">
+          <div
+            className="fixed inset-0 bg-black/50"
+            onClick={() => setSidebarOpen(false)}
+          />
+          <div className="relative w-64 bg-white border-r border-gray-200 z-50 flex flex-col">
+            <div className="p-4 border-b flex justify-end">
+              <button onClick={() => setSidebarOpen(false)}>
+                <X className="w-6 h-6 text-gray-600" />
+              </button>
+            </div>
+            <FlashcardList onSelectSet={handleTopicSelect} />
+          </div>
+        </div>
+      )}
       <div className="flex-1 flex flex-col bg-white rounded-xl shadow-sm border border-gray-200">
         <div className="p-6 border-b border-gray-200 flex items-center justify-between">
-          <div>
-            <h2 className="text-2xl font-bold text-gray-900">Flashcards</h2>
-            <p className="text-gray-600">{selection.grade} • {selection.subject}</p>
+          <div className="flex items-center space-x-3">
+            <button
+              className="md:hidden p-2 rounded-lg hover:bg-gray-100"
+              onClick={() => setSidebarOpen(true)}
+            >
+              <Menu className="w-6 h-6 text-gray-700" />
+            </button>
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900">Flashcards</h2>
+              <p className="text-gray-600">
+                {selection.grade} • {selection.subject}
+              </p>
+            </div>
           </div>
           <button
             onClick={onBack}
@@ -154,7 +177,7 @@ const FlashcardsTool: React.FC<FlashcardsToolProps> = ({
             ← Back to Tools
           </button>
         </div>
-        <div className="p-6 space-y-6">
+        <div className="p-6 space-y-6 flex-1 overflow-y-auto">
           {flashcards.length === 0 ? (
             <>
               <div>
@@ -177,13 +200,17 @@ const FlashcardsTool: React.FC<FlashcardsToolProps> = ({
                 disabled={!topic.trim() || isGenerating}
                 className="w-full bg-orange-600 text-white py-3 rounded-lg font-semibold hover:bg-orange-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
-                {isGenerating ? "Generating Flashcards..." : "Generate Flashcards"}
+                {isGenerating
+                  ? "Generating Flashcards..."
+                  : "Generate Flashcards"}
               </button>
             </>
           ) : (
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold text-gray-900">Flashcards: {topic}</h3>
+                <h3 className="text-lg font-semibold text-gray-900">
+                  Flashcards: {topic}
+                </h3>
                 <span className="text-sm text-gray-500">
                   {currentCard + 1} / {flashcards.length}
                 </span>
@@ -192,7 +219,9 @@ const FlashcardsTool: React.FC<FlashcardsToolProps> = ({
               <div className="bg-gradient-to-br from-purple-50 to-blue-50 rounded-xl p-8 text-center min-h-48 flex items-center justify-center">
                 <div>
                   <p className="text-lg font-medium text-gray-900 mb-4">
-                    {showAnswer ? flashcards[currentCard].back : flashcards[currentCard].front}
+                    {showAnswer
+                      ? flashcards[currentCard].back
+                      : flashcards[currentCard].front}
                   </p>
                   <button
                     onClick={handleShowAnswer}
@@ -219,6 +248,7 @@ const FlashcardsTool: React.FC<FlashcardsToolProps> = ({
                   Next
                 </button>
               </div>
+
               {!isSavedSet && (
                 <div className="flex justify-center space-x-2 mt-4">
                   <button

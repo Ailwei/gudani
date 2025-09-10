@@ -83,7 +83,6 @@ const Header: React.FC<HeaderProps> = ({
     return (
       <header className="bg-white border-b border-gray-200 px-4 sm:px-6 py-4 sticky top-0 z-40">
         <div className="flex items-center justify-between">
-          {/* Logo */}
           <div
             className="flex items-center space-x-3 cursor-pointer"
             onClick={handleLogoClick}
@@ -101,7 +100,6 @@ const Header: React.FC<HeaderProps> = ({
             </div>
           </div>
 
-          {/* Desktop Menu */}
           <div className="hidden md:flex items-center space-x-3">
             <span className="px-4 py-2 text-sm font-semibold text-gray-700 bg-gray-100 rounded-lg">
               {renderPlanLabel()}
@@ -115,7 +113,11 @@ const Header: React.FC<HeaderProps> = ({
             </p>
 
             <button
-              onClick={onSettingsClick}
+              onClick={() => {
+                onSettingsClick?.();
+                setMobileMenuOpen(false);
+              }}
+
               title="Settings"
               className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center hover:bg-purple-200 transition"
             >
@@ -129,8 +131,6 @@ const Header: React.FC<HeaderProps> = ({
               Logout
             </button>
           </div>
-
-          {/* Mobile Menu Button */}
           <div className="md:hidden flex items-center">
             <button
               onClick={() => setMobileMenuOpen((prev) => !prev)}
@@ -141,18 +141,29 @@ const Header: React.FC<HeaderProps> = ({
           </div>
         </div>
 
-        {/* Mobile Menu */}
         {mobileMenuOpen && (
-          <div className="mt-4 space-y-3 md:hidden flex flex-col">
-            <span className="px-4 py-2 text-sm font-semibold text-gray-700 bg-gray-100 rounded-lg">
-              {renderPlanLabel()}
-            </span>
-            {!loading && (planType === "FREE" || planType === "STANDARD") && (
-              <UpgradeButton onClick={onUpgradeClick} />
-            )}
-            <p className="text-sm font-medium text-gray-900">{displayName || <span className="text-gray-400">...</span>}</p>
+          <div className="mt-2 flex flex-col gap-3 md:hidden bg-white shadow-lg rounded-xl p-4 animate-fade-in">
+            <div className="flex items-center justify-between">
+              <div className="flex flex-col">
+                <span className="font-semibold text-gray-900">{displayName || "..."}</span>
+                <span className="text-sm text-gray-500">{planType} Plan</span>
+              </div>
+              {!loading && (planType === "FREE" || planType === "STANDARD") && (
+                <UpgradeButton
+  onClick={() => {
+    onUpgradeClick();
+    setMobileMenuOpen(false);
+  }}
+/>
+              )}
+            </div>
+
+            <hr className="border-gray-200" />
             <button
-              onClick={onSettingsClick}
+              onClick={() => {
+                onSettingsClick?.();
+                setMobileMenuOpen(false);
+              }}
               title="Settings"
               className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center hover:bg-purple-200 transition"
             >
@@ -169,8 +180,6 @@ const Header: React.FC<HeaderProps> = ({
       </header>
     );
   }
-
-  // Landing Variant
   return (
     <nav className="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-lg shadow-lg">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -187,7 +196,6 @@ const Header: React.FC<HeaderProps> = ({
             </span>
           </div>
 
-          {/* Desktop Links */}
           <div className="hidden md:flex items-center space-x-8">
             <a href="#features" className="text-gray-700 hover:text-purple-600">
               Features
@@ -203,7 +211,6 @@ const Header: React.FC<HeaderProps> = ({
             </button>
           </div>
 
-          {/* Mobile Menu Toggle */}
           <div className="md:hidden flex items-center">
             <button
               onClick={() => setMobileMenuOpen((prev) => !prev)}
@@ -214,7 +221,6 @@ const Header: React.FC<HeaderProps> = ({
           </div>
         </div>
 
-        {/* Mobile Links */}
         {mobileMenuOpen && variant === "landing" && (
           <div className="mt-2 space-y-2 md:hidden flex flex-col">
             <a href="#features" className="text-gray-700 hover:text-purple-600 px-4 py-2">

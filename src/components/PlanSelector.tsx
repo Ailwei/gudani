@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import axios from "axios";
+import { X } from "lucide-react";
 
 interface Plan {
   id: string;
@@ -27,43 +28,42 @@ export default function PlanSelector({ userId, onClose }: PlanSelectorProps) {
   const handleSelectPlan = (plan: Plan) => setSelectedPlan(plan);
 
   const handleSubscribe = async () => {
-  if (!selectedPlan) return;
+    if (!selectedPlan) return;
 
-  setLoading(true);
-  try {
-    const response = await axios.post("/api/subscribe", {
-      userId,
-      planType: selectedPlan.type,
-    });
+    setLoading(true);
+    try {
+      const response = await axios.post("/api/subscribe", {
+        userId,
+        planType: selectedPlan.type,
+      });
 
-    if (response.data.url) {
-      window.location.href = response.data.url;
+      if (response.data.url) {
+        window.location.href = response.data.url;
+      }
+    } catch (err: any) {
+      const errorMessage = err.response?.data?.error || "Something went wrong";
+      console.error("Checkout Error:", errorMessage);
+      alert(errorMessage);
+    } finally {
+      setLoading(false);
     }
-  } catch (err: any) {
-    const errorMessage = err.response?.data?.error || "Something went wrong";
-    console.error("Checkout Error:", errorMessage);
-    alert(errorMessage);
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col justify-center px-6 py-12">
+    <div className="min-h-screen bg-gray-50 flex flex-col justify-center px-4 sm:px-6 py-12">
       <div className="mx-auto w-full max-w-5xl relative">
         {onClose && (
           <button
             onClick={onClose}
-            className="absolute top-4 right-4 px-3 py-1 text-gray-600 hover:text-gray-800"
+            className="absolute top-4 right-4 z-50 p-3 text-gray-600 hover:text-gray-800 bg-white rounded-full shadow-md md:p-2 md:bg-transparent"
+            aria-label="Close"
           >
-            ✕
+            <X className="w-6 h-6" />
           </button>
         )}
-
-        <h2 className="text-4xl font-extrabold text-center text-gray-900 mb-12">
+        <h2 className="text-4xl font-extrabold text-center text-gray-900 mb-12 mt-16 md:mt-0">
           Choose Your Plan
         </h2>
-
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {plans.map((plan) => (
             <div
