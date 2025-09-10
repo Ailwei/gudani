@@ -11,43 +11,71 @@ const GradeSubjectSelector: React.FC<{
 }> = ({ selection, onSelectionChange }) => {
   const [grades, setGrades] = useState<string[]>([]);
   const [subjects, setSubjects] = useState<string[]>([]);
+  const [allSubjects, setAllSubjects] = useState<Record<string, string[]>>({});
 
   useEffect(() => {
     fetch('/api/gradesubjectSelector')
       .then(res => res.json())
       .then(data => {
         setGrades(data.grades || []);
-        setSubjects(data.subjects || []);
+        setAllSubjects(data.subjects || {});
       });
   }, []);
 
+  useEffect(() => {
+    if (selection.grade) {
+      setSubjects(allSubjects[selection.grade] || []);
+    } else {
+      setSubjects([]);
+    }
+  }, [selection.grade, allSubjects]);
+
   return (
     <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200 mb-6">
-      <h2 className="text-xl font-semibold text-gray-900 mb-4">Select Your Grade & Subject</h2>
+      <h2 className="text-xl font-semibold text-gray-900 mb-4">
+        Select Your Grade & Subject
+      </h2>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Grade</label>
-          <select 
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Grade
+          </label>
+          <select
             value={selection.grade}
-            onChange={(e) => onSelectionChange({ ...selection, grade: e.target.value })}
+            onChange={(e) =>
+              onSelectionChange({ ...selection, grade: e.target.value, subject: '' })
+            }
             className="w-full border border-gray-300 rounded-lg px-4 py-3 text-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white text-gray-900 font-semibold"
           >
-            <option value="" className="text-gray-400 font-normal">Choose your grade</option>
-            {grades.map(grade => (
-              <option key={grade} value={grade} className="text-gray-900 font-semibold">{grade}</option>
+            <option value="" className="text-gray-400 font-normal">
+              Choose your grade
+            </option>
+            {grades.map((grade) => (
+              <option key={grade} value={grade} className="text-gray-900 font-semibold">
+                {grade}
+              </option>
             ))}
           </select>
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Subject</label>
-          <select 
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Subject
+          </label>
+          <select
             value={selection.subject}
-            onChange={(e) => onSelectionChange({ ...selection, subject: e.target.value })}
-            className="w-full border border-gray-300 rounded-lg px-4 py-3 text-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white text-gray-900 font-semibold"
+            onChange={(e) =>
+              onSelectionChange({ ...selection, subject: e.target.value })
+            }
+            disabled={!selection.grade}
+            className="w-full border border-gray-300 rounded-lg px-4 py-3 text-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white text-gray-900 font-semibold disabled:bg-gray-100 disabled:text-gray-400"
           >
-            <option value="" className="text-gray-400 font-normal">Choose your subject</option>
-            {subjects.map(subject => (
-              <option key={subject} value={subject} className="text-gray-900 font-semibold">{subject}</option>
+            <option value="" className="text-gray-400 font-normal">
+              Choose your subject
+            </option>
+            {subjects.map((subject) => (
+              <option key={subject} value={subject} className="text-gray-900 font-semibold">
+                {subject}
+              </option>
             ))}
           </select>
         </div>
