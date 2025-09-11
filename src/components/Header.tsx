@@ -64,8 +64,14 @@ const Header: React.FC<HeaderProps> = ({
   }, [setUser, setPlanType, userName]);
 
   const handleLogoClick = () => {
-    router.push(isLoggedIn ? "/dashboard" : "/");
-  };
+  const token = localStorage.getItem("token");
+  if (token) {
+    router.push("/dashboard");
+  } else {
+    router.push("/");
+  }
+};
+
 
   const handleLogout = () => {
     localStorage.removeItem("token");
