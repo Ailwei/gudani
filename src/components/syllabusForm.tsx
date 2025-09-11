@@ -7,8 +7,11 @@ interface UserSelection {
   grade: string;
   subject: string;
 }
+interface SyllabusFormProps {
+  onSubmit?: (data: any) => void;
+}
 
-const SyllabusForm: React.FC = () => {
+const SyllabusForm: React.FC<SyllabusFormProps> = ({onSubmit}) => {
   const [file, setFile] = useState<File | null>(null);
   const [selection, setSelection] = useState<UserSelection>({ grade: "", subject: "" });
   const [loading, setLoading] = useState(false);
