@@ -7,7 +7,6 @@ const client = new OpenAI({
 });
 export async function getOpenAICompletion(
   promptOrMessages: string | ChatCompletionMessageParam[],
-  apiKey?: string
 ) {
   try {
     const messages: ChatCompletionMessageParam[] =
@@ -21,7 +20,7 @@ export async function getOpenAICompletion(
     });
 
     return response;
-  } catch (error: any) {
+  } catch (error: unknown) {
     throw error;
   }
 }

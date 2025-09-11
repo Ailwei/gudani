@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Save, Menu, X } from "lucide-react";
 import axios from "axios";
 import QuizList from "./Quzes";
+import Image from "next/image";
 
 interface UserSelection {
   grade: string;
@@ -239,7 +240,7 @@ const QuizGeneratorTool: React.FC<{
                     {index + 1}. {q.question}
                   </p>
                   {q.diagram && (
-                    <img
+                    <Image
                       src={q.diagram}
                       alt="diagram"
                       className="mb-3 max-h-48 object-contain"

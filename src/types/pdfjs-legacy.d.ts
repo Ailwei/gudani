@@ -1,5 +1,5 @@
 declare module "pdfjs-dist/legacy/build/pdf" {
-  const pdfjsLib: any;
+  const pdfjsLib;
   export * from "pdfjs-dist/types/src/pdf";
   export default pdfjsLib;
 }
