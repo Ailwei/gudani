@@ -51,7 +51,7 @@ Respond with only "yes" or "no".
       { role: "user", content: validationPrompt },
     ];
 
-    const validationResponse = await getOpenAICompletion(validationMessages, apiKey);
+    const validationResponse = await getOpenAICompletion(validationMessages);
     const validationText = validationResponse.choices?.[0]?.message?.content?.trim().toLowerCase() || "";
 
     if (!validationText.startsWith("yes")) {
@@ -88,7 +88,7 @@ Each flashcard must have:
       { role: "user", content: fullPrompt },
     ];
 
-    const aiResponse = await getOpenAICompletion(messages, apiKey);
+    const aiResponse = await getOpenAICompletion(messages);
     const rawText = aiResponse.choices?.[0]?.message?.content?.trim() || "";
 
     let flashcards: { front: string; back: string }[] = [];

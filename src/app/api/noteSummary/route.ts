@@ -32,7 +32,7 @@ ${document}
 Answer ONLY "YES" if notes are related to syllabus, or "NO" if unrelated.
 `;
 
-    const relevanceResponse = await getOpenAICompletion(relevanceCheckPrompt, process.env.GROQ_API_KEY!);
+    const relevanceResponse = await getOpenAICompletion(relevanceCheckPrompt);
     const isRelevant = relevanceResponse.choices?.[0]?.message?.content?.trim().toUpperCase();
 
     if (isRelevant !== "YES") {
@@ -48,7 +48,7 @@ Notes:
 ${document}
 `;
 
-    const aiResponse = await getOpenAICompletion(fullPrompt, process.env.GROQ_API_KEY!);
+    const aiResponse = await getOpenAICompletion(fullPrompt);
     let text = aiResponse.choices?.[0]?.message?.content || "";
 
     const jsonMatch = text.match(/\{[\s\S]*\}/);

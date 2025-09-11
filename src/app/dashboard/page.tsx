@@ -6,15 +6,19 @@ import axios from 'axios';
 import Header from '@/components/Header';
 import GradeSubjectSelector from '../../components/GradeSubjectSelector';
 import ToolSelector from '@/components/ToolSelector';
-import AIChatTool from '@/components/AIChatTool';
-import NoteUploadTool from '@/components/NoteUploadTool';
-import QuizGeneratorTool from '@/components/QuizGeneratorTool';
-import FlashcardsTool from '@/components/FlashcardsTool';
-import RecentActivity from '@/components/RecentActivity';
 import Footer from '@/components/Footer';
 import AdminDashboard from '../adminDashboard/page';
 import PlanSelector from '@/components/PlanSelector';
-import SettingsPage from '@/app/settings/page';
+import SettingsPage from '@/components/settings';
+
+import dynamic from "next/dynamic";
+
+const AIChatTool = dynamic(() => import('@/components/AIChatTool'), { ssr: false });
+const NoteUploadTool = dynamic(() => import('@/components/NoteUploadTool'), { ssr: false });
+const QuizGeneratorTool = dynamic(() => import('@/components/QuizGeneratorTool'), { ssr: false });
+const FlashcardsTool = dynamic(() => import('@/components/FlashcardsTool'), { ssr: false });
+const RecentActivity = dynamic(() => import('@/components/RecentActivity'), { ssr: false });
+
 
 interface UserSelection {
   grade: string;

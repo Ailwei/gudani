@@ -3,7 +3,7 @@
 import { useState } from "react";
 import clsx from "clsx";
 import { X } from "lucide-react";
-import SubscriptionDetails from "../../components/subscriptionDetails";
+import SubscriptionDetails from "./subscriptionDetails";
 import ProfileUpdate from "@/components/updateProfile";
 
 const settingsLinks = [

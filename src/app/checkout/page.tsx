@@ -8,15 +8,26 @@ import axios from "axios";
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
 
-export default function CheckoutPage({ userId, planType }: { userId: string; planType: string }) {
+export default function CheckoutPage() {
   const [clientSecret, setClientSecret] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
+  const [planType, setPlanType] = useState<string | null>(null);
 
   useEffect(() => {
-    axios.post("/api/subscribe", { userId, planType }).then(res => {
-      setClientSecret(res.data.clientSecret);
-    }).catch(console.error);
-  }, [userId, planType]);
+    const storedUserId = localStorage.getItem("userId");
+    const storedPlanType = localStorage.getItem("planType");
 
+    if (storedUserId && storedPlanType) {
+      setUserId(storedUserId);
+      setPlanType(storedPlanType);
+
+      axios.post("/api/subscribe", { userId: storedUserId, planType: storedPlanType })
+        .then(res => setClientSecret(res.data.clientSecret))
+        .catch(console.error);
+    }
+  }, []);
+
+  if (!userId || !planType) return <div>Loading user info...</div>;
   if (!clientSecret) return <div>Loading checkout...</div>;
 
   return (

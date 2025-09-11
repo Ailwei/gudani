@@ -74,7 +74,7 @@ Respond with only "yes" or "no".
     })
     }
 
-    const validationResponse = await getOpenAICompletion(prompt, apiKey);
+    const validationResponse = await getOpenAICompletion(prompt);
     const validationText = (validationResponse.choices?.[0]?.message?.content || "")
       .trim()
       .toLowerCase();
@@ -131,7 +131,7 @@ Grade: "${grade}"
       })
     }
 
-    const aiResponse = await getOpenAICompletion(quizPrompt, apiKey);
+    const aiResponse = await getOpenAICompletion(quizPrompt);
 
     let quizData;
     try {

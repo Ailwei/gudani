@@ -1,10 +1,13 @@
 import { db } from "@/lib/prisma";
 
-export async function getLatestUserSubscription(userId: string) {
+export async function getLatestUserSubscription(userId: string, id?: string) {
   if (!userId) throw new Error("User ID is required");
 
   const subscription = await db.subscription.findFirst({
-    where: { userId },
+    where: {
+      userId,
+      ...(id && { id })
+    },
     orderBy: { startDate: "desc" },
     include: {
       plan: true,
@@ -13,3 +16,4 @@ export async function getLatestUserSubscription(userId: string) {
 
   return subscription;
 }
+

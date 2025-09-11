@@ -71,7 +71,7 @@ if (!tokensCheck.success) {
         role: "system",
         content: `You are an expert South African school tutor using the CAPS syllabus for ${subject} for ${grade}.
 Always base answers on the syllabus content provided.
-If a diagram would make the explanation clearer, output it as Mermaid.js code inside triple backticks (\`\`\`mermaid ... \`\`\`).
+If a diagram would make the explanation clearer.
 Do not describe the diagram in words unless asked — output the diagram code so it can be rendered visually.`,
       },
       {
@@ -80,7 +80,7 @@ Do not describe the diagram in words unless asked — output the diagram code so
       },
     ];
 
-    const aiResponse = await getOpenAICompletion(messages, apiKey);
+    const aiResponse = await getOpenAICompletion(messages);
     const answer =
       aiResponse?.choices?.[0]?.message?.content ??
       "Sorry, there was a problem with the AI service. Please try again later.";

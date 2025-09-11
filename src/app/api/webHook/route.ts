@@ -63,7 +63,7 @@ export async function POST(req: NextRequest) {
           const startDate = new Date((stripeSub as any).current_period_start * 1000);
           const endDate = new Date((stripeSub as any).current_period_end * 1000);
 
-          const existingSub = await getLatestUserSubscription(userId);
+          const existingSub = await getLatestUserSubscription(userId, stripeSub.id);
           if (existingSub) {
             await db.subscription.update({
               where: { id: existingSub.id },
@@ -180,7 +180,7 @@ export async function POST(req: NextRequest) {
       case "customer.subscription.deleted": {
         const stripeSub = event.data.object as Stripe.Subscription;
         const userId = stripeSub.metadata?.userId;
-        const existingSub = await getLatestUserSubscription(undefined, userId);
+        const existingSub = await getLatestUserSubscription(userId, stripeSub.id);
         if (!existingSub) break;
 
         const freePlan = await db.planConfig.findUnique({ where: { type: "FREE" } });
