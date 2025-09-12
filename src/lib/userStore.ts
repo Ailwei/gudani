@@ -5,7 +5,7 @@ interface UserState {
   lastName: string;
   email?: string;
   setUser: (user: Partial<UserState>) => void;
-  clearUser: () => void; // ← add this
+  clearUser: () => void;
 }
 
 export const useUserStore = create<UserState>((set) => ({
@@ -13,5 +13,5 @@ export const useUserStore = create<UserState>((set) => ({
   lastName: "",
   email: "",
   setUser: (user) => set((state) => ({ ...state, ...user })),
-  clearUser: () => set({ firstName: "", lastName: "", email: "" }), // ← implement reset
+  clearUser: () => set({ firstName: "", lastName: "", email: "" }),
 }));
