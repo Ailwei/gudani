@@ -1,10 +1,10 @@
 "use client";
-
 import { useState } from "react";
 import clsx from "clsx";
 import { X } from "lucide-react";
 import SubscriptionDetails from "./subscriptionDetails";
 import ProfileUpdate from "@/components/updateProfile";
+import DeleteAccount from "./deleteAccount";
 
 const settingsLinks = [
   { label: "Profile", value: "profile" },
@@ -62,7 +62,7 @@ export default function SettingsPage({ onClose }: SettingsPageProps) {
             )}
             {activeTab === "deleteAccount" && (
               <div className="text-red-600 font-semibold">
-                Delete account settings go here
+                <DeleteAccount onDelete={() => window.location.href = "/login"} />
               </div>
             )}
           </div>

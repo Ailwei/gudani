@@ -96,8 +96,8 @@ const AIChatTool: React.FC<{
         }
       );
 
-      if (res.data.chatId && !chatId) {
-        setChatId(res.data.chatId);
+      if (res.data.chat?.id && !chatId) {
+        setChatId(res.data.chat.id);
       }
 
       let aiContent =
