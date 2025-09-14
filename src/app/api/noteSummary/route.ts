@@ -12,12 +12,14 @@ export async function POST(request: NextRequest) {
     }
 
     const syllabusChunks = await getSyllabusChunks(grade, subject);
+    console.log("chucnks", syllabusChunks)
 
     if (!syllabusChunks || syllabusChunks.length === 0) {
       return NextResponse.json({ error: "No syllabus available for this grade/subject" }, { status: 400 });
     }
 
     const syllabusText = syllabusChunks.map((c: any) => c.chunk).join(" ");
+    console.log("syllubustext", syllabusText)
 
     const relevanceCheckPrompt = `
 You are a strict CAPS syllabus checker.

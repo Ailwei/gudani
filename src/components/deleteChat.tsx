@@ -4,9 +4,11 @@ import axios from "axios";
 interface DeleteChatProps {
   chatId: string;
   onDeleted: () => void;
+  className?: string;
+
 }
 
-const DeleteChat: React.FC<DeleteChatProps> = ({ chatId, onDeleted }) => {
+const DeleteChat: React.FC<DeleteChatProps> = ({ chatId, onDeleted, className }) => {
   const handleDeleteChat = async () => {
     try {
       const token = localStorage.getItem("token");
@@ -32,12 +34,12 @@ const DeleteChat: React.FC<DeleteChatProps> = ({ chatId, onDeleted }) => {
   };
 
   return (
-    <button
+     <span
       onClick={handleDeleteChat}
-      className="ml-2 text-red-600 hover:text-red-800"
+      className={`block w-full px-4 py-2 text-sm text-red-500 cursor-pointer hover:bg-red-100 hover:text-red-600 ${className}`}
     >
       Delete
-    </button>
+    </span>
   );
 };
 

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { verifyToken } from "@/utils/veriffyToken";
 import { db } from "@/lib/prisma";
 
-export default async function DELETE(request: NextRequest) {
+export  async function DELETE(request: NextRequest) {
   try {
     const authHeader = request.headers.get("authorization");
     if (!authHeader || !authHeader.startsWith("Bearer ")) {

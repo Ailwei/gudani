@@ -10,6 +10,8 @@
     "postinstall": "yarn prisma generate"
   },
   "dependencies": {
+    "@headlessui/react": "^2.2.8",
+    "@heroicons/react": "^2.2.0",
     "@hookform/resolvers": "^5.2.1",
     "@prisma/client": "^6.13.0",
     "@prisma/extension-accelerate": "^2.0.2",

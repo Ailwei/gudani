@@ -2,9 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/prisma";
 import { verifyToken } from "@/utils/veriffyToken";
 
-export default async function DELETE(request: NextRequest) {
+export async function DELETE(request: NextRequest) {
   try {
-    const authHeader = request.headers.get("Authorization");
+    const authHeader = request.headers.get("authorization");
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
