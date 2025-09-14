@@ -59,11 +59,12 @@ const deleteSummaryUi = (summaryId: string) => {
         )}
         {summaries.map((summary) => (
           <div
+                      key={summary.id}
+
       className="flex items-center justify-between px-3 py-2 rounded hover:bg-gray-200"
       >  
 
           <button
-            key={summary.id}
             onClick={() => {
               onSelectSummary(summary);
               setSelectedId(summary.id);

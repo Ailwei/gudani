@@ -60,10 +60,11 @@ const QuizList: React.FC<QuizListProps> = ({ onSelectQuiz }) => {
     {quizzes.length === 0 && <p className="text-gray-500">No quizzes saved yet.</p>}
     {quizzes.map((quiz) => (
       <div
+              key={quiz.id}
+
       className="flex items-center justify-between px-3 py-2 rounded hover:bg-gray-200"
       >
       <button
-        key={quiz.id}
         
         onClick={() => {
           onSelectQuiz(quiz);
