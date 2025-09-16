@@ -89,6 +89,8 @@ model Question {
   id       String @id @default(uuid())
   quizId   String
   question String
+  explanation String?
+  userAnswer String?
   correct  String
   options  Json
   quiz     Quiz   @relation(fields: [quizId], references: [id], onDelete: Cascade)
