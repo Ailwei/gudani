@@ -16,8 +16,7 @@ interface Summary {
 }
 
 interface SummaryListProps {
-  onSelectSummary: (summary: Summary) => void;
-}
+onSelectSummary: (summary: { summary: string; topic: string; summaryId: string }) => void;}
 
 const SummaryList: React.FC<SummaryListProps> = ({ onSelectSummary }) => {
   const [summaries, setSummaries] = useState<Summary[]>([]);
@@ -65,15 +64,20 @@ const deleteSummaryUi = (summaryId: string) => {
       >  
 
           <button
-            onClick={() => {
-              onSelectSummary(summary);
-              setSelectedId(summary.id);
-            }}
-            className="flex-1 text-left text-gray-900 truncate"
-
-          >
-            {summary.topic}
-          </button>
+              onClick={() => {
+                setSelectedId(summary.id);
+                onSelectSummary({
+                  summary: summary.summary,
+                  topic: summary.topic,
+                  summaryId: summary.id,
+                });
+              }}
+              className={`flex-1 text-left text-gray-900 truncate ${
+                selectedId === summary.id ? "bg-blue-100" : ""
+              }`}
+            >
+              {summary.topic}
+            </button>
           <Menu as="div" className="relative inline-block text-left">
                       <Menu.Button className="p-1 rounded-full text-gray-500 hover:text-gray-700">
                         <EllipsisVerticalIcon className="h-5 w-5" />

@@ -57,15 +57,14 @@ const GradeSubjectSelector: React.FC<{
   value={selection.subject}
   onChange={(e) => onSelectionChange({ ...selection, subject: e.target.value })}
   disabled={!selection.grade}
-  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-base sm:px-4 sm:py-3 sm:text-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white text-gray-900 font-medium disabled:bg-gray-100 disabled:text-gray-400 truncate"
+  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-base sm:px-4 sm:py-3 sm:text-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white text-gray-900 font-semibold disabled:bg-gray-100 disabled:text-gray-400 truncate"
 >
-  <option value="" className="text-gray-400 font-normal">Choose your subject</option>
+  <option value="" className="text-gray-600 font-normal">Choose your subject</option>
   {subjects.map(subject => (
     <option 
       key={subject} 
       value={subject} 
-      className="text-gray-900 font-medium truncate"
-    >
+className="text-gray-900 font-semibold"    >
       {subject}
     </option>
   ))}

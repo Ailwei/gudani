@@ -10,11 +10,14 @@ interface UserSelection {
 }
 
 interface Question {
+  [x: string]: any;
   question: string;
   options: string[];
   correct: string;
   explanation: string;
   diagram?: string | null;
+  userAnswer?: string | null;
+  quizId: string
 }
 
 interface QuizData {
@@ -22,6 +25,7 @@ interface QuizData {
   grade: string;
   subject: string;
   questions: Question[];
+  id?: string
 }
 
 const QuizGeneratorTool: React.FC<{
@@ -83,6 +87,11 @@ const QuizGeneratorTool: React.FC<{
     setSelectedAnswers({});
     setShowResults(false);
   };
+  const handleCloseQuiz = () => {
+    setQuiz(null);
+    setSelectedAnswers({});
+    setShowResults(false);
+  };
 
   const handleSaveQuiz = async () => {
     if (!quiz) return;
@@ -91,15 +100,18 @@ const QuizGeneratorTool: React.FC<{
       const res = await axios.post(
         "/api/saveQuiz",
         {
+          quizId: quiz.id,
           grade: quiz.grade,
           subject: quiz.subject,
           topic: quiz.topic,
-          questions: quiz.questions.map((q) => ({
+          questions: quiz.questions.map((q, index) => ({
+            id: q.id,
             question: q.question,
             options: q.options,
             correct: q.correct,
             explanation: q.explanation,
             diagram: q.diagram || null,
+            userAnswer: selectedAnswers[index] ?? null
           })),
         },
         {
@@ -108,6 +120,7 @@ const QuizGeneratorTool: React.FC<{
       );
       console.log("Saved quiz:", res.data);
       alert("Quiz saved successfully!");
+      handleCloseQuiz();
     } catch (err: any) {
       console.error("Save quiz error:", err.response?.data || err.message);
       alert("Failed to save quiz. Please try again.");
@@ -130,6 +143,15 @@ const QuizGeneratorTool: React.FC<{
             </div>
             <QuizList
               onSelectQuiz={(quiz) => {
+                const prefilledAnswers: { [key: number]: string } = {};
+                let allAnswered = true;
+                quiz.questions.forEach((q, index) => {
+                  if (q.userAnswer) {
+                    prefilledAnswers[index] = q.userAnswer;
+                  } else {
+                    allAnswered = false;
+                  }
+                });
                 setQuiz({
                   ...quiz,
                   questions: quiz.questions.map((q) => ({
@@ -138,9 +160,13 @@ const QuizGeneratorTool: React.FC<{
                       typeof q.explanation === "string"
                         ? q.explanation
                         : String(q.explanation),
+                    quizId: q.quizId ?? quiz.id ?? "",
                   })),
                 });
+                setSelectedAnswers(prefilledAnswers)
                 setSidebarOpen(false);
+                setShowResults(Object.keys(prefilledAnswers).length > 0);
+
               }}
             />
           </div>
@@ -159,6 +185,7 @@ const QuizGeneratorTool: React.FC<{
                   typeof q.explanation === "string"
                     ? q.explanation
                     : String(q.explanation),
+                quizId: q.quizId ?? quiz.id ?? "",
               })),
             })
           }
@@ -183,6 +210,7 @@ const QuizGeneratorTool: React.FC<{
               </p>
             </div>
           </div>
+
           <button
             onClick={onBack}
             className="text-purple-600 hover:text-purple-700 font-medium"
@@ -225,13 +253,19 @@ const QuizGeneratorTool: React.FC<{
                 <h3 className="text-lg font-semibold text-gray-900">
                   Quiz: {quiz.topic}
                 </h3>
-                <button
-                  className="flex items-center text-purple-600 hover:text-purple-700 text-sm"
-                  onClick={handleSaveQuiz}
-                >
-                  <Save className="w-4 h-4 mr-1" />
-                  Save Quiz
-                </button>
+                <div className="flex items-center gap-4 justify-between">
+                  <button
+                    className="flex items-center text-purple-600 hover:text-purple-700 text-sm"
+                    onClick={handleSaveQuiz}
+                  >
+                    <Save className="w-4 h-4 mr-1" />
+                    Save Quiz
+                  </button>
+                  <button onClick={handleCloseQuiz} className="text-gray-600 hover:text-gray-800">
+                    <X className="w-6 h-6" />
+                  </button>
+                </div>
+
               </div>
 
               {quiz.questions.map((q, index) => (
@@ -257,10 +291,10 @@ const QuizGeneratorTool: React.FC<{
                         <label
                           key={optIndex}
                           className={`flex items-center space-x-2 cursor-pointer p-2 rounded-lg ${isCorrect
-                              ? "bg-green-100"
-                              : isWrong
-                                ? "bg-red-100"
-                                : "bg-white"
+                            ? "bg-green-100"
+                            : isWrong
+                              ? "bg-red-100"
+                              : "bg-white"
                             }`}
                         >
                           <input

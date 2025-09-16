@@ -5,11 +5,13 @@ import { Menu } from "@headlessui/react";
 import { EllipsisVerticalIcon } from "@heroicons/react/24/outline";
 
 interface Question {
+  quizId: string;
   id: string;
   question: string;
   options: string[];
   correct: string;
   explanation: string;
+  userAnswer?: string | null
 }
 
 interface Quiz {

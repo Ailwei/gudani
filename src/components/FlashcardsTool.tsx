@@ -127,11 +127,21 @@ const FlashcardsTool: React.FC<FlashcardsToolProps> = ({
       );
 
       alert("Flashcards saved successfully!");
+      handleCloseFlashcards();
     } catch (err: any) {
       console.error("Save flashcards error:", err.response?.data || err.message);
       alert("Failed to save flashcards. Please try again.");
     }
   };
+  const handleCloseFlashcards = () => {
+  setFlashcards([]);
+  setTopic("");
+  setCurrentCard(0);
+  setShowAnswer(false);
+  setError(null);
+  setIsSavedSet(false);
+
+};
 
   return (
     <div className="flex h-screen">
@@ -180,6 +190,9 @@ const FlashcardsTool: React.FC<FlashcardsToolProps> = ({
         <div className="p-6 space-y-6 flex-1 overflow-y-auto">
           {flashcards.length === 0 ? (
             <>
+            <div>
+              {error && <p className="text-red-600 text-sm mt-2">{error}</p>}
+              </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Topic for flashcards
@@ -192,9 +205,6 @@ const FlashcardsTool: React.FC<FlashcardsToolProps> = ({
                   className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-purple-500 text-gray-900 font-normal"
                 />
               </div>
-
-              {error && <p className="text-red-600 text-sm mt-2">{error}</p>}
-
               <button
                 onClick={() => generateFlashcardsForTopic(topic)}
                 disabled={!topic.trim() || isGenerating}
@@ -211,9 +221,31 @@ const FlashcardsTool: React.FC<FlashcardsToolProps> = ({
                 <h3 className="text-lg font-semibold text-gray-900">
                   Flashcards: {topic}
                 </h3>
-                <span className="text-sm text-gray-500">
-                  {currentCard + 1} / {flashcards.length}
-                </span>
+                
+                {!isSavedSet && (
+                  <div className="flex justify-center space-x-2 mt-4">
+                    <button
+                      className="flex items-center text-purple-600 hover:text-purple-700 text-sm"
+                      onClick={handleSaveFlashcards}
+                    >
+                      <Save className="w-4 h-4 mr-1" />
+                      Save Set
+                    </button>
+                    <button
+                      onClick={handleGenerateNewSet}
+                      className="text-gray-600 hover:text-gray-700 text-sm"
+                    >
+                      Generate New Set
+                    </button>
+                      <button
+      onClick={handleCloseFlashcards}
+      className="text-gray-600 hover:text-gray-800 text-sm flex items-center"
+    >
+      <X className="w-6 h-6" />
+    </button>
+                  </div>
+                )}
+              
               </div>
 
               <div className="bg-gradient-to-br from-purple-50 to-blue-50 rounded-xl p-8 text-center min-h-48 flex items-center justify-center">
@@ -248,24 +280,9 @@ const FlashcardsTool: React.FC<FlashcardsToolProps> = ({
                   Next
                 </button>
               </div>
-
-              {!isSavedSet && (
-                <div className="flex justify-center space-x-2 mt-4">
-                  <button
-                    className="flex items-center text-purple-600 hover:text-purple-700 text-sm"
-                    onClick={handleSaveFlashcards}
-                  >
-                    <Save className="w-4 h-4 mr-1" />
-                    Save Set
-                  </button>
-                  <button
-                    onClick={handleGenerateNewSet}
-                    className="text-gray-600 hover:text-gray-700 text-sm"
-                  >
-                    Generate New Set
-                  </button>
-                </div>
-              )}
+              <span className="text-sm text-gray-500">
+                  {currentCard + 1} / {flashcards.length}
+                </span>
             </div>
           )}
         </div>

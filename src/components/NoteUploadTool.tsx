@@ -24,6 +24,7 @@ const NoteUploadTool: React.FC<{
   const [isGenerating, setIsGenerating] = useState(false);
   const [topic, setTopic] = useState("");
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [summaryId, setSummaryId] = useState<string | null>(null);
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const uploadedFile = e.target.files?.[0];
@@ -92,6 +93,7 @@ const NoteUploadTool: React.FC<{
           : res.data.summary?.choices?.[0]?.text || "No summary generated."
       );
       setTopic(res.data.topic || "Untitled");
+      setSummaryId(null)
     } catch (err: any) {
       console.error("Error generating summary:", err.response?.data || err.message);
       const errorMessage =
@@ -114,19 +116,24 @@ const NoteUploadTool: React.FC<{
       const res = await axios.post(
         "/api/SaveSummary",
         {
+
           grade: selection.grade,
           subject: selection.subject,
           notes: pastedNotes.trim() || extractedText.trim(),
           summary,
           topic,
+          summaryId
+          
         },
         {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
 
-      if (res.status === 200) {
+     if (res.status >= 200 && res.status < 300) {
+      setSummaryId(res.data.summaryId || null);
         alert("Summary saved successfully");
+        handleCloseSummary();
       }
     } catch (error) {
       console.error("Error saving summary:", error);
@@ -149,6 +156,17 @@ const NoteUploadTool: React.FC<{
     doc.save(`${selection.subject}-summary.pdf`);
   };
 
+  const handleCloseSummary = () => {
+  setSummary("");
+  setTopic("");
+  setPastedNotes("");
+  setExtractedText("");
+  setFile(null);
+  setError("");
+  setIsGenerating(false);
+  setSummaryId(null);
+  }
+
   return (
     <div className="flex h-screen">
       <div className="hidden md:block w-64 border-r border-gray-200 overflow-y-auto">
@@ -156,6 +174,7 @@ const NoteUploadTool: React.FC<{
           onSelectSummary={(summary) => {
             setSummary(summary.summary);
             setTopic(summary.topic);
+            setSummaryId(summary.summaryId);
           }}
         />
       </div>
@@ -176,6 +195,7 @@ const NoteUploadTool: React.FC<{
               onSelectSummary={(summary) => {
                 setSummary(summary.summary);
                 setTopic(summary.topic);
+                setSummaryId(summary.summaryId);
                 setSidebarOpen(false);
               }}
             />
@@ -287,6 +307,13 @@ const NoteUploadTool: React.FC<{
                     <Download className="w-4 h-4 mr-1" />
                     Export
                   </button>
+                    <button
+          onClick={handleCloseSummary}
+          className="text-gray-600 hover:text-gray-800 p-1 rounded-md"
+          title="Close summary"
+        >
+          <X className="w-6 h-6" />
+        </button>
                 </div>
               </div>
               <div className="bg-gray-50 rounded-lg p-4 max-h-80 overflow-y-auto">
