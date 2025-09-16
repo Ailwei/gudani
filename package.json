@@ -17,6 +17,7 @@
     "@prisma/extension-accelerate": "^2.0.2",
     "@stripe/react-stripe-js": "^3.9.2",
     "@stripe/stripe-js": "^7.9.0",
+    "@supabase/supabase-js": "^2.57.4",
     "@types/bcrypt": "^6.0.0",
     "@types/nodemailer": "^6.4.17",
     "axios": "^1.11.0",
