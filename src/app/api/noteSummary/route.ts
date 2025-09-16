@@ -1,50 +1,41 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getOpenAICompletion } from "@/utils/openAi";
 import { getSyllabusChunks } from "@/lib/syllubusChucks";
+import { verifyToken } from "@/utils/veriffyToken";
 
 export async function POST(request: NextRequest) {
   try {
+    const authHeader = request.headers.get("authorization");
+
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const token = authHeader.split(" ")[1];
+    const user = verifyToken(token);
+
+    if (!user) {
+      return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+    }
+
     const body = await request.json();
     const { document, grade, subject } = body;
 
-    if (!document) {
-      return NextResponse.json({ error: "Missing document" }, { status: 400 });
-    }
-
     const syllabusChunks = await getSyllabusChunks(grade, subject);
-    console.log("chucnks", syllabusChunks)
-
-    if (!syllabusChunks || syllabusChunks.length === 0) {
-      return NextResponse.json({ error: "No syllabus available for this grade/subject" }, { status: 400 });
-    }
-
     const syllabusText = syllabusChunks.map((c: any) => c.chunk).join(" ");
-    console.log("syllubustext", syllabusText)
 
-    const relevanceCheckPrompt = `
-You are a strict CAPS syllabus checker.
-Compare the following notes with the Grade ${grade} ${subject} syllabus.
+    const fullPrompt = `
+You are a CAPS syllabus-aligned study assistant.
+Summarize these notes clearly for a Grade ${grade} student in ${subject}.
+Use the CAPS syllabus below as a guideline for phrasing and relevance, but do not reject the notes.
 
-Syllabus:
+Syllabus (for guidance only):
 ${syllabusText}
 
-Notes:
-${document}
+Now summarize the notes and generate a topic/title.
 
-Answer ONLY "YES" if notes are related to syllabus, or "NO" if unrelated.
-`;
-
-    const relevanceResponse = await getOpenAICompletion(relevanceCheckPrompt);
-    const isRelevant = relevanceResponse.choices?.[0]?.message?.content?.trim().toUpperCase();
-
-    if (isRelevant !== "YES") {
-      return NextResponse.json({ error: "Notes are not related to the selected syllabus." }, { status: 400 });
-    }
-    const fullPrompt = `
-Summarize these notes for Grade ${grade} in ${subject}.
-Also generate a topic/title.
-
-Respond strictly in JSON: { "topic": string, "summary": string }
+Respond strictly in JSON format:
+{ "topic": string, "summary": string }
 
 Notes:
 ${document}
@@ -64,12 +55,17 @@ ${document}
     }
 
     return NextResponse.json(
-      { topic: parsed.topic || "Untitled", summary: parsed.summary || "No summary generated." },
+      {
+        topic: parsed.topic || "Untitled",
+        summary: parsed.summary || "No summary generated.",
+      },
       { status: 200 }
     );
-
   } catch (error: any) {
     console.error("Error generating summary:", error);
-    return NextResponse.json({ error: "Failed to generate summary", details: error.message }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to generate summary", details: error.message },
+      { status: 500 }
+    );
   }
 }

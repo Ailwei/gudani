@@ -1,6 +1,7 @@
 import { NextResponse, NextRequest } from "next/server";
 import { db } from "@/lib/prisma";
 import { verifyToken } from "@/utils/veriffyToken";
+import { id } from "zod/v4/locales";
 
 export async function GET(req: NextRequest) {
   try {
@@ -33,8 +34,10 @@ export async function GET(req: NextRequest) {
         created: "desc",
       },
     });
+    console.log("Summaries:", summaries);
 
     return NextResponse.json({ summaries }, { status: 200 });
+
   } catch (error: any) {
     console.error("Error fetching summaries:", error);
     return NextResponse.json(

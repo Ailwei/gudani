@@ -17,20 +17,37 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { grade, subject, notes, summary, topic } = body;
+    const { summaryId, grade, subject, notes, summary, topic } = body;
 
-    const saveSummary = await db.noteSummary.create({
-      data: {
-        userId: user.userId,
-        grade,
-        subject,
-        notes,
-        summary,
-        topic
-      },
-    });
+    let savedSummary;
 
-    return NextResponse.json({ success: true, summary: saveSummary }, { status: 201 });
+    if (summaryId) {
+      savedSummary = await db.noteSummary.update({
+        where: { id: summaryId },
+        data: {
+          grade,
+          subject,
+          notes,
+          summary,
+          topic,
+        },
+      });
+
+      return NextResponse.json({ success: true, summary: savedSummary }, { status: 200 });
+    } else {
+      savedSummary = await db.noteSummary.create({
+        data: {
+          userId: user.userId,
+          grade,
+          subject,
+          notes,
+          summary,
+          topic,
+        },
+      });
+
+      return NextResponse.json({ success: true, summary: savedSummary }, { status: 201 });
+    }
   } catch (err: any) {
     console.error("Save summary error:", err);
     return NextResponse.json({ error: "Server error" }, { status: 500 });

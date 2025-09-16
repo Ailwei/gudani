@@ -20,34 +20,54 @@ export async function POST(request: NextRequest) {
     const userId = String(user.userId);
     
     const body = await request.json();
-    const { grade, subject, topic, questions } = body;
-
+    const { quizId, grade, subject, topic, questions, userAnswer } = body;
+    
     if (!grade || !subject || !topic || !questions) {
       return NextResponse.json(
         { error: "Missing required fields: grade, subject, topic, questions" },
         { status: 400 }
       );
     }
-    const quiz = await db.quiz.create({
-      data: {
-        userId,
-        grade,
-        subject,
-        topic,
-        questions: {
-          create: questions.map((q: any) => ({
-            question: q.question,
-            options: q.options,
-            correct: q.correct,
-          })),
-        },
+    let quiz;
+if (quizId) {
+  quiz = await db.quiz.update({
+    where: { id: quizId },
+    data: {
+      grade,
+      subject,
+      topic,
+      questions: {
+        updateMany: questions.map((q: any) => ({
+          where: { id: q.id },
+          data: { userAnswer: q.userAnswer ?? null },
+        })),
       },
-      include: { questions: true },
-    });
+    },
+    include: { questions: true },
+  });
+} else {
+  quiz = await db.quiz.create({
+    data: {
+      userId,
+      grade,
+      subject,
+      topic,
+      questions: {
+        create: questions.map((q: any) => ({
+          question: q.question,
+          options: q.options,
+          correct: q.correct,
+          explanation: q.explanation,
+          userAnswer: q.userAnswer ?? null,
+        })),
+      },
+    },
+    include: { questions: true },
+  });
+}
 
-    return NextResponse.json({ quiz }, { status: 201 });
+return NextResponse.json({ quiz }, { status: 201 });
   } catch (error: any) {
-    console.error("Quiz API error:", error);
     return NextResponse.json({ error: "Failed to save quiz" }, { status: 500 });
   }
 }
