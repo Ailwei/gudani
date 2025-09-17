@@ -31,7 +31,7 @@ export async function POST(req: NextRequest) {
       data: {
         firstName: body.firstName,
         lastName: body.lastName,
-        email: body.email,
+        email: body.email.toLowerCase().trim(),
         password: hashedPassword,
         Subscription: {
           create: {

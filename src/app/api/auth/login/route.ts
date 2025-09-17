@@ -9,7 +9,10 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { email, password } = loginSchema.parse(body);
 
-    const user = await db.user.findUnique({ where: { email } });
+    const Email = body.email.toLowerCase().trim();
+
+
+    const user = await db.user.findUnique({ where: { email: Email } });
     if (!user) {
       return NextResponse.json({ error: "Invalid email or password" }, { status: 401 });
     }
@@ -18,8 +21,6 @@ export async function POST(request: NextRequest) {
     if (!isValid) {
       return NextResponse.json({ error: "Invalid email or password" }, { status: 401 });
     }
-
-    console.log("User role on login:", user.userRole);
 
     const token = jwt.sign(
       { userId: user.id, email: user.email, userRole: user.userRole },
