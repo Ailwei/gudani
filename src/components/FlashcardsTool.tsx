@@ -165,16 +165,16 @@ const FlashcardsTool: React.FC<FlashcardsToolProps> = ({
         </div>
       )}
       <div className="flex-1 flex flex-col bg-white rounded-xl shadow-sm border border-gray-200">
-        <div className="p-6 border-b border-gray-200 flex items-center justify-between">
-          <div className="flex items-center space-x-3">
+        <div className="p-4 border-b border-gray-200 flex items-center justify-between">
+          <div className="flex items-center gap-3">
             <button
-              className="md:hidden p-2 rounded-lg hover:bg-gray-100"
+              className="md:hidden text-gray-600"
               onClick={() => setSidebarOpen(true)}
             >
-              <Menu className="w-6 h-6 text-gray-700" />
+              <Menu className="w-6 h-6" />
             </button>
             <div>
-              <h2 className="text-2xl font-bold text-gray-900">Flashcards</h2>
+              <h2 className="text-xl md:text-2xl font-bold text-gray-900">Flashcards</h2>
               <p className="text-gray-600">
                 {selection.grade} • {selection.subject}
               </p>

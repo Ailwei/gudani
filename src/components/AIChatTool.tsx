@@ -132,23 +132,18 @@ const AIChatTool: React.FC<{
   };
 
   return (
-    <div className="flex h-screen gap-4 relative overflow-hidden">
-      <div className="hidden md:flex md:w-64 md:border-r md:border-gray-200">
+    <div className="flex h-screen">
+      <div className="hidden md:block w-64 border-r border-gray-200">
         <ChatHistory onSelectChat={handleSelectChat} />
       </div>
-      <button
-        className="md:hidden absolute top-4 left-4 z-20 p-2 bg-white rounded-lg shadow-md border border-gray-200"
-        onClick={() => setSidebarOpen(true)}
-      >
-        <Menu className="w-6 h-6 text-gray-700" />
-      </button>
+     
       {sidebarOpen && (
-        <div className="absolute inset-0 z-30 flex">
+        <div className="fixed inset-0 z-40 flex">
           <div
-            className="absolute inset-0 bg-black/50"
+            className="fixed inset-0 bg-black/50"
             onClick={() => setSidebarOpen(false)}
           />
-          <div className="relative w-64 bg-white border-r border-gray-200 flex flex-col transform transition-transform duration-300 translate-x-0">
+          <div className="relative w-64 bg-white border-r border-gray-200 z-50 flex flex-col">
             <div className="p-4 border-b flex justify-end">
               <button onClick={() => setSidebarOpen(false)}>
                 <X className="w-6 h-6 text-gray-600" />
@@ -159,21 +154,29 @@ const AIChatTool: React.FC<{
         </div>
       )}
       <div className="flex-1 flex flex-col bg-white rounded-xl shadow-sm border border-gray-200">
-        <div className="p-6 border-b border-gray-200 flex items-center justify-between">
-          <div>
-            <h2 className="text-2xl font-bold text-gray-900">AI Study Bot</h2>
-            <p className="text-gray-600">
-              {selection.grade} • {selection.subject}
-            </p>
-          </div>
-          <button
-            onClick={onBack}
-            className="text-purple-600 hover:text-purple-700 font-medium"
-          >
-            ← Back to Tools
-          </button>
-        </div>
-        <div className="flex-1 overflow-y-auto p-6 space-y-4">
+              <div className="p-6 border-b border-gray-200 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <button
+                    className="md:hidden text-gray-600"
+                    onClick={() => setSidebarOpen(true)}
+                  >
+                    <Menu className="w-6 h-6" />
+                  </button>
+                  <div>
+                    <h2 className="text-xl md:text font-bold text-gray-900">Study Bot</h2>
+                    <p className="text-gray-600 text-sm md:text-base">
+                      {selection.grade} • {selection.subject}
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={onBack}
+                  className="text-purple-600 hover:text-purple-700 font-medium"
+                >
+                  ← Back to Tools
+                </button>
+              </div>
+        <div className="p-6 space-y-6 flex-1 overflow-y-auto">
           {messages.map((message, index) => (
             <div
               key={index}
@@ -215,11 +218,12 @@ const AIChatTool: React.FC<{
               }
               disabled={loading}
             />
-            <button
-              onClick={sendMessage}
-              className="bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition-colors"
-              disabled={loading}
-            >
+           <button
+    onClick={sendMessage}
+    className="shrink-0 bg-purple-600 text-white px-4 sm:px-6 py-3 rounded-lg 
+               hover:bg-purple-700 transition-colors"
+    disabled={loading}
+  >
               {loading ? "Sending..." : "Send"}
             </button>
           </div>

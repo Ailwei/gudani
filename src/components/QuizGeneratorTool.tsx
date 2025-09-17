@@ -205,7 +205,7 @@ const QuizGeneratorTool: React.FC<{
               <h2 className="text-xl md:text-2xl font-bold text-gray-900">
                 Quiz Generator
               </h2>
-              <p className="text-gray-600 text-sm md:text-base">
+              <p className="text-gray-600">
                 {selection.grade} • {selection.subject}
               </p>
             </div>
