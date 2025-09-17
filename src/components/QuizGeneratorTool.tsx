@@ -128,7 +128,7 @@ const QuizGeneratorTool: React.FC<{
   };
 
   return (
-    <div className="flex h-screen">
+    <div className="flex h-screen gap-2">
       {sidebarOpen && (
         <div className="fixed inset-0 z-40 flex">
           <div

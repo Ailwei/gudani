@@ -144,7 +144,7 @@ const FlashcardsTool: React.FC<FlashcardsToolProps> = ({
 };
 
   return (
-    <div className="flex h-screen">
+    <div className="flex h-screen gap-2">
       <div className="hidden md:block w-64 border-r border-gray-200">
         <FlashcardList onSelectSet={handleTopicSelect} />
       </div>

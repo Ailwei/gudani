@@ -132,13 +132,13 @@ const AIChatTool: React.FC<{
   };
 
   return (
-    <div className="flex h-screen">
+<div className="flex flex-1 flex-col md:flex-row gap-2 bg-white">
       <div className="hidden md:block w-64 border-r border-gray-200">
         <ChatHistory onSelectChat={handleSelectChat} />
       </div>
      
       {sidebarOpen && (
-        <div className="fixed inset-0 z-40 flex">
+        <div className="fixed inseat-0 z-40 flex">
           <div
             className="fixed inset-0 bg-black/50"
             onClick={() => setSidebarOpen(false)}
@@ -205,29 +205,31 @@ const AIChatTool: React.FC<{
             </div>
           ))}
         </div>
-        <div className="p-6 border-t border-gray-200">
-          <div className="flex space-x-3">
-            <input
-              type="text"
-              value={inputMessage}
-              onChange={(e) => setInputMessage(e.target.value)}
-              placeholder="Ask your question..."
-              className="flex-1 border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-purple-500 text-gray-900 font-normal"
-              onKeyPress={(e) =>
-                e.key === "Enter" && !loading && sendMessage()
-              }
-              disabled={loading}
-            />
-           <button
-    onClick={sendMessage}
-    className="shrink-0 bg-purple-600 text-white px-4 sm:px-6 py-3 rounded-lg 
-               hover:bg-purple-700 transition-colors"
-    disabled={loading}
-  >
-              {loading ? "Sending..." : "Send"}
-            </button>
-          </div>
-        </div>
+        <div className="p-4 md:p-6 border-t border-gray-200">
+  <div className="flex items-center gap-2">
+    <input
+      type="text"
+      value={inputMessage}
+      onChange={(e) => setInputMessage(e.target.value)}
+      placeholder="Ask your question..."
+      className="flex-1 border border-gray-300 rounded-lg px-4 py-3 
+                 focus:outline-none focus:ring-2 focus:ring-purple-500 
+                 text-gray-900 font-normal"
+      onKeyPress={(e) => e.key === "Enter" && !loading && sendMessage()}
+      disabled={loading}
+    />
+     <button
+      onClick={sendMessage}
+      className="rounded-lg bg-purple-600 text-white px-4 py-3 
+                 hover:bg-purple-700 transition-colors 
+                 flex items-center justify-center"
+      disabled={loading}
+    >
+      {loading ? "..." : "Send"}
+    </button>
+  </div>
+</div>
+
       </div>
     </div>
   );
