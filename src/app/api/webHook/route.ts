@@ -207,7 +207,7 @@ export async function POST(req: NextRequest) {
         const subscriptionId = typeof (invoice as any).subscription === "string" ? (invoice as any).subscription : null;
         if (!subscriptionId) break;
 
-        await db.subscription.updateMany({
+        await db.subscription.update({
           where: { stripeSubscriptionId: subscriptionId },
           data: {
             paymentStatus: "PAID",
