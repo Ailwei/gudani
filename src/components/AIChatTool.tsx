@@ -3,6 +3,8 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Menu, X } from "lucide-react";
 import ChatHistory from "./chatHistory";
+import { Send } from "lucide-react";
+
 
 interface UserSelection {
   grade: string;
@@ -132,7 +134,7 @@ const AIChatTool: React.FC<{
   };
 
   return (
-<div className="flex flex-1 flex-col md:flex-row gap-2 bg-white">
+<div className="flex  flex-col md:flex-row gap-1 bg-white">
       <div className="hidden md:block w-64 border-r border-gray-200">
         <ChatHistory onSelectChat={handleSelectChat} />
       </div>
@@ -218,15 +220,20 @@ const AIChatTool: React.FC<{
       onKeyPress={(e) => e.key === "Enter" && !loading && sendMessage()}
       disabled={loading}
     />
-     <button
-      onClick={sendMessage}
-      className="rounded-lg bg-purple-600 text-white px-4 py-3 
-                 hover:bg-purple-700 transition-colors 
-                 flex items-center justify-center"
-      disabled={loading}
-    >
-      {loading ? "..." : "Send"}
-    </button>
+   <button
+  onClick={sendMessage}
+  className="rounded-lg bg-purple-600 text-white p-2 sm:p-3
+             hover:bg-purple-700 transition-colors 
+             flex items-center justify-center"
+  disabled={loading}
+>
+  {loading ? (
+    <span className="animate-pulse">...</span>
+  ) : (
+    <Send className="w-5 h-5" />
+  )}
+</button>
+
   </div>
 </div>
 
