@@ -1,6 +1,10 @@
+
+import * as pdfjsLib from "pdfjs-dist/build/pdf";
+
+pdfjsLib.GlobalWorkerOptions.workerSrc = "/pdf.worker.min.js";
+
 import React, { useState } from "react";
 import axios from "axios";
-import * as pdfjsLib from "pdfjs-dist";
 import GradeSubjectSelector from "./GradeSubjectSelector";
 
 interface UserSelection {
