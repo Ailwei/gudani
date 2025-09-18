@@ -203,20 +203,31 @@ export async function POST(req: NextRequest) {
         break;
       }
       case "invoice.payment_succeeded": {
-        const invoice = event.data.object as Stripe.Invoice;
-        const subscriptionId = typeof (invoice as any).subscription === "string" ? (invoice as any).subscription : null;
-        if (!subscriptionId) break;
+  const invoice = event.data.object as Stripe.Invoice;
 
-        await db.subscription.update({
-          where: { stripeSubscriptionId: subscriptionId },
-          data: {
-            paymentStatus: "PAID",
-            pastDueAmount: 0,
-            pastDueCurrency: invoice.currency.toUpperCase(),
-          },
-        });
-        break;
-      }
+  let subscriptionId: string | null = null;
+
+  if (typeof invoice.subscription === "string") {
+    subscriptionId = invoice.subscription;
+  } else if (invoice.subscription && typeof invoice.subscription === "object") {
+    subscriptionId = (invoice.subscription as Stripe.Subscription).id;
+  }
+
+  if (!subscriptionId) break;
+
+  console.log("Updating subscriptionId:", subscriptionId, "to PAID");
+
+  await db.subscription.update({
+    where: { stripeSubscriptionId: subscriptionId },
+    data: {
+      paymentStatus: "PAID",
+      pastDueAmount: 0,
+      pastDueCurrency: invoice.currency?.toUpperCase() ?? null,
+    },
+  });
+  break;
+}
+
 
       case "invoice.payment_failed": {
         const invoice = event.data.object as Stripe.Invoice;
