@@ -210,11 +210,11 @@ const NoteUploadTool: React.FC<{
               className="md:hidden p-2 rounded-lg hover:bg-gray-100"
               onClick={() => setSidebarOpen(true)}
             >
-              <Menu className="w-6 h-6 text-gray-700" />
+              <Menu className="w-6 h-6 text-gray-600" />
             </button>
             <div>
               <h2 className="text-2xl font-bold text-gray-900">
-                Note Upload + Summary
+                Note/PDF
               </h2>
               <p className="text-gray-600">
                 {selection.grade} • {selection.subject}

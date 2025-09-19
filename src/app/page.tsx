@@ -5,7 +5,7 @@ import { Brain, Zap, BookOpen, Target, CheckCircle, ArrowRight, Sparkles, Menu }
 const StudySmartAILanding: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [activeFeature, setActiveFeature] = useState(0);
-  const [isMenuOpen, setIsMenuOpen] = useState(false); // Added for mobile menu toggle
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const featuresRef = useRef<HTMLDivElement>(null);
   const pricingRef = useRef<HTMLDivElement>(null);

@@ -140,7 +140,7 @@ const AIChatTool: React.FC<{
       </div>
      
       {sidebarOpen && (
-        <div className="fixed inseat-0 z-40 flex">
+        <div className="fixed inset-0 z-40 flex">
           <div
             className="fixed inset-0 bg-black/50"
             onClick={() => setSidebarOpen(false)}

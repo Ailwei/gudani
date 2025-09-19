@@ -17,7 +17,6 @@ const AIChatTool = dynamic(() => import('@/components/AIChatTool'), { ssr: false
 const NoteUploadTool = dynamic(() => import('@/components/NoteUploadTool'), { ssr: false });
 const QuizGeneratorTool = dynamic(() => import('@/components/QuizGeneratorTool'), { ssr: false });
 const FlashcardsTool = dynamic(() => import('@/components/FlashcardsTool'), { ssr: false });
-const RecentActivity = dynamic(() => import('@/components/RecentActivity'), { ssr: false });
 
 
 interface UserSelection {
@@ -143,7 +142,6 @@ const StudySmartDashboard: React.FC = () => {
         ) : (
           <>
             {renderContent()}
-            <RecentActivity />
           </>
         )}
       </main>
