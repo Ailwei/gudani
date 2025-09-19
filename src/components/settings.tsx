@@ -70,8 +70,8 @@ export default function SettingsPage({ onClose }: SettingsPageProps) {
           </div>
         </section>
       </div>
-      <div className="md:hidden">
-        <div className="flex mb-4 gap-2 overflow-x-auto">
+<div className="flex md:hidden mb-4 overflow-x-auto gap-2">
+       
           {settingsLinks.map(({ label, value }) => (
             <button
               key={value}
@@ -84,6 +84,7 @@ export default function SettingsPage({ onClose }: SettingsPageProps) {
               )}
             >
               {label}
+              <span className="absolute left-0 right-0 bottom-0 h-0.5 bg-white mt-1"></span>
             </button>
           ))}
         </div>
@@ -114,6 +115,6 @@ export default function SettingsPage({ onClose }: SettingsPageProps) {
           </div>
         </div>
       </div>
-    </div>
+   
   );
 }
