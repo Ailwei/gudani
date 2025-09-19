@@ -1,29 +1,95 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
-import { X } from "lucide-react";
+import { X, CheckCircle } from "lucide-react";
+
+export enum PlanType {
+  FREE = "FREE",
+  STANDARD = "STANDARD",
+  PREMIUM = "PREMIUM",
+}
 
 interface Plan {
-  id: string;
+  id: PlanType;
   name: string;
   price: string;
-  type: string;
+  features: string[];
 }
 
 interface PlanSelectorProps {
   userId: string;
   onClose?: () => void;
+  onUpgradeClick?: () => void; // handler for upgrade button
 }
 
-export default function PlanSelector({ userId, onClose }: PlanSelectorProps) {
-  const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
-  const [loading, setLoading] = useState(false);
-
+export default function PlanSelector({ userId, onClose, onUpgradeClick }: PlanSelectorProps) {
   const plans: Plan[] = [
-    { id: "standard", name: "Standard", price: "R50 / month", type: "standard" },
-    { id: "premium", name: "Premium", price: "R120 / month", type: "premium" },
+    {
+      id: PlanType.FREE,
+      name: "Free",
+      price: "R0 / month",
+      features: [
+        "5 AI questions per day",
+        "Basic flashcards",
+        "Simple quizzes",
+        "Note summaries (limited)",
+      ],
+    },
+    {
+      id: PlanType.STANDARD,
+      name: "Standard",
+      price: "R50 / month",
+      features: [
+        "More AI questions per day",
+        "Limited flashcards and quizzes",
+        "Progress tracking",
+        "Grade-specific content",
+      ],
+    },
+    {
+      id: PlanType.PREMIUM,
+      name: "Premium",
+      price: "R120 / month",
+      features: [
+        "Unlimited AI questions",
+        "Unlimited flashcards, quizzes, and summaries",
+        "Advanced features",
+        "Priority support",
+      ],
+    },
   ];
+
+  const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
+  const [planType, setPlanType] = useState<PlanType | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [fetching, setFetching] = useState(true);
+
+  // Fetch current subscription
+  useEffect(() => {
+    const fetchSubscription = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const response = await axios.get("/api/subscriptionDetails", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        const currentType: PlanType = response.data.planType;
+        setPlanType(currentType);
+
+        const plan = plans.find((p) => p.id === currentType) || plans[0];
+        setSelectedPlan(plan);
+      } catch (err) {
+        console.error("Failed to fetch subscription:", err);
+        setPlanType(PlanType.FREE);
+        setSelectedPlan(plans[0]);
+      } finally {
+        setFetching(false);
+      }
+    };
+
+    fetchSubscription();
+  }, []);
 
   const handleSelectPlan = (plan: Plan) => setSelectedPlan(plan);
 
@@ -34,12 +100,10 @@ export default function PlanSelector({ userId, onClose }: PlanSelectorProps) {
     try {
       const response = await axios.post("/api/subscribe", {
         userId,
-        planType: selectedPlan.type,
+        planType: selectedPlan.id,
       });
 
-      if (response.data.url) {
-        window.location.href = response.data.url;
-      }
+      if (response.data.url) window.location.href = response.data.url;
     } catch (err: any) {
       const errorMessage = err.response?.data?.error || "Something went wrong";
       console.error("Checkout Error:", errorMessage);
@@ -48,6 +112,9 @@ export default function PlanSelector({ userId, onClose }: PlanSelectorProps) {
       setLoading(false);
     }
   };
+
+  if (fetching) {
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center px-4 sm:px-6 py-12">
@@ -61,10 +128,12 @@ export default function PlanSelector({ userId, onClose }: PlanSelectorProps) {
             <X className="w-6 h-6" />
           </button>
         )}
+
         <h2 className="text-4xl font-extrabold text-center text-gray-900 mb-12 mt-16 md:mt-0">
           Choose Your Plan
         </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {plans.map((plan) => (
             <div
               key={plan.id}
@@ -75,12 +144,34 @@ export default function PlanSelector({ userId, onClose }: PlanSelectorProps) {
                   : "border-gray-200 bg-white hover:border-gray-400"
               }`}
             >
-              <h3 className="text-2xl font-semibold text-gray-900">
+              <h3 className="text-2xl font-semibold text-gray-900 flex items-center justify-between">
                 {plan.name}
+                {plan.id === planType && (
+                  <span className="text-xs px-2 py-1 bg-gray-200 text-gray-800 rounded-full ml-2">
+                    Current
+                  </span>
+                )}
               </h3>
-              <p className="mt-4 text-xl font-medium text-gray-700">
-                {plan.price}
-              </p>
+              <p className="mt-4 text-xl font-medium text-gray-700">{plan.price}</p>
+              <ul className="mt-6 space-y-2">
+                {plan.features.map((feature, idx) => (
+                  <li key={idx} className="flex items-center text-gray-600">
+                    <CheckCircle className="w-5 h-5 text-green-500 mr-2" />
+                    {feature}
+                  </li>
+                ))}
+              </ul>
+
+              {!loading && (planType === PlanType.FREE || planType === PlanType.STANDARD) && plan.id === planType && onUpgradeClick && (
+                <div className="mt-6 flex justify-center">
+                  <button
+                    onClick={onUpgradeClick}
+                    className="px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-xl font-semibold hover:from-purple-700 hover:to-blue-700 transition-all"
+                  >
+                    Upgrade Plan
+                  </button>
+                </div>
+              )}
             </div>
           ))}
         </div>
@@ -88,14 +179,18 @@ export default function PlanSelector({ userId, onClose }: PlanSelectorProps) {
         <div className="mt-12 flex justify-center">
           <button
             onClick={handleSubscribe}
-            disabled={!selectedPlan || loading}
+            disabled={loading || selectedPlan?.id === planType}
             className={`px-10 py-4 rounded-xl font-semibold text-lg shadow-md transition-colors ${
-              !selectedPlan
+              selectedPlan?.id === planType
                 ? "bg-gray-400 text-white cursor-not-allowed"
                 : "bg-gradient-to-r from-purple-600 to-blue-600 text-white hover:from-purple-700 hover:to-blue-700"
             }`}
           >
-            {loading ? "Redirecting..." : "Subscribe Now"}
+            {loading
+              ? "Redirecting..."
+              : selectedPlan?.id === planType
+              ? "Current Plan"
+              : "Subscribe Now"}
           </button>
         </div>
       </div>

@@ -19,9 +19,22 @@ interface SettingsPageProps {
 export default function SettingsPage({ onClose }: SettingsPageProps) {
   const [activeTab, setActiveTab] = useState("profile");
 
+  const renderActiveTab = () => (
+    <>
+      {activeTab === "profile" && <ProfileUpdate />}
+      {activeTab === "subscription" && <SubscriptionDetails />}
+      {activeTab === "security" && <div className="text-gray-600">Security settings go here</div>}
+      {activeTab === "deleteAccount" && (
+        <div className="text-red-600 font-semibold">
+          <DeleteAccount onDelete={() => (window.location.href = "/login")} />
+        </div>
+      )}
+    </>
+  );
+
   return (
     <div className="relative w-full max-w-7xl mx-auto px-4 py-8 min-h-screen">
-            <div className="hidden md:grid md:grid-cols-4 md:gap-8">
+      <div className="hidden md:grid md:grid-cols-4 md:gap-8">
         <aside className="space-y-6 bg-gray-50 p-4 rounded-lg shadow-sm sticky top-4 h-fit">
           <h2 className="text-xl font-semibold text-gray-800">Settings</h2>
           <nav className="space-y-2">
@@ -46,7 +59,7 @@ export default function SettingsPage({ onClose }: SettingsPageProps) {
           <div className="bg-white shadow-md rounded-lg p-6 min-h-[500px] relative">
             <button
               onClick={onClose}
-              className="hidden md:flex absolute top-4 right-4 p-2 rounded-full hover:bg-gray-100 text-gray-600 hover:text-gray-800 z-50"
+              className="absolute top-4 right-4 p-2 rounded-full hover:bg-gray-100 text-gray-600 hover:text-gray-800 z-50"
             >
               <X className="w-6 h-6" />
             </button>
@@ -55,23 +68,13 @@ export default function SettingsPage({ onClose }: SettingsPageProps) {
               {settingsLinks.find((link) => link.value === activeTab)?.label}
             </h3>
 
-            <div className="space-y-6">
-              {activeTab === "profile" && <ProfileUpdate />}
-              {activeTab === "subscription" && <SubscriptionDetails />}
-              {activeTab === "security" && (
-                <div className="text-gray-600">Security settings go here</div>
-              )}
-              {activeTab === "deleteAccount" && (
-                <div className="text-red-600 font-semibold">
-                  <DeleteAccount onDelete={() => window.location.href = "/login"} />
-                </div>
-              )}
-            </div>
+            <div className="space-y-6">{renderActiveTab()}</div>
           </div>
         </section>
       </div>
-<div className="flex md:hidden mb-4 overflow-x-auto gap-2">
-       
+
+      <div className="md:hidden">
+        <div className="flex mb-4 overflow-x-auto gap-2">
           {settingsLinks.map(({ label, value }) => (
             <button
               key={value}
@@ -84,7 +87,6 @@ export default function SettingsPage({ onClose }: SettingsPageProps) {
               )}
             >
               {label}
-              <span className="absolute left-0 right-0 bottom-0 h-0.5 bg-white mt-1"></span>
             </button>
           ))}
         </div>
@@ -101,20 +103,9 @@ export default function SettingsPage({ onClose }: SettingsPageProps) {
             {settingsLinks.find((link) => link.value === activeTab)?.label}
           </h3>
 
-          <div className="space-y-6">
-            {activeTab === "profile" && <ProfileUpdate />}
-            {activeTab === "subscription" && <SubscriptionDetails />}
-            {activeTab === "security" && (
-              <div className="text-gray-600">Security settings go here</div>
-            )}
-            {activeTab === "deleteAccount" && (
-              <div className="text-red-600 font-semibold">
-                <DeleteAccount onDelete={() => window.location.href = "/login"} />
-              </div>
-            )}
-          </div>
+          <div className="space-y-6">{renderActiveTab()}</div>
         </div>
       </div>
-   
+    </div>
   );
 }
