@@ -7,8 +7,7 @@ interface deleteAccountProps {
 }
 
 const DeleteAccount: React.FC<deleteAccountProps> = ({onDelete}) => {
- 
-
+  
   const handleDelete = async () => {
     try {
       const token = localStorage.getItem("token");
@@ -21,13 +20,9 @@ const DeleteAccount: React.FC<deleteAccountProps> = ({onDelete}) => {
           Authorization: `Bearer ${token}`
         }
       })
-      console.log("Account deleted: ", res.data)
-
       localStorage.removeItem("token");
-
       alert("Account sucessfully deleted !")
       onDelete?.();
-      
     }catch(error) {
        console.error("Error deleting account:", error);
       alert("Failed to delete account.");
@@ -35,7 +30,9 @@ const DeleteAccount: React.FC<deleteAccountProps> = ({onDelete}) => {
     }
   };
 
-  return <button onClick={handleDelete}>Delete Account</button>;
+  return (<button 
+  className="ml-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg font-semibold hover:from-purple-700 hover:to-blue-700 transition-colors"
+ onClick={handleDelete}>Delete Account</button>);
 }
 
 export default DeleteAccount
