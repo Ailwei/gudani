@@ -20,7 +20,7 @@ interface Plan {
 interface PlanSelectorProps {
   userId: string;
   onClose?: () => void;
-  onUpgradeClick?: () => void; // handler for upgrade button
+  onUpgradeClick?: () => void;
 }
 
 export default function PlanSelector({ userId, onClose, onUpgradeClick }: PlanSelectorProps) {
@@ -65,7 +65,6 @@ export default function PlanSelector({ userId, onClose, onUpgradeClick }: PlanSe
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
 
-  // Fetch current subscription
   useEffect(() => {
     const fetchSubscription = async () => {
       try {

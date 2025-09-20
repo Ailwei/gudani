@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect, useRef } from 'react';
 import { Brain, Zap, BookOpen, Target, CheckCircle, ArrowRight, Sparkles, Menu } from 'lucide-react';
+import Link from "next/link";
 
 const StudySmartAILanding: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -182,10 +183,12 @@ const StudySmartAILanding: React.FC = () => {
               The AI-powered study companion for high school students. Get instant answers, smart quizzes, and easy summaries—so you can learn faster and achieve more.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12 sm:mb-16">
-              <button className="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-6 sm:px-8 md:px-10 py-3 sm:py-4 rounded-2xl text-base sm:text-lg font-bold hover:from-purple-700 hover:to-blue-700 transition-all duration-300 transform hover:scale-105 shadow-2xl flex items-center w-full sm:w-auto justify-center">
-                Start Learning Free
-                <ArrowRight className="ml-2 sm:ml-3 w-5 sm:w-6 h-5 sm:h-6" />
-              </button>
+              <Link href="/register">
+  <button className="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-6 sm:px-8 md:px-10 py-3 sm:py-4 rounded-2xl text-base sm:text-lg font-bold hover:from-purple-700 hover:to-blue-700 transition-all duration-300 transform hover:scale-105 shadow-2xl flex items-center w-full sm:w-auto justify-center">
+    Start Learning Free
+    <ArrowRight className="ml-2 sm:ml-3 w-5 sm:w-6 h-5 sm:h-6" />
+  </button>
+</Link>
               <button className="border-2 border-gray-300 text-gray-700 px-6 sm:px-8 md:px-10 py-3 sm:py-4 rounded-2xl text-base sm:text-lg font-bold hover:border-purple-600 hover:text-purple-600 transition-all duration-300 w-full sm:w-auto">
                 Watch Demo
               </button>
@@ -359,9 +362,11 @@ const StudySmartAILanding: React.FC = () => {
             Join thousands of students already studying smarter with AI.
           </p>
           <div className="flex justify-center">
+            <Link href="/register">
             <button className="bg-white text-purple-600 px-6 sm:px-8 md:px-10 py-3 sm:py-4 md:py-5 rounded-2xl text-base sm:text-lg md:text-xl font-bold hover:bg-gray-100 transition-all duration-300 transform hover:scale-105 shadow-2xl">
               Start Free Today
             </button>
+            </Link>
           </div>
         </div>
       </section>
@@ -381,15 +386,14 @@ const StudySmartAILanding: React.FC = () => {
             <div>
               <h4 className="font-semibold mb-4 text-sm sm:text-base">Product</h4>
               <ul className="space-y-2 text-gray-400 text-sm sm:text-base">
-                <li><a href="#" className="hover:text-white transition-colors">Features</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Pricing</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">API</a></li>
+                <li><a onClick={() => scrollToSection(featuresRef)} className="hover:text-white transition-colors cursor-pointer">Features</a></li>
+                <li><a onClick={() => scrollToSection(pricingRef)} className="hover:text-white transition-colors cursor-pointer">Pricing</a></li>
               </ul>
             </div>
             <div>
               <h4 className="font-semibold mb-4 text-sm sm:text-base">Support</h4>
               <ul className="space-y-2 text-gray-400 text-sm sm:text-base">
-                <li><a href="#" className="hover:text-white transition-colors">Help Center</a></li>
+                <li><a  className="hover:text-white transition-colors">Help Center</a></li>
                 <li><a href="#" className="hover:text-white transition-colors">Contact</a></li>
                 <li><a href="#" className="hover:text-white transition-colors">Community</a></li>
               </ul>
@@ -397,7 +401,7 @@ const StudySmartAILanding: React.FC = () => {
             <div>
               <h4 className="font-semibold mb-4 text-sm sm:text-base">Company</h4>
               <ul className="space-y-2 text-gray-400 text-sm sm:text-base">
-                <li><a href="#" className="hover:text-white transition-colors">About</a></li>
+                <li><a onClick={() => scrollToSection(aboutRef)} className="hover:text-white transition-colors cursor-pointer">About</a></li>
                 <li><a href="#" className="hover:text-white transition-colors">Blog</a></li>
                 <li><a href="#" className="hover:text-white transition-colors">Careers</a></li>
               </ul>
