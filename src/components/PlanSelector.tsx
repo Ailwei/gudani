@@ -21,9 +21,10 @@ interface PlanSelectorProps {
   userId: string;
   onClose?: () => void;
   onUpgradeClick?: () => void;
+  activePlan?: PlanType;
 }
 
-export default function PlanSelector({ userId, onClose, onUpgradeClick }: PlanSelectorProps) {
+export default function PlanSelector({ userId, onClose, onUpgradeClick, activePlan }: PlanSelectorProps) {
   const plans: Plan[] = [
     {
       id: PlanType.FREE,
@@ -66,29 +67,29 @@ export default function PlanSelector({ userId, onClose, onUpgradeClick }: PlanSe
   const [fetching, setFetching] = useState(true);
 
   useEffect(() => {
-    const fetchSubscription = async () => {
-      try {
-        const token = localStorage.getItem("token");
-        const response = await axios.get("/api/subscriptionDetails", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+  const fetchSubscription = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.get("/api/subscriptionDetails", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
-        const currentType: PlanType = response.data.planType;
-        setPlanType(currentType);
+      const currentType: PlanType = response.data.planType;
+      setPlanType(currentType);
 
-        const plan = plans.find((p) => p.id === currentType) || plans[0];
-        setSelectedPlan(plan);
-      } catch (err) {
-        console.error("Failed to fetch subscription:", err);
-        setPlanType(PlanType.FREE);
-        setSelectedPlan(plans[0]);
-      } finally {
-        setFetching(false);
-      }
-    };
 
-    fetchSubscription();
-  }, []);
+      const initialSelectedPlan = activePlan ? plans.find(p => p.id === activePlan) : plans.find(p => p.id === currentType);
+      setSelectedPlan(initialSelectedPlan || null);
+    } catch (err) {
+      setPlanType(PlanType.FREE);
+      setSelectedPlan(activePlan ? plans.find(p => p.id === activePlan) || null : plans[0]);
+    } finally {
+      setFetching(false);
+    }
+  };
+
+  fetchSubscription();
+}, [activePlan]);
 
   const handleSelectPlan = (plan: Plan) => setSelectedPlan(plan);
 
@@ -103,6 +104,8 @@ export default function PlanSelector({ userId, onClose, onUpgradeClick }: PlanSe
       });
 
       if (response.data.url) window.location.href = response.data.url;
+      setPlanType(selectedPlan.id);
+      setSelectedPlan(selectedPlan);
     } catch (err: any) {
       const errorMessage = err.response?.data?.error || "Something went wrong";
       console.error("Checkout Error:", errorMessage);
@@ -175,23 +178,27 @@ export default function PlanSelector({ userId, onClose, onUpgradeClick }: PlanSe
           ))}
         </div>
 
-        <div className="mt-12 flex justify-center">
-          <button
-            onClick={handleSubscribe}
-            disabled={loading || selectedPlan?.id === planType}
-            className={`px-10 py-4 rounded-xl font-semibold text-lg shadow-md transition-colors ${
-              selectedPlan?.id === planType
-                ? "bg-gray-400 text-white cursor-not-allowed"
-                : "bg-gradient-to-r from-purple-600 to-blue-600 text-white hover:from-purple-700 hover:to-blue-700"
-            }`}
-          >
-            {loading
-              ? "Redirecting..."
-              : selectedPlan?.id === planType
-              ? "Current Plan"
-              : "Subscribe Now"}
-          </button>
-        </div>
+       {selectedPlan?.id !== planType && (
+  <div className="mt-12 flex justify-center">
+    <button
+      onClick={handleSubscribe}
+      disabled={loading}
+      className={`px-10 py-4 rounded-xl font-semibold text-lg shadow-md transition-colors ${
+        loading
+          ? "bg-gray-400 text-white cursor-not-allowed"
+          : "bg-gradient-to-r from-purple-600 to-blue-600 text-white hover:from-purple-700 hover:to-blue-700"
+      }`}
+    >
+      {loading
+        ? "Redirecting..."
+        : selectedPlan?.id === PlanType.FREE
+        ? "Downgrade Plan"
+        : "Subscribe Now"}
+    </button>
+  </div>
+)}
+
+
       </div>
     </div>
   );
