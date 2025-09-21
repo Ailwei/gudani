@@ -296,16 +296,18 @@ const StudySmartAILanding: React.FC = () => {
                   </li>
                 ))}
               </ul>
+              <Link href="/register">
               <button className="w-full bg-gray-100 text-gray-900 py-3 rounded-xl font-semibold hover:bg-gray-200 transition-colors">
                 Get Started Free
               </button>
+              </Link>
             </div>
             <div className="bg-gradient-to-br from-purple-600 to-blue-600 rounded-2xl p-6 sm:p-8 text-white relative transform sm:scale-100 lg:scale-105 shadow-2xl">
               <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-yellow-400 text-yellow-900 px-4 py-1 rounded-full text-xs sm:text-sm font-semibold">
-                Most Popular
+                Popular
               </div>
               <h3 className="text-xl sm:text-2xl font-bold mb-4">Standard</h3>
-              <div className="text-2xl sm:text-3xl md:text-4xl font-bold mb-6">R29<span className="text-sm sm:text-lg opacity-75">/month</span></div>
+              <div className="text-2xl sm:text-3xl md:text-4xl font-bold mb-6">R50<span className="text-sm sm:text-lg opacity-75">/month</span></div>
               <ul className="space-y-3 mb-8">
                 {[
                   "Limited flashcards, quizzes, and summaries",
@@ -319,16 +321,21 @@ const StudySmartAILanding: React.FC = () => {
                   </li>
                 ))}
               </ul>
-              <button className="w-full bg-white text-purple-600 py-3 rounded-xl font-semibold hover:bg-gray-100 transition-colors">
+            
+              <button onClick={() => {
+                 localStorage.setItem("planType", "STANDARD");
+                 window.location.href = "/register"
+
+              }} className="w-full bg-white text-purple-600 py-3 rounded-xl font-semibold hover:bg-gray-100 transition-colors">
                 Start Standard
               </button>
             </div>
             <div className="bg-white rounded-2xl p-6 sm:p-8 border-2 border-gray-200 hover:border-blue-300 transition-all duration-300 relative">
               <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-red-500 text-white px-4 py-1 rounded-full text-xs sm:text-sm font-semibold">
-                Coming Soon
+                Very Hot
               </div>
               <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4">Premium</h3>
-              <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-6">R99<span className="text-sm sm:text-lg text-gray-500">/month</span></div>
+              <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-6">R120<span className="text-sm sm:text-lg text-gray-500">/month</span></div>
               <ul className="space-y-3 mb-8">
                 {[
                   "Unlimited flashcards, quizzes, and summaries",
@@ -342,12 +349,14 @@ const StudySmartAILanding: React.FC = () => {
                   </li>
                 ))}
               </ul>
-              <button
-                className="w-full bg-blue-600 text-white py-3 rounded-xl font-semibold opacity-60 cursor-not-allowed"
-                disabled
-              >
-                Start Premium
-              </button>
+  
+  <button onClick={() => {
+      localStorage.setItem("planType", "PREMIUM");
+    window.location.href = "/register"
+  }} className="w-full bg-blue-600 text-white py-3 rounded-xl font-semibold hover:bg-blue-700 transition-colors">
+    Start Premium
+  </button>
+
             </div>
           </div>
         </div>

@@ -6,6 +6,7 @@ import axios from "axios";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { registerSchema } from "@/schemas/auth";
+import { useSearchParams } from "next/navigation";
 
 type RegisterForm = {
   firstName: string;
@@ -16,6 +17,9 @@ type RegisterForm = {
 
 const RegisterPage: React.FC = () => {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const plan = searchParams.get("planType") || "FREE";
+
   const {
     register,
     handleSubmit,
@@ -30,7 +34,7 @@ const RegisterPage: React.FC = () => {
     clearErrors();
     try {
       const newUser = await axios.post("/api/auth/register", data);
-      alert("Registration successful! User ID: " + newUser.data.userId);
+      alert("Registration successful!");
       router.push("/login");
     } catch (err: any) {
       if (err.response?.data?.errors) {

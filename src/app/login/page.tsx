@@ -1,15 +1,20 @@
 "use client";
 import React, { useState } from 'react';
 import { Brain } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import axios from 'axios';
 
 const LoginPage: React.FC = () => {
+  const searchParams = useSearchParams();
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  const plan = searchParams.get("planType") || "FREE";
+
+
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -18,11 +23,16 @@ const LoginPage: React.FC = () => {
 
     try {
       const res = await axios.post('/api/auth/login', { email, password });
-      // Save token to localStorage
       if (res.data.token) {
         localStorage.setItem("token", res.data.token);
       }
-      router.push('/dashboard');
+      if(plan === "PREMIUM"){
+        router.push("checkout");
+      } else if (plan === "STANDARD"){
+        router.push("checkout");
+      } else {
+        router.push('/dashboard');
+      }
     } catch (err: any) {
       if (err.response?.data?.errors) {
         setError(

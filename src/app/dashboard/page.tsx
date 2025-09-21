@@ -8,7 +8,7 @@ import GradeSubjectSelector from '../../components/GradeSubjectSelector';
 import ToolSelector from '@/components/ToolSelector';
 import Footer from '@/components/Footer';
 import AdminDashboard from '../adminDashboard/page';
-import PlanSelector from '@/components/PlanSelector';
+import PlanSelector, { PlanType } from '@/components/PlanSelector';
 import SettingsPage from '@/components/settings';
 
 import dynamic from "next/dynamic";
@@ -34,6 +34,19 @@ const StudySmartDashboard: React.FC = () => {
   const [showPlans, setShowPlans] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
   const [showSettings, setShowSettings] = useState(false);
+  const [intendedPlan, setIntendedPlan] = useState<PlanType | null>(null);
+
+
+ useEffect(() => {
+  if (userId && typeof window !== "undefined") {
+    const plan = localStorage.getItem("planType") as PlanType | null;
+    if (plan && plan !== "FREE") {
+      setIntendedPlan(plan);
+      setShowPlans(true);
+      localStorage.removeItem("planType");
+    }
+  }
+}, [userId]);
 
   useEffect(() => {
     async function fetchUserRole() {
@@ -138,7 +151,7 @@ const StudySmartDashboard: React.FC = () => {
 
       <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 flex flex-col space-y-6">
         {showPlans && userId ? (
-          <PlanSelector userId={userId} onClose={() => setShowPlans(false)} />
+          <PlanSelector  userId={userId} activePlan={intendedPlan || undefined} onClose={() => setShowPlans(false)} />
         ) : (
           <>
             {renderContent()}
