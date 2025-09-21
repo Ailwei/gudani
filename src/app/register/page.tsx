@@ -1,12 +1,11 @@
 "use client";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Brain } from "lucide-react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { registerSchema } from "@/schemas/auth";
-import { useSearchParams } from "next/navigation";
 
 type RegisterForm = {
   firstName: string;
@@ -17,8 +16,16 @@ type RegisterForm = {
 
 const RegisterPage: React.FC = () => {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const plan = searchParams.get("planType") || "FREE";
+ const [plan, setPlan] = useState("FREE");
+ 
+ 
+ 
+   useEffect(() => {
+   const params = new URLSearchParams(window.location.search);
+   const planType = params.get("planType");
+   if (planType) setPlan(planType.toUpperCase());
+ }, []);
+ 
 
   const {
     register,

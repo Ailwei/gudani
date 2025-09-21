@@ -1,20 +1,26 @@
 "use client";
+import { Suspense, useEffect } from 'react';
 import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Brain } from 'lucide-react';
-import { useSearchParams, useRouter } from 'next/navigation';
 import axios from 'axios';
 
 const LoginPage: React.FC = () => {
-  const searchParams = useSearchParams();
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const plan = searchParams.get("planType") || "FREE";
+const [plan, setPlan] = useState("FREE");
 
 
+
+  useEffect(() => {
+  const params = new URLSearchParams(window.location.search);
+  const planType = params.get("planType");
+  if (planType) setPlan(planType.toUpperCase());
+}, []);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
