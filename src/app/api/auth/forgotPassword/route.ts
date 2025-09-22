@@ -1,7 +1,7 @@
 import { forgotPasswordSchema } from "@/schemas/auth";
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/prisma";
-import { sendResetEmail } from "@/utils/emailService";
+import { sendResetEmail } from "@/lib/passwordResetEmail";
 import jwt from "jsonwebtoken";
 
 

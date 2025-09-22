@@ -2,7 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { stripe } from "@/lib/stripe";
 import { db } from "@/lib/prisma";
 import Stripe from "stripe";
+import { sendPaymentReceipt } from "@/lib/paymentProoof";
+import { sendPaymentFailed } from "@/lib/paymentFailed";
 import { getLatestUserSubscription } from "@/lib/getLatestSubscription";
+import { PlanType } from "@/generated/prisma";
 
 export const config = { api: { bodyParser: false } };
 
@@ -27,9 +30,7 @@ export async function POST(req: NextRequest) {
 
     try {
       event = stripe.webhooks.constructEvent(raw, sigHeader ?? "", webhookSecret);
-      console.log("Stripe event received:", event.type);
     } catch (err: any) {
-      console.error("Webhook signature verification failed:", err);
       return NextResponse.json({ error: "Webhook signature verification failed" }, { status: 400 });
     }
 
@@ -46,7 +47,6 @@ export async function POST(req: NextRequest) {
             await stripe.customers.update(session.customer as string, {
               invoice_settings: { default_payment_method: paymentMethodId },
             });
-            console.log("Default payment method set for customer:", session.customer);
           }
         }
 
@@ -80,21 +80,16 @@ export async function POST(req: NextRequest) {
 
       case "customer.subscription.created": {
         const stripeSub = event.data.object as Stripe.Subscription;
-        console.log("Subscription created event received:", stripeSub.id);
 
         const userId = stripeSub.metadata?.userId;
         const planType = stripeSub.metadata?.planType;
 
-        console.log("User ID:", userId, "Plan type:", planType, "Stripe Subscription ID:", stripeSub.id);
-
         if (!userId || !planType) {
-          console.warn("Missing metadata on subscription creation");
           break;
         }
 
         const plan = await db.planConfig.findUnique({ where: { type: planType as any } });
         if (!plan) {
-          console.warn("Plan not found for type:", planType);
           break;
         }
 
@@ -125,7 +120,6 @@ export async function POST(req: NextRequest) {
               endDate,
             },
           });
-          console.log("Subscription updated in DB for user:", userId);
         } else {
           await db.subscription.create({
             data: {
@@ -137,7 +131,6 @@ export async function POST(req: NextRequest) {
               endDate,
             },
           });
-          console.log("New subscription created in DB for user:", userId);
         }
         break;
       }
@@ -215,35 +208,53 @@ export async function POST(req: NextRequest) {
 
   if (!subscriptionId) break;
 
-  console.log("Updating subscriptionId:", subscriptionId, "to PAID");
-
-  await db.subscription.update({
+  const sub = await db.subscription.update({
     where: { stripeSubscriptionId: subscriptionId },
     data: {
       paymentStatus: "PAID",
       pastDueAmount: 0,
       pastDueCurrency: invoice.currency?.toUpperCase() ?? null,
     },
+    include :{
+      user: true,
+      plan: true
+    }
   });
+ await sendPaymentReceipt(sub.user, sub.plan, invoice);
   break;
 }
 
 
       case "invoice.payment_failed": {
-        const invoice = event.data.object as Stripe.Invoice;
-        const subscriptionId = typeof (invoice as any).subscription === "string" ? (invoice as any).subscription : null;
-        if (!subscriptionId) break;
+  const invoice = event.data.object as Stripe.Invoice;
+  const subscriptionId =
+    typeof invoice.subscription === "string" ? invoice.subscription : null;
+  if (!subscriptionId) break;
 
-        await db.subscription.updateMany({
-          where: { stripeSubscriptionId: subscriptionId },
-          data: {
-            paymentStatus: "FAILED",
-            pastDueAmount: invoice.amount_due / 100,
-            pastDueCurrency: invoice.currency.toUpperCase(),
-          },
-        });
-        break;
-      }
+  const sub = await db.subscription.findUnique({
+    where: { stripeSubscriptionId: subscriptionId },
+    include: { user: true, plan: true },
+  });
+
+  if (!sub) break;
+  await db.subscription.update({
+    where: { id: sub.id },
+    data: {
+      paymentStatus: "FAILED",
+      pastDueAmount: invoice.amount_due / 100,
+      pastDueCurrency: invoice.currency.toUpperCase(),
+    },
+  });
+
+  try {
+    await sendPaymentFailed(sub.user, sub.plan, invoice);
+  } catch (err) {
+    console.error("Failed to send email:", err);
+  }
+
+  break;
+}
+
 
 
       case "customer.updated": {
@@ -258,13 +269,11 @@ export async function POST(req: NextRequest) {
       }
 
       default:
-        console.log("Unhandled Stripe event type:", event.type);
         break;
     }
 
     return NextResponse.json({ received: true });
   } catch (err: any) {
-    console.error("Webhook Error:", err);
     return NextResponse.json({ error: err.message || "Internal error" }, { status: 500 });
   }
 }

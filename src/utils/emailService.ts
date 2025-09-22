@@ -1,6 +1,5 @@
 import nodemailer from "nodemailer";
 
-export async function sendResetEmail(to: string, resetLink: string) {
   const transporter = nodemailer.createTransport({
     host: process.env.SMTP_HOST,
     port: Number(process.env.SMTP_PORT) || 587,
@@ -10,17 +9,12 @@ export async function sendResetEmail(to: string, resetLink: string) {
       pass: process.env.SMTP_PASS,
     },
   });
-
-  const mailOptions = {
+  export async function sendEmail(to: string, subject: string, html: string, attachments?: any[]) {
+  return transporter.sendMail({
     from: `"GudaniSmartAI" <${process.env.SMTP_USER}>`,
     to,
-    subject: "Password Reset Request",
-    html: `
-      <p>You requested a password reset.</p>
-      <p>Click <a href="${resetLink}">here</a> to reset your password.</p>
-      <p>If you did not request this, please ignore this email.</p>
-    `,
-  };
-
-  await transporter.sendMail(mailOptions);
+    subject,
+    html,
+    attachments,
+  });
 }
