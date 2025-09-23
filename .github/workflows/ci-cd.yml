@@ -21,19 +21,19 @@ jobs:
           node-version: 20
 
       - name: Install dependencies
-        run: npm ci
+        run: yarn ci
 
       - name: Run TypeScript checks
-        run: npm run type-check || exit 1
+        run: yarn run type-check || exit 1
 
       - name: Run lint
-        run: npm run lint || exit 1
+        run: yarn run lint || exit 1
 
       - name: Run tests
-        run: npm test || exit 1
+        run: yarn test || exit 1
 
       - name: Build project
-        run: npm run build || exit 1
+        run: yarn run build || exit 1
 
   deploy:
     runs-on: ubuntu-latest
@@ -48,7 +48,7 @@ jobs:
           node-version: 20
 
       - name: Install dependencies
-        run: npm ci
+        run: yarn ci
 
       - name: Deploy to Vercel
         id: vercel
