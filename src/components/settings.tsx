@@ -5,10 +5,14 @@ import { X } from "lucide-react";
 import SubscriptionDetails from "./subscriptionDetails";
 import ProfileUpdate from "@/components/updateProfile";
 import DeleteAccount from "./deleteAccount";
+import BillingDetails from "./billing";
+import StripeWrapper from "@/components/StripeWrapper";
+;
 
 const settingsLinks = [
   { label: "Profile", value: "profile" },
   { label: "Subscription", value: "subscription" },
+  { label: "Billing", value: "billing" },
   { label: "Delete Account", value: "deleteAccount" },
 ];
 
@@ -23,7 +27,7 @@ export default function SettingsPage({ onClose }: SettingsPageProps) {
     <>
       {activeTab === "profile" && <ProfileUpdate />}
       {activeTab === "subscription" && <SubscriptionDetails />}
-      {activeTab === "security" && <div className="text-gray-600">Security settings go here</div>}
+      {activeTab === "billing" && (<StripeWrapper><BillingDetails /></StripeWrapper>)}
       {activeTab === "deleteAccount" && (
         <div className="text-red-600 font-semibold">
           <DeleteAccount onDelete={() => (window.location.href = "/login")} />

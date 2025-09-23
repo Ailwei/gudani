@@ -8,7 +8,6 @@ export function verifyToken(
       token,
       process.env.JWT_SECRET || "default_secret"
     ) as { userId: string; email: string; userRole: string };
-    console.log(payload);
     return {
       userId: payload.userId,
       email: payload.email,

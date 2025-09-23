@@ -5,7 +5,6 @@ import Stripe from "stripe";
 import { sendPaymentReceipt } from "@/lib/paymentProoof";
 import { sendPaymentFailed } from "@/lib/paymentFailed";
 import { getLatestUserSubscription } from "@/lib/getLatestSubscription";
-import { PlanType } from "@/generated/prisma";
 
 export const config = { api: { bodyParser: false } };
 
