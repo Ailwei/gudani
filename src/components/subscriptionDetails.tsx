@@ -31,10 +31,6 @@ export default function SubscriptionDetails() {
         const res = await axios.get("/api/subscriptionDetails", {
           headers: { Authorization: `Bearer ${token}` },
         });
-        console.log("details", res.data)
-        console.log("details", res)
-
-
 
         setSubscription(res.data);
         setPlanType(res.data.planType || "FREE");
