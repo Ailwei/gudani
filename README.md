@@ -11,7 +11,7 @@
 
 ## Problem Statement
 
-High school students struggle to find tailored, easy-to-understand, and curriculum-aligned study tools, often overwhelmed by dense textbooks, past papers, and fragmented resources.
+High school students struggle to find tailored, easy-to-understand, and curriculum-aligned study tools, often overwhelmed by dense textbooks, papers, and fragmented resources.
 
 ## MVP Goal
 
