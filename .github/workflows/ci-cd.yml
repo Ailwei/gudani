@@ -48,7 +48,7 @@ jobs:
           node-version: 20
 
       - name: Install dependencies
-        run: yarn ci
+        run: yarn install --frozen-lockfile
 
       - name: Deploy to Vercel
         id: vercel
