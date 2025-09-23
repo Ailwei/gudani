@@ -35,9 +35,18 @@ jobs:
       - name: Build project
         env:
           STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+          GROQ_API_KEY: ${{secrets.GROQ_API_KEY }}
+          JWT_SECRET: ${{secrets.JWT_SECRET }}
+          SMTP_PORT: ${{secrets.SMTP_PORT }}
+          SMTP_PASS: ${{secrets.SMTP_PASS }}
+          SMTP_USER: ${{secrets.SMTP_USER }}
+          SMTP_HOST: ${{secrets.SMTP_HOST }}
+          SUPABASE_URL: ${{secrets.SUPABASE_URL }}
+          NEXT_PUBLIC_APP_URL: ${{secrets.NEXT_PUBLIC_APP_URL }}
+          STRIPE_WEBHOOK_SECRET: ${{secrets.STRIPE_WEBHOOK_SECRET }}
           NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY }}
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
-          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          SUPABASE_SERVICE_KEY: ${{secrets.SUPABASE_SERVICE_KEY }}
         run: yarn run build || exit 1
         
 
