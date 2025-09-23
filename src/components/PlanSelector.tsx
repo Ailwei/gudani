@@ -89,7 +89,7 @@ export default function PlanSelector({ userId, onClose, onUpgradeClick, activePl
   };
 
   fetchSubscription();
-}, [activePlan]);
+}, [activePlan, plans]);
 
   const handleSelectPlan = (plan: Plan) => setSelectedPlan(plan);
 
