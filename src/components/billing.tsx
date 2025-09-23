@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { CardElement, useStripe, useElements } from "@stripe/react-stripe-js";
 import axios from "axios";
-import { never } from "zod";
+import Image from "next/image";
 
 const cardLogos: Record<string, string> = {
   visa: "/card-logos/visa.svg",
@@ -132,7 +132,7 @@ export default function BillingDetails() {
       {card && !showCardInput && (
         <div className="p-6 border rounded-xl shadow-md bg-gradient-to-r from-gray-50 to-white">
           <div className="flex items-center gap-4 mb-4">
-            <img
+            <Image
               src={cardLogos[card.brand.toLowerCase()] || cardLogos.default}
               alt={card.brand}
               className="w-14 h-10 object-contain"
