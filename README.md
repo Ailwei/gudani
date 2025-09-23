@@ -15,7 +15,7 @@ High school students struggle to find tailored, easy-to-understand, and curricul
 
 ## MVP Goal
 
-Create a user-friendly web app that empowers Grade 8–12 learners to study smarter through:
+Create a user-friendly web application that empowers Grade 8–12 learners to study smarter through:
 - Instant, grade-specific explanations
 - Auto-generated flashcards
 - Smart quizzes with feedback
