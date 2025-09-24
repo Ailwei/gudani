@@ -40,7 +40,6 @@ export async function POST(req: NextRequest) {
       if (currentSub.stripeSubscriptionId) {
         await stripe.subscriptions.cancel(currentSub.stripeSubscriptionId);
       }
-
       const updated = await db.subscription.update({
         where: { id: currentSub.id },
         data: {
@@ -58,7 +57,7 @@ export async function POST(req: NextRequest) {
     if (currentSub?.stripeSubscriptionId) {
       const stripeSub = await stripe.subscriptions.retrieve(currentSub.stripeSubscriptionId);
       const itemId = stripeSub.items.data[0].id;
-      
+
       await stripe.subscriptions.update(currentSub.stripeSubscriptionId, {
         items: [{ id: itemId, price: targetPlan.stripePriceId ?? undefined }],
         metadata: {
