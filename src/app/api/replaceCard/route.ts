@@ -15,12 +15,26 @@ export async function POST(req: NextRequest) {
     if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     const body = await req.json();
-    let { paymentMethodId, card } = body;
+    let { paymentMethodId, card, replace } = body;
 
     const dbUser = await db.user.findUnique({ where: { id: user.userId } });
-    if (!dbUser?.stripeCustomerId) {
-      return NextResponse.json({ error: "No Stripe customer found" }, { status: 404 });
-    }
+    if (!dbUser) {
+  return NextResponse.json({ error: "User not found in database" }, { status: 404 });
+}
+
+if (!dbUser.stripeCustomerId) {
+  const customer = await stripe.customers.create({
+    email: dbUser.email ?? undefined,
+    name: `${dbUser.firstName} ${dbUser.lastName}`.trim() || undefined,
+  });
+
+  await db.user.update({
+    where: { id: user.userId },
+    data: { stripeCustomerId: customer.id },
+  });
+
+  dbUser.stripeCustomerId = customer.id;
+}
 
     if (!paymentMethodId && card) {
       const newPm = await stripe.paymentMethods.create({
@@ -47,20 +61,22 @@ export async function POST(req: NextRequest) {
       invoice_settings: { default_payment_method: paymentMethodId },
     });
 
-    const paymentMethods = await stripe.paymentMethods.list({
+    if(replace){
+      const paymentMethods = await stripe.paymentMethods.list({
       customer: dbUser.stripeCustomerId,
       type: "card",
     });
 
-    for (const pm of paymentMethods.data) {
-      if (pm.id !== paymentMethodId) {
-        await stripe.paymentMethods.detach(pm.id);
+     const otherCards = paymentMethods.data.filter(pm => pm.id !== paymentMethodId);
+      if (otherCards.length > 0) {
+        for (const pm of otherCards) {
+          await stripe.paymentMethods.detach(pm.id);
+        }
       }
     }
-
     return NextResponse.json({
       success: true,
-      message: "Card replaced successfully",
+      message: replace ? "Card replaced successfully" : "Card added successfully",
       paymentMethodId,
     });
   } catch (err: any) {
