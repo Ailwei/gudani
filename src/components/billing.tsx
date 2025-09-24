@@ -132,7 +132,7 @@ export default function BillingDetails() {
       {card && !showCardInput && (
         <div className="p-6 border rounded-xl shadow-md bg-gradient-to-r from-gray-50 to-white">
           <div className="flex items-center gap-4 mb-4">
-            <Image
+            <Image width={34} height={34}
               src={cardLogos[card.brand.toLowerCase()] || cardLogos.default}
               alt={card.brand}
               className="w-14 h-10 object-contain"
