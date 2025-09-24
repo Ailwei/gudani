@@ -1,3 +1,4 @@
+
 name: CI/CD Pipeline
 
 on:
@@ -7,6 +8,10 @@ on:
   pull_request:
     branches:
       - '**'
+
+permissions:
+  pull-requests: write
+  contents: read
 
 jobs:
   build-and-test:
