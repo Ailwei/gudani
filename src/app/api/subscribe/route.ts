@@ -58,7 +58,7 @@ export async function POST(req: NextRequest) {
     if (currentSub?.stripeSubscriptionId) {
       const stripeSub = await stripe.subscriptions.retrieve(currentSub.stripeSubscriptionId);
       const itemId = stripeSub.items.data[0].id;
-
+      
       await stripe.subscriptions.update(currentSub.stripeSubscriptionId, {
         items: [{ id: itemId, price: targetPlan.stripePriceId ?? undefined }],
         metadata: {
