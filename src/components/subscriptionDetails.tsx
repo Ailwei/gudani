@@ -60,7 +60,6 @@ export default function SubscriptionDetails() {
       const res = await axios.post("/api/cancel-subscription", null, {
         headers: { Authorization: `Bearer ${token}` },
       });
-
       if (res.data.success) {
         alert("Subscription cancellation scheduled");
         setSubscription({
