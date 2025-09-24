@@ -53,7 +53,6 @@ export async function POST(req: NextRequest) {
            cancellationDate: null,
         },
       });
-
       return NextResponse.json({ message: "Downgraded to Free", subscription: updated });
     }
     if (currentSub?.stripeSubscriptionId) {
@@ -68,7 +67,6 @@ export async function POST(req: NextRequest) {
           planId: targetPlan.id,
         },
       });
-
       const updated = await db.subscription.update({
         where: { id: currentSub.id },
         data: {
