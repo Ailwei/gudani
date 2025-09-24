@@ -95,6 +95,39 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Plan is missing Stripe price ID" }, { status: 400 });
     }
 
+    const customer = await stripe.customers.retrieve(customerId, {
+      expand: ["invoice_settings.default_payment_method"],
+    });
+    const defaultPm = (customer as any).invoice_settings?.default_payment_method;
+
+    if (defaultPm) {
+      const subscription = await stripe.subscriptions.create({
+        customer: customerId,
+        items: [{ price: targetPlan.stripePriceId }],
+        default_payment_method: defaultPm.id,
+        metadata: {
+          userId,
+          planId: targetPlan.id,
+          planType: normalizedPlanType,
+        },
+      });
+
+      const saved = await db.subscription.create({
+        data: {
+          userId,
+          planId: targetPlan.id,
+          stripeSubscriptionId: subscription.id,
+          status: "ACTIVE",
+          startDate: new Date(),
+          cancelAtPeriodEnd: false,
+        },
+      });
+
+      return NextResponse.json({
+        message: "Subscribed with saved card",
+        subscription: saved,
+      });
+    }
     const session = await stripe.checkout.sessions.create({
       mode: "subscription",
       payment_method_types: ["card"],
