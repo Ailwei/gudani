@@ -56,7 +56,6 @@ export async function POST(req: NextRequest) {
 
       return NextResponse.json({ message: "Downgraded to Free", subscription: updated });
     }
-
     if (currentSub?.stripeSubscriptionId) {
       const stripeSub = await stripe.subscriptions.retrieve(currentSub.stripeSubscriptionId);
       const itemId = stripeSub.items.data[0].id;
