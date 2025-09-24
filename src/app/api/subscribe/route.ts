@@ -75,7 +75,6 @@ export async function POST(req: NextRequest) {
           startDate: new Date(),
         },
       });
-
       return NextResponse.json({ message: "Plan updated", subscription: updated });
     }
 
