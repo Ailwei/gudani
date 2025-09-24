@@ -17,9 +17,23 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     let { paymentMethodId, card } = body;
 
-    const dbUser = await db.user.findUnique({ where: { id: user.userId } });
-    if (!dbUser?.stripeCustomerId) {
-      return NextResponse.json({ error: "No Stripe customer found" }, { status: 404 });
+    let dbUser = await db.user.findUnique({ where: { id: user.userId } });
+
+    let customerId = dbUser?.stripeCustomerId ?? null;
+
+    if (!customerId) {
+      const customer = await stripe.customers.create({
+        email: dbUser?.email ?? undefined,
+        metadata: { userId: user.userId },
+      });
+
+      customerId = customer.id;
+
+      await db.user.update({
+        where: { id: user.userId },
+        data: { stripeCustomerId: customerId },
+      });
+      dbUser = await db.user.findUnique({ where: { id: user.userId } });
     }
 
     if (!paymentMethodId && card) {
@@ -36,19 +50,22 @@ export async function POST(req: NextRequest) {
     }
 
     if (!paymentMethodId) {
-      return NextResponse.json({ error: "Please provide card details or paymentMethodId" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Please provide card details or paymentMethodId" },
+        { status: 400 }
+      );
     }
 
     await stripe.paymentMethods.attach(paymentMethodId, {
-      customer: dbUser.stripeCustomerId,
+      customer: customerId,
     });
 
-    await stripe.customers.update(dbUser.stripeCustomerId, {
+    await stripe.customers.update(customerId, {
       invoice_settings: { default_payment_method: paymentMethodId },
     });
 
     const paymentMethods = await stripe.paymentMethods.list({
-      customer: dbUser.stripeCustomerId,
+      customer: customerId,
       type: "card",
     });
 
@@ -65,6 +82,9 @@ export async function POST(req: NextRequest) {
     });
   } catch (err: any) {
     console.error(err);
-    return NextResponse.json({ error: err.message || "Internal server error" }, { status: 500 });
+    return NextResponse.json(
+      { error: err.message || "Internal server error" },
+      { status: 500 }
+    );
   }
 }
