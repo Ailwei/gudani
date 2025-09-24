@@ -71,7 +71,6 @@ export default function SubscriptionDetails() {
         setPlanType("FREE");
       }
     } catch (err: any) {
-      console.error("Cancel failed:", err.response?.data || err.message);
       alert("Failed to cancel subscription");
     }
   };
@@ -128,9 +127,6 @@ export default function SubscriptionDetails() {
             <span className="font-semibold">Past Due:</span> {subscription.pastDueAmount}{" "}
             {subscription.pastDueCurrency}
           </li>
-        )}
-        {subscription.stripeSubscriptionId && (
-          <li className="text-xs text-gray-500">Stripe ID: {subscription.stripeSubscriptionId}</li>
         )}
       </ul>
 
