@@ -42,6 +42,18 @@ const ForgotPasswordPage: React.FC = () => {
         </span>
       </div>
       <div className="bg-white rounded-xl shadow-lg p-8 max-w-md w-full border border-gray-200">
+        {success ? (
+          <div className="text-center space-y-8">
+            <p className="text-green-600 font-semibold">{success}</p>
+            <button
+              onClick={() => router.push('/login')}
+              className="w-full bg-gradient-to-r from-purple-600 to-blue-600 text-white py-3 rounded-lg font-semibold hover:from-purple-700 hover:to-blue-700 transition-colors"
+            >
+              OK
+            </button>
+          </div>
+        ) : (
+          <>
         <h2 className="text-3xl font-extrabold text-center mb-6 bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
           Forgot Your Password?
         </h2>
@@ -49,19 +61,17 @@ const ForgotPasswordPage: React.FC = () => {
           {error && (
             <p className="text-red-600 text-center font-semibold">{error}</p>
           )}
-          {success && (
-            <p className="text-green-600 text-center font-semibold">{success}</p>
-          )}
-          <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
-            <input
-              type="email"
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-purple-500 text-gray-900 font-normal"
-              required
-            />
-          </div>
+             <input
+                  type="email"
+                  value={email}
+                  onChange={e => {
+                    setEmail(e.target.value);
+                    if (error) setError(null);
+                  }}
+                  className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-purple-500 text-gray-900 font-normal"
+                  required
+                />
           <button
             type="submit"
             disabled={loading}
@@ -73,8 +83,10 @@ const ForgotPasswordPage: React.FC = () => {
         <p className="text-center text-gray-500 mt-6 text-sm">
           Remembered your password? <a href="/login" className="text-purple-600 hover:underline">Login</a>
         </p>
+      </>
+        )}
       </div>
-    </div>
+      </div>
   );
 };
 
