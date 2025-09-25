@@ -107,7 +107,6 @@ export default function PlanSelector({ userId, onClose, onUpgradeClick, activePl
       setSelectedPlan(selectedPlan);
     } catch (err: any) {
       const errorMessage = err.response?.data?.error || "Something went wrong";
-      console.error("Checkout Error:", errorMessage);
       alert(errorMessage);
     } finally {
       setLoading(false);

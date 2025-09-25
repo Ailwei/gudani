@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
       { expiresIn: "1h" }
     );
 
-    const resetLink = `https://gudani.vercel.app/resetpassword?token=${encodeURIComponent(token)}`;
+    const resetLink = `${process.env.NEXT_PUBLIC_APP_URL}/resetpassword?token=${encodeURIComponent(token)}`;
 
     try {
       await sendResetEmail(email, resetLink);

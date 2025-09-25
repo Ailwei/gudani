@@ -119,6 +119,13 @@ export async function POST(req: NextRequest) {
               endDate,
             },
           });
+          const paymentMethodId = stripeSub.default_payment_method as string;
+          if (paymentMethodId && stripeSub.customer) {
+            await stripe.paymentMethods.attach(paymentMethodId, { customer: stripeSub.customer as string });
+            await stripe.customers.update(stripeSub.customer as string, {
+              invoice_settings: { default_payment_method: paymentMethodId },
+            });
+          }
         } else {
           await db.subscription.create({
             data: {
