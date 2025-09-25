@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import UpgradeButton from "./buttonCheckout";
 import { useSubscriptionStore } from "@/lib/susbcriptionStore";
 import { useUserStore } from "@/lib/userStore";
+import { PlanType } from "./PlanSelector";
 
 interface HeaderProps {
   variant?: "dashboard" | "landing";
@@ -80,6 +81,10 @@ const Header: React.FC<HeaderProps> = ({
     router.push("/login");
   };
 
+  const handlePlans = () =>{
+    router.push("/plans")
+  }
+
   const renderPlanLabel = () => {
     if (loading) return <span className="text-gray-400">...</span>;
     return <span>{planType} Plan</span>;
@@ -110,9 +115,18 @@ const Header: React.FC<HeaderProps> = ({
             <span className="px-4 py-2 text-sm font-semibold text-gray-700 bg-gray-100 rounded-lg">
               {renderPlanLabel()}
             </span>
-            {!loading && (planType === "FREE" || planType === "STANDARD") && (
-              <UpgradeButton onClick={onUpgradeClick} />
-            )}
+   {!loading && (
+  planType === PlanType.FREE || planType === PlanType.STANDARD ? (
+    <UpgradeButton onClick={onUpgradeClick} />
+  ) : (
+    <button
+      onClick={onUpgradeClick}
+      className="px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg font-semibold hover:from-purple-700 hover:to-blue-700 transition-colors"
+    >
+      Plans
+    </button>
+  )
+)}
 
             <p className="text-sm font-medium text-gray-900">
               {displayName || <span className="text-gray-400">...</span>}
