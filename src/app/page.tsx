@@ -76,7 +76,7 @@ const StudySmartAILanding: React.FC = () => {
                 <Brain className="w-6 h-6 text-white" />
               </div>
               <span className="text-xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
-                GudaniSmartAI
+                GudaniAI
               </span>
             </div>
             <div className="hidden md:flex items-center space-x-4 lg:space-x-8">
@@ -170,13 +170,13 @@ const StudySmartAILanding: React.FC = () => {
           <div className="text-center">
             <div className="inline-flex items-center px-4 py-2 bg-purple-100 rounded-full text-purple-700 text-sm font-medium mb-6 sm:mb-8 animate-pulse">
               <Sparkles className="w-4 h-4 mr-2" />
-              Smarter Learning Starts Here
+              AI Powered Study Tool
             </div>
             <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-extrabold text-gray-900 mb-6 leading-tight">
               Unlock Your Potential
               <br />
               <span className="bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 bg-clip-text text-transparent">
-                GudaniSmartAI
+                GudaniAI
               </span>
             </h1>
             <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-gray-700 mb-8 max-w-3xl mx-auto font-medium">
@@ -201,7 +201,7 @@ const StudySmartAILanding: React.FC = () => {
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-4">About GudaniSmartAI</h2>
           <p className="text-base sm:text-lg md:text-xl text-gray-700 mb-8 max-w-3xl mx-auto">
-            GudaniSmartAI is your personal AI-powered study assistant, designed for high school learners. We believe every student deserves access to smart, personalized learning tools that make studying easier, faster, and more effective.
+            GudaniAI is your personal AI-powered study assistant, designed for high school learners. We believe every student deserves access to smart, personalized learning tools that make studying easier, faster, and more effective.
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 mt-8">
             <div className="bg-white rounded-xl shadow p-6 border border-gray-200 flex flex-col items-center">
@@ -213,7 +213,7 @@ const StudySmartAILanding: React.FC = () => {
             <div className="bg-white rounded-xl shadow p-6 border border-gray-200 flex flex-col items-center">
               <span className="text-purple-700 text-xl sm:text-2xl md:text-3xl font-bold mb-2">For Learners</span>
               <p className="text-gray-600 text-sm sm:text-base text-center">
-                Built for students. Use StudySmartAI for homework help, revision, lesson planning, or extra support.
+                Built for students. Use GudaniAI for homework help, revision, lesson planning, or extra support.
               </p>
             </div>
             <div className="bg-white rounded-xl shadow p-6 border border-gray-200 flex flex-col items-center">

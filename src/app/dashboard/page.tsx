@@ -91,7 +91,7 @@ const StudySmartDashboard: React.FC = () => {
             <Brain className="w-8 h-8 text-white" />
           </div>
           <span className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
-            StudySmartAI
+            GudaniAI
           </span>
         </div>
         <div className="text-lg text-purple-600 font-semibold animate-pulse">

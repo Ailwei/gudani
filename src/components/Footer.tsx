@@ -9,7 +9,7 @@ const Footer: React.FC = () => {
         <div>
           <div className="flex items-center space-x-2 mb-4">
             <Brain className="w-8 h-8 text-purple-400" />
-            <span className="text-xl font-bold">StudySmartAI</span>
+            <span className="text-xl font-bold">GudaniAI</span>
           </div>
           <p className="text-gray-400">
             Empowering high school students with AI-powered learning tools.
@@ -41,7 +41,7 @@ const Footer: React.FC = () => {
         </div>
       </div>
       <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
-        <p>&copy; 2025 StudySmartAI. All rights reserved.</p>
+        <p>&copy; 2025 GudaniAI. All rights reserved.</p>
       </div>
     </div>
   </footer>
