@@ -168,14 +168,27 @@ const Header: React.FC<HeaderProps> = ({
                 <span className="font-semibold text-gray-900">{displayName || "..."}</span>
                 <span className="text-sm text-gray-500">{planType} Plan</span>
               </div>
-              {!loading && (planType === "FREE" || planType === "STANDARD") && (
-                <UpgradeButton
-  onClick={() => {
-    onUpgradeClick();
-    setMobileMenuOpen(false);
-  }}
-/>
-              )}
+              {!loading && (
+  planType === PlanType.FREE || planType === PlanType.STANDARD ? (
+    <UpgradeButton
+      onClick={() => {
+        onUpgradeClick();
+        setMobileMenuOpen(false);
+      }}
+    />
+  ) : (
+    <button
+      onClick={() => {
+        handlePlans();
+        setMobileMenuOpen(false);
+      }}
+      className="px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg font-semibold hover:from-purple-700 hover:to-blue-700 transition-colors"
+    >
+      Plans
+    </button>
+  )
+)}
+
             </div>
 
             <hr className="border-gray-200" />
