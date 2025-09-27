@@ -20,38 +20,54 @@ export function chunkTextByWords(text: string, maxWords = 150): string[] {
 export async function saveSyllabusChunks(
   grade: string,
   subject: string,
-  payload: { topic: string; text: string }[],
+  payload: { topic: string; chunk: string; concepts: string[] }[],
   maxWords: number = 150
 ) {
   let totalChunks = 0;
 
-  for (const item of payload) {
-    const { topic, text } = item;
-    const chunks = chunkTextByWords(text, maxWords);
+  for (let i = 0; i < payload.length; i++) {
+    const { topic, chunk, concepts } = payload[i];
 
-    for (let i = 0; i < chunks.length; i++) {
-      syllabusDataSchema.parse({ grade, subject, topic, chunk: chunks[i] });
+    syllabusDataSchema.parse({ grade, subject, topic, chunk, concepts, maxWords });
 
-      await db.syllabusChunk.create({
-        data: {
-          grade,
-          subject,
-          topic,
-          chunk: chunks[i],
-          order: i + 1,
-        },
-      });
-    }
-
-    totalChunks += chunks.length;
+    const saved = await db.syllabusChunk.create({
+      data: {
+        grade,
+        subject,
+        topic,
+        chunk,
+        concepts,
+        order: i + 1,
+      },
+    });
+    totalChunks++;
   }
 
   return totalChunks;
 }
 
 export async function getSyllabusChunks(grade: string, subject: string) {
-  return db.syllabusChunk.findMany({
+  const rows = await db.syllabusChunk.findMany({
     where: { grade, subject },
     orderBy: [{ topic: "asc" }, { order: "asc" }],
   });
+
+  const grouped: {
+    topic: string;
+    chunks: { chunk: string; concepts: string[] }[];
+  }[] = [];
+
+  for (const row of rows) {
+    let topicGroup = grouped.find((g) => g.topic === row.topic);
+    if (!topicGroup) {
+      topicGroup = { topic: row.topic, chunks: [] };
+      grouped.push(topicGroup);
+    }
+    topicGroup.chunks.push({
+      chunk: row.chunk,
+      concepts: row.concepts || [],
+    });
+  }
+
+  return grouped;
 }

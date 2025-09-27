@@ -39,21 +39,16 @@ export async function POST(request: NextRequest) {
         { status: 500 }
       );
     }
+const syllabusChunks = await getSyllabusChunks(grade, subject);
 
-    let syllabusText = "";
-    if (useSyllabus && grade && subject) {
-      const syllabusChunks = await getSyllabusChunks(grade, subject);
-      
-      syllabusText = syllabusChunks.map((c: any) => c.chunk).join("\n\n");
-      console.log(
-  "Syllabus chunks being sent with prompt:",
-  syllabusChunks.map((c: any) => c.chunk)
-);
-console.log("Full user prompt sent to AI:", 
-  `${syllabusText ? `Syllabus:\n${syllabusText}\n\n` : ""}${prompt}`
-);
-
-    }
+const syllabusText = syllabusChunks
+  .map((topicItem: any) => {
+    const allChunks = topicItem.chunks
+      .map((c: any) => `Chunk: ${c.chunk}\nConcepts: ${c.concepts?.join(", ") || "None"}`)
+      .join("\n\n");
+    return `Topic: ${topicItem.topic}\n${allChunks}`;
+  })
+  .join("\n\n");
 
     const toknsToUse = calculateTokens(prompt, syllabusText)
     console.log("toekn to use", toknsToUse)
