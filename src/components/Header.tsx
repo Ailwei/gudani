@@ -103,7 +103,7 @@ const Header: React.FC<HeaderProps> = ({
             </div>
             <div>
               <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
-                StudySmartAI
+                GudaniAI
               </h1>
               <p className="text-sm text-gray-600">
                 AI Study Assistant for Grades 8-12
@@ -225,7 +225,7 @@ const Header: React.FC<HeaderProps> = ({
               <Brain className="w-6 h-6 text-white" />
             </div>
             <span className="text-xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
-              StudySmartAI
+              GudaniAI
             </span>
           </div>
 
