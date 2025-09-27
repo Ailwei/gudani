@@ -134,6 +134,7 @@ model SyllabusChunk {
   grade    String
   subject  String
   chunk    String
+  concepts String[]
   fileData Bytes?
   fileName String?
   topic    String

@@ -5,7 +5,7 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const { payload, grade, subject } = body;
-    console.log("froent esnd sent", payload, grade, subject)
+    console.log("Incoming payload:", payload);
 
     if (!payload || !Array.isArray(payload) || payload.length === 0) {
       return NextResponse.json(
@@ -21,23 +21,10 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    let totalChunks = 0;
-
-    for (const item of payload) {
-      const { topic, chunks } = item;
-      if (!topic || !chunks || !Array.isArray(chunks)) continue;
-
-      const formattedChunks = chunks.map((c: string) => ({
-        topic,
-        text: c,
-      }));
-
-      const count = await saveSyllabusChunks(grade, subject, formattedChunks, 2000);
-      totalChunks += count;
-    }
+    const count = await saveSyllabusChunks(grade, subject, payload, 2000);
 
     return NextResponse.json({
-      message: `Saved ${totalChunks} chunks for ${grade} ${subject}`,
+      message: `Saved ${count} chunks for ${grade} ${subject}`,
     });
   } catch (err: any) {
     console.error("Upload error:", err);

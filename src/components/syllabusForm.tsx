@@ -74,22 +74,26 @@ const SyllabusForm: React.FC<SyllabusFormProps> = ({onSubmit}) => {
     return processed;
   };
   const extractTopicsAndChunks = (text: string) => {
-    const lines = text.split("\n");
-    const topics: { topic: string; chunks: string[] }[] = [];
-    let currentTopic: { topic: string; chunks: string[] } | null = null;
+  const lines = text.split("\n").map(l => l.trim()).filter(Boolean);
+  console.log("djfjdhgjf", lines)
+  const result: { topic: string; chunk: string; concepts: string[] }[] = [];
 
-    for (const line of lines) {
-      if (/^\d+\.\s/.test(line)) {
-        if (currentTopic) topics.push(currentTopic);
-        currentTopic = { topic: line.replace(/^\d+\.\s*/, ""), chunks: [] };
-      } else if (currentTopic) {
-        currentTopic.chunks.push(line);
-      }
+  let currentTopic: string | null = null;
+
+  for (const line of lines) {
+    if (/^\d+\. /.test(line)) {
+      currentTopic = line.replace(/^\d+\. /, "");
+    } else if (currentTopic) {
+      const parts = line.split(/\s*[•\*]\s*/).filter(Boolean);
+      const chunk = parts.shift() || "General";
+      const concepts = parts;
+
+      result.push({ topic: currentTopic, chunk, concepts });
     }
+  }
 
-    if (currentTopic) topics.push(currentTopic);
-    return topics;
-  };
+  return result;
+};
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -113,7 +117,9 @@ const SyllabusForm: React.FC<SyllabusFormProps> = ({onSubmit}) => {
       }
 const payload = topics.map(t => ({
         topic: t.topic,
-        chunks: t.chunks.filter(c => c.trim()).map(c => c.trim()),
+        chunk: t.chunk,
+        concepts: t.concepts
+
 }));
 
       const res = await axios.post("/api/syllabusPDFupload", {
