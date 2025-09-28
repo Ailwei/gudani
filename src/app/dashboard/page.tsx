@@ -48,40 +48,45 @@ const StudySmartDashboard: React.FC = () => {
   }
 }, [userId]);
 
-  useEffect(() => {
-    async function fetchUserRole() {
-      if (typeof window !== "undefined") {
-        const token = localStorage.getItem("token");
-        setIsAuthenticated(!!token);
+ useEffect(() => {
+  async function fetchUserRole() {
+    if (typeof window !== "undefined") {
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        localStorage.removeItem("token");
+        setIsAuthenticated(false);
         setIsAuthChecked(true);
-
-        if (token) {
-          try {
-            const res = await axios.get("/api/auth/userDetails", {
-              headers: { Authorization: `Bearer ${token}` }
-            });
-            if (res.status === 200 && res.data) {
-              setUserRole(res.data.userRole === "ADMIN" ? "ADMIN" : "USER");
-              setUserId(res.data.id);
-            } else {
-              setUserRole("USER");
-            }
-          } catch {
-            setUserRole("USER");
-          }
-        } else {
-          setUserRole("USER");
-        }
-        setRoleChecked(true);
+        window.location.href = "/login";
+        return;
       }
-    }
-    fetchUserRole();
-  }, []);
 
-  if (!isAuthenticated && isAuthChecked) {
-    window.location.href = "/login";
-    return null;
+      try {
+        const res = await axios.get("/api/auth/userDetails", {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+
+        if (res.status === 200 && res.data) {
+          setIsAuthenticated(true);
+          setUserRole(res.data.userRole === "ADMIN" ? "ADMIN" : "USER");
+          setUserId(res.data.id);
+        } else {
+          throw new Error("Invalid response");
+        }
+      } catch {
+        localStorage.removeItem("token");
+        setIsAuthenticated(false);
+        window.location.href = "/login";
+        return;
+      }
+
+      setIsAuthChecked(true);
+      setRoleChecked(true);
+    }
   }
+
+  fetchUserRole();
+}, []);
 
   if (!roleChecked) {
     return (
