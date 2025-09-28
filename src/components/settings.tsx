@@ -77,8 +77,7 @@ export default function SettingsPage({ onClose }: SettingsPageProps) {
         </section>
       </div>
 
-      <div className="md:hidden">
-        <div className="flex mb-4 overflow-x-auto gap-2">
+      <div className="md:hidden space-y-2">
           {settingsLinks.map(({ label, value }) => (
             <button
               key={value}
@@ -110,6 +109,5 @@ export default function SettingsPage({ onClose }: SettingsPageProps) {
           <div className="space-y-6">{renderActiveTab()}</div>
         </div>
       </div>
-    </div>
   );
 }
