@@ -137,8 +137,6 @@ const AdminDashboardPage: React.FC = () => {
           </div>
         </div>
       </main>
-
-    
     </div>
   );
 };
