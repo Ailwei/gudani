@@ -199,7 +199,7 @@ const StudySmartAILanding: React.FC = () => {
 
       <section ref={aboutRef} className="py-12 sm:py-20 bg-gradient-to-br from-white to-purple-50">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-4">About GudaniSmartAI</h2>
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-4">About GudaniAI</h2>
           <p className="text-base sm:text-lg md:text-xl text-gray-700 mb-8 max-w-3xl mx-auto">
             GudaniAI is your personal AI-powered study assistant, designed for high school learners. We believe every student deserves access to smart, personalized learning tools that make studying easier, faster, and more effective.
           </p>
@@ -386,7 +386,7 @@ const StudySmartAILanding: React.FC = () => {
             <div>
               <div className="flex items-center space-x-2 mb-4">
                 <Brain className="w-6 sm:w-8 h-6 sm:h-8 text-purple-400" />
-                <span className="text-lg sm:text-xl font-bold">StudySmartAI</span>
+                <span className="text-lg sm:text-xl font-bold">GudaniAI</span>
               </div>
               <p className="text-gray-400 text-sm sm:text-base">
                 Empowering high school students with AI-powered learning tools.
