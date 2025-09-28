@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { Menu, X } from "lucide-react";
 import ChatHistory from "./chatHistory";
@@ -46,6 +46,18 @@ const AIChatTool: React.FC<{
   const [chatId, setChatId] = useState<string | null>(null);
   const [selectedChatId, setSelectedChatId] = useState<string | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+
+ const messagesEndRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+   useEffect (() => {
+    messagesEndRef.current?.scrollIntoView({behavior: "smooth"});
+   },[messages])
+
+   useEffect(() => {
+    inputRef.current?.focus();
+   },[])
 
   useEffect(() => {
     if (!selectedChatId) return;
@@ -134,7 +146,7 @@ const AIChatTool: React.FC<{
   };
 
   return (
-<div className="flex  flex-col md:flex-row gap-1 bg-white">
+<div className="flex flex-col md:flex-row gap-1 bg-white h-full min-h-[500px]"> 
       <div className="hidden md:block w-64 border-r border-gray-200">
         <ChatHistory onSelectChat={handleSelectChat} />
       </div>
@@ -155,7 +167,7 @@ const AIChatTool: React.FC<{
           </div>
         </div>
       )}
-      <div className="flex-1 flex flex-col bg-white rounded-xl shadow-sm border border-gray-200">
+  <div className="flex-1 flex flex-col bg-white rounded-xl shadow-sm border border-gray-200">
               <div className="p-6 border-b border-gray-200 flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <button
@@ -178,7 +190,7 @@ const AIChatTool: React.FC<{
                   ← Back to Tools
                 </button>
               </div>
-        <div className="p-6 space-y-6 flex-1 overflow-y-auto">
+    <div className="flex-1 overflow-y-auto p-6 space-y-6">
           {messages.map((message, index) => (
             <div
               key={index}
@@ -206,10 +218,13 @@ const AIChatTool: React.FC<{
               </div>
             </div>
           ))}
+              <div ref={messagesEndRef} />
+
         </div>
         <div className="p-4 md:p-6 border-t border-gray-200">
   <div className="flex items-center gap-2">
     <input
+    ref={inputRef}
       type="text"
       value={inputMessage}
       onChange={(e) => setInputMessage(e.target.value)}
@@ -232,6 +247,7 @@ const AIChatTool: React.FC<{
   ) : (
     <Send className="w-5 h-5" />
   )}
+  
 </button>
 
   </div>
