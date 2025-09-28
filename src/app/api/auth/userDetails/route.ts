@@ -1,25 +1,24 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/prisma";
-import jwt from "jsonwebtoken";
-
+import { verifyToken } from "@/utils/veriffyToken";
 
 export async function GET(request: NextRequest) {
   try {
     const authHeader = request.headers.get("authorization");
-    if (!authHeader) {
-      return NextResponse.json({ error: "No token provided" }, { status: 401 });
+    if (!authHeader || !authHeader.startsWith('Bearer' )) {
+      return NextResponse.json({ error: "No Token Provided" }, { status: 401 });
     }
-    const token = authHeader.replace("Bearer ", "");
-    let payload: any;
-    try {
-      payload = jwt.verify(token, process.env.JWT_SECRET || "default_secret");
-    } catch {
-      return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+    const token = authHeader.split(' ')[1];
+    const userDetails = verifyToken(token);
+
+    if(!userDetails){
+      return NextResponse.json({ error: "Invalid or Expired Token" }, { status: 401 });
     }
+    
 
     const user = await db.user.findUnique({
-      where: { id: payload.userId },
-      select: { id: true, email: true, firstName: true, lastName: true, userRole: true }
+      where: { id: userDetails.userId },
+      select: { id: true, email: true, firstName: true, lastName: true, userRole: true, }
     });
 
     if (!user) {
