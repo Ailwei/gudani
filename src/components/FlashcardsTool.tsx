@@ -91,9 +91,22 @@ const FlashcardsTool: React.FC<FlashcardsToolProps> = ({
     }
   };
 
-  const handleNext = () =>
-    setCurrentCard(Math.min(flashcards.length - 1, currentCard + 1));
-  const handlePrev = () => setCurrentCard(Math.max(0, currentCard - 1));
+  const handleNext = () => {
+  setCurrentCard((prev) => {
+    const nextIndex = Math.min(prev + 1, flashcards.length - 1);
+    setShowAnswer(false);
+    return nextIndex;
+  });
+};
+
+const handlePrev = () => {
+  setCurrentCard((prev) => {
+    const prevIndex = Math.max(prev - 1, 0);
+    setShowAnswer(false);
+    return prevIndex;
+  });
+};
+
   const handleShowAnswer = () => setShowAnswer(!showAnswer);
 
   const handleGenerateNewSet = () => {

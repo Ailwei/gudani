@@ -20,7 +20,6 @@ const ForgotPasswordPage: React.FC = () => {
     try {
       const res = await axios.post('/api/auth/forgotPassword', { email });
       setSuccess(res.data.message);
-      console.log(res)
     } catch (err: any) {
       setError(err.response?.data?.error || "Failed to send reset link");
     } finally {
@@ -38,7 +37,7 @@ const ForgotPasswordPage: React.FC = () => {
           <Brain className="w-6 h-6 text-white" />
         </div>
         <span className="text-xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
-          GudaniSmartAI
+          GudaniAI
         </span>
       </div>
       <div className="bg-white rounded-xl shadow-lg p-8 max-w-md w-full border border-gray-200">
