@@ -2,7 +2,6 @@
 
 import React, { useEffect, useState } from "react";
 const Header = dynamic(() => import("@/components/Header"), { ssr: false });
-const Footer = dynamic(() => import("@/components/Footer"), { ssr: false });
 const SyllabusForm = dynamic(() => import("@/components/syllabusForm"), { ssr: false });
 import dynamic from "next/dynamic";
 
@@ -138,8 +137,6 @@ const AdminDashboardPage: React.FC = () => {
           </div>
         </div>
       </main>
-
-      <Footer />
     </div>
   );
 };

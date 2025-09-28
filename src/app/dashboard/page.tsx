@@ -6,7 +6,6 @@ import axios from 'axios';
 import Header from '@/components/Header';
 import GradeSubjectSelector from '../../components/GradeSubjectSelector';
 import ToolSelector from '@/components/ToolSelector';
-import Footer from '@/components/Footer';
 import AdminDashboard from '../adminDashboard/page';
 import PlanSelector, { PlanType } from '@/components/PlanSelector';
 import SettingsPage from '@/components/settings';
@@ -163,8 +162,6 @@ const StudySmartDashboard: React.FC = () => {
           </>
         )}
       </main>
-
-      <Footer />
     </div>
   );
 };
