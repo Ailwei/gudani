@@ -3,6 +3,7 @@ import { getLatestUserSubscription } from "@/lib/getLatestSubscription";
 import { stripe } from "@/lib/stripe";
 import { verifyToken } from "@/utils/veriffyToken";
 import { db } from "@/lib/prisma";
+import { sendSubscriptionCancelled } from "@/lib/cancelSubNotification";
 
 export async function POST(req: NextRequest) {
   try {
@@ -23,17 +24,31 @@ export async function POST(req: NextRequest) {
     }
 
     if (existingSub.stripeSubscriptionId) {
-      await stripe.subscriptions.update(existingSub.stripeSubscriptionId, {
-        cancel_at_period_end: true,
-      });
+  const cancelledSub = await stripe.subscriptions.update(
+    existingSub.stripeSubscriptionId,
+    { cancel_at_period_end: true }
+  );
 
-      await db.subscription.update({
+
+   const updatedSub=   await db.subscription.update({
         where: { id: existingSub.id },
         data: {
           cancelAtPeriodEnd: true,
           cancellationDate: new Date(existingSub.endDate || ''),
         },
+        include: {
+          user: true,
+          plan: true,
+
+        }
       });
+
+       try {
+        await sendSubscriptionCancelled(updatedSub.user, updatedSub.plan, updatedSub);
+        console.log("Cancellation email sent to", updatedSub.user.email);
+      } catch (err) {
+        console.error("Failed to send cancellation email:", err);
+      }
 
       return NextResponse.json({ success: true, message: "Subscription cancellation scheduled" });
     } else {
