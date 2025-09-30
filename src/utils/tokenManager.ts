@@ -38,11 +38,11 @@ export async function checkAndConsumeTokens(
     const tokensUsedThisMonth = monthlyUsage._sum.tokens || 0;
 
     if (plan?.dailyLimit && tokensUsedToday + tokens > plan.dailyLimit) {
-      return { success: false, error: "Daily token limit exceeded" };
+      return { success: false, error: "Daily token limit exceeded , try again tomorrow or Upgrade the plan " };
     }
 
     if (plan?.monthlyLimit && tokensUsedThisMonth + tokens > plan.monthlyLimit) {
-      return { success: false, error: "Monthly token limit exceeded" };
+      return { success: false, error: "Monthly token limit exceeded, try again tomorrow or Upgrade the plan " };
     }
 
     await tx.tokenUsage.create({
