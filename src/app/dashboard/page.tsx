@@ -6,6 +6,7 @@ import axios from 'axios';
 import Header from '@/components/Header';
 import GradeSubjectSelector from '../../components/GradeSubjectSelector';
 import ToolSelector from '@/components/ToolSelector';
+import Footer from '@/components/Footer';
 import AdminDashboard from '../adminDashboard/page';
 import PlanSelector, { PlanType } from '@/components/PlanSelector';
 import SettingsPage from '@/components/settings';
@@ -47,45 +48,40 @@ const StudySmartDashboard: React.FC = () => {
   }
 }, [userId]);
 
- useEffect(() => {
-  async function fetchUserRole() {
-    if (typeof window !== "undefined") {
-      const token = localStorage.getItem("token");
-
-      if (!token) {
-        localStorage.removeItem("token");
-        setIsAuthenticated(false);
+  useEffect(() => {
+    async function fetchUserRole() {
+      if (typeof window !== "undefined") {
+        const token = localStorage.getItem("token");
+        setIsAuthenticated(!!token);
         setIsAuthChecked(true);
-        window.location.href = "/login";
-        return;
-      }
 
-      try {
-        const res = await axios.get("/api/auth/userDetails", {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-
-        if (res.status === 200 && res.data) {
-          setIsAuthenticated(true);
-          setUserRole(res.data.userRole === "ADMIN" ? "ADMIN" : "USER");
-          setUserId(res.data.id);
+        if (token) {
+          try {
+            const res = await axios.get("/api/auth/userDetails", {
+              headers: { Authorization: `Bearer ${token}` }
+            });
+            if (res.status === 200 && res.data) {
+              setUserRole(res.data.userRole === "ADMIN" ? "ADMIN" : "USER");
+              setUserId(res.data.id);
+            } else {
+              setUserRole("USER");
+            }
+          } catch {
+            setUserRole("USER");
+          }
         } else {
-          throw new Error("Invalid response");
+          setUserRole("USER");
         }
-      } catch {
-        localStorage.removeItem("token");
-        setIsAuthenticated(false);
-        window.location.href = "/login";
-        return;
+        setRoleChecked(true);
       }
-
-      setIsAuthChecked(true);
-      setRoleChecked(true);
     }
-  }
+    fetchUserRole();
+  }, []);
 
-  fetchUserRole();
-}, []);
+  if (!isAuthenticated && isAuthChecked) {
+    window.location.href = "/login";
+    return null;
+  }
 
   if (!roleChecked) {
     return (
@@ -95,7 +91,7 @@ const StudySmartDashboard: React.FC = () => {
             <Brain className="w-8 h-8 text-white" />
           </div>
           <span className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
-            GudaniAI
+            StudySmartAI
           </span>
         </div>
         <div className="text-lg text-purple-600 font-semibold animate-pulse">
@@ -162,6 +158,8 @@ const StudySmartDashboard: React.FC = () => {
           </>
         )}
       </main>
+
+      <Footer />
     </div>
   );
 };
