@@ -4,6 +4,8 @@ import axios from "axios";
 import * as pdfjsLib from "pdfjs-dist";
 import jsPDF from "jspdf";
 import SummaryList from "./GetSummary";
+import ReactMarkdown from "react-markdown";
+
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = "/pdf.worker.min.js";
 
@@ -166,6 +168,11 @@ const NoteUploadTool: React.FC<{
   setIsGenerating(false);
   setSummaryId(null);
   }
+ 
+const cleanSummary = summary
+  .replace(/\n\s*/g, "\n") 
+  .replace(/\n{2,}/g, "\n"); 
+
 
   return (
     <div className="flex h-screen gap-2">
@@ -317,7 +324,9 @@ const NoteUploadTool: React.FC<{
                 </div>
               </div>
               <div className="bg-gray-50 rounded-lg p-4 max-h-80 overflow-y-auto">
-                <p className="text-gray-800 whitespace-pre-wrap">{summary}</p>
+                <p 
+                className="text-gray-800 whitespace-pre-wrap"><ReactMarkdown>{cleanSummary}</ReactMarkdown>
+                </p>
               </div>
             </div>
           )}

@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { getOpenAICompletion } from "@/utils/openAi";
 import { getSyllabusChunks } from "@/lib/syllubusChucks";
 import { verifyToken } from "@/utils/veriffyToken";
+import { checkAndConsumeTokens } from "@/utils/tokenManager";
+import { calculateTokens } from "@/utils/calculateToken";
 
 export async function POST(request: NextRequest) {
   try {
@@ -26,38 +28,38 @@ export async function POST(request: NextRequest) {
 
     const fullPrompt = `
 You are a CAPS syllabus-aligned study assistant.
+
 Summarize these notes clearly for a Grade ${grade} student in ${subject}.
 Use the CAPS syllabus below as a guideline for phrasing and relevance, but do not reject the notes.
+
+Guidelines:
+- Adjust the length of the summary to match the length of the notes (short notes → short summary, long notes → detailed multi-section summary).
+- Use clear headings and subheadings where appropriate.
+- Highlight key ideas with bullet points or numbered lists.
+- Make the language simple and easy to read for a student.
 
 Syllabus (for guidance only):
 ${syllabusText}
 
-Now summarize the notes and generate a topic/title.
-
-Respond strictly in JSON format:
-{ "topic": string, "summary": string }
-
 Notes:
 ${document}
+
+Respond in human-readable text (Markdown or structured text). Do not return JSON.
 `;
+
+    const validationTokens = calculateTokens(fullPrompt);
+    const validationConsumed = await checkAndConsumeTokens(user.userId, validationTokens);
+    if (!validationConsumed.success) {
+      return NextResponse.json({ error: validationConsumed.error }, { status: 403 });
+    }
 
     const aiResponse = await getOpenAICompletion(fullPrompt);
     let text = aiResponse.choices?.[0]?.message?.content || "";
 
-    const jsonMatch = text.match(/\{[\s\S]*\}/);
-    let parsed: any = {};
-    if (jsonMatch) {
-      try {
-        parsed = JSON.parse(jsonMatch[0]);
-      } catch (err) {
-        console.error("Failed to parse JSON from GPT:", err, text);
-      }
-    }
-
     return NextResponse.json(
       {
-        topic: parsed.topic || "Untitled",
-        summary: parsed.summary || "No summary generated.",
+        topic: "Summary",
+        summary: text.trim() || "No summary generated.",
       },
       { status: 200 }
     );
