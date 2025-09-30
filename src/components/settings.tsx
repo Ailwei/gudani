@@ -77,37 +77,39 @@ export default function SettingsPage({ onClose }: SettingsPageProps) {
         </section>
       </div>
 
-      <div className="md:hidden space-y-2">
-          {settingsLinks.map(({ label, value }) => (
-            <button
-              key={value}
-              onClick={() => setActiveTab(value)}
-              className={clsx(
-                "px-3 py-2 rounded-md text-sm font-medium flex-shrink-0",
-                activeTab === value
-                  ? "bg-indigo-600 text-white"
-                  : "bg-gray-100 text-gray-600"
-              )}
-            >
-              {label}
-            </button>
-          ))}
-        </div>
+<div className="md:hidden">
+  <div className="space-y-2">
+    {settingsLinks.map(({ label, value }) => (
+      <button
+        key={value}
+        onClick={() => setActiveTab(value)}
+        className={clsx(
+          "px-3 py-2 rounded-md text-sm font-medium flex-shrink-0",
+          activeTab === value
+            ? "bg-indigo-600 text-white"
+            : "bg-gray-100 text-gray-600"
+        )}
+      >
+        {label}
+      </button>
+    ))}
+  </div>
 
-        <div className="bg-white shadow-md rounded-lg p-4 min-h-[400px] relative">
-          <button
-            onClick={onClose}
-            className="absolute top-3 right-3 p-2 rounded-full hover:bg-gray-100 text-gray-600 hover:text-gray-800"
-          >
-            <X className="w-5 h-5" />
-          </button>
+  <div className="bg-white shadow-md rounded-lg p-4 min-h-[400px] relative mt-4">
+    <button
+      onClick={onClose}
+      className="absolute top-3 right-3 p-2 rounded-full hover:bg-gray-100 text-gray-600 hover:text-gray-800"
+    >
+      <X className="w-5 h-5" />
+    </button>
 
-          <h3 className="text-lg font-semibold text-gray-800 mb-4 pr-10">
-            {settingsLinks.find((link) => link.value === activeTab)?.label}
-          </h3>
+    <h3 className="text-lg font-semibold text-gray-800 mb-4 pr-10">
+      {settingsLinks.find((link) => link.value === activeTab)?.label}
+    </h3>
 
-          <div className="space-y-6">{renderActiveTab()}</div>
-        </div>
-      </div>
+    <div className="space-y-6">{renderActiveTab()}</div>
+  </div>
+</div>
+</div>
   );
 }
