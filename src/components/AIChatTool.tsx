@@ -46,7 +46,8 @@ const AIChatTool: React.FC<{
   const [chatId, setChatId] = useState<string | null>(null);
   const [selectedChatId, setSelectedChatId] = useState<string | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-
+  const [showTopicsButton, setShowTopicsButton] = useState(true);
+  
   useEffect(() => {
     if (!selectedChatId) return;
 
@@ -74,14 +75,18 @@ const AIChatTool: React.FC<{
     fetchMessages();
   }, [selectedChatId]);
 
-  const sendMessage = async () => {
-    if (!inputMessage.trim()) return;
+  const sendMessage = async (customPromt?: string) => {
+    const messageToSend = customPromt ?? inputMessage;
+    if (!messageToSend.trim()) return;
 
-    setMessages((prev) => [...prev, { type: "user", content: inputMessage }]);
+    setMessages((prev) => [...prev, { type: "user", content: messageToSend }]);
     setLoading(true);
 
     try {
-      const prompt = `Grade: ${selection.grade}\nSubject: ${selection.subject}\nQuestion: ${inputMessage}`;
+      const prompt = customPromt 
+      ? customPromt
+      
+      : `Grade: ${selection.grade}\nSubject: ${selection.subject}\nQuestion: ${customPromt}`;
       const token = localStorage.getItem("token");
 
       const res = await axios.post(
@@ -132,6 +137,11 @@ const AIChatTool: React.FC<{
     setSelectedChatId(chatId);
     setSidebarOpen(false);
   };
+  const sendTopicsPrompt = async () => {
+  setShowTopicsButton(false);
+  const msg = await sendMessage(`List the main topics for ${selection.grade} ${selection.subject}`);
+  console.log("nessage to sned ", msg)
+};
 
   return (
 <div className="flex  flex-col md:flex-row gap-1 bg-white">
@@ -208,6 +218,17 @@ const AIChatTool: React.FC<{
           ))}
         </div>
         <div className="p-4 md:p-6 border-t border-gray-200">
+      {showTopicsButton && (
+            <div className="mb-3">
+              <button
+                onClick={sendTopicsPrompt}
+                className="rounded-lg bg-blue-600 text-white px-4 py-2 hover:bg-blue-700 transition-colors sm:w-auto"
+                disabled={loading}
+              >
+              Topics
+              </button>
+            </div>
+          )}
   <div className="flex items-center gap-2">
     <input
       type="text"
@@ -221,7 +242,7 @@ const AIChatTool: React.FC<{
       disabled={loading}
     />
    <button
-  onClick={sendMessage}
+  onClick={() => sendMessage()}
   className="rounded-lg bg-purple-600 text-white p-2 sm:p-3
              hover:bg-purple-700 transition-colors 
              flex items-center justify-center"
