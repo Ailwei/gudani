@@ -1,9 +1,13 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { Menu, X } from "lucide-react";
 import ChatHistory from "./chatHistory";
 import { Send } from "lucide-react";
+import ReactMarkdown from "react-markdown";
+import "katex/dist/katex.min.css";
+import remarkMath from "remark-math";
+import rehypeKatex from "rehype-katex";
 
 
 interface UserSelection {
@@ -48,6 +52,12 @@ const AIChatTool: React.FC<{
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showTopicsButton, setShowTopicsButton] = useState(true);
   
+const messagesEndRef = useRef<HTMLDivElement | null>(null);
+
+useEffect(() => {
+  messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+}, [messages]);
+
   useEffect(() => {
     if (!selectedChatId) return;
 
@@ -86,7 +96,7 @@ const AIChatTool: React.FC<{
       const prompt = customPromt 
       ? customPromt
       
-      : `Grade: ${selection.grade}\nSubject: ${selection.subject}\nQuestion: ${customPromt}`;
+      : `Grade: ${selection.grade}\nSubject: ${selection.subject}\nQuestion: ${inputMessage}`;
       const token = localStorage.getItem("token");
 
       const res = await axios.post(
@@ -112,11 +122,6 @@ const AIChatTool: React.FC<{
           ? res.data.response
           : "Sorry, I couldn't find an answer.";
 
-      aiContent = aiContent
-        .replace(/\*\*(.*?)\*\*/g, "$1")
-        .replace(/\*(.*?)\*/g, "$1")
-        .replace(/^\s+|\s+$/g, "")
-        .replace(/\n{2,}/g, "\n\n");
 
       setMessages((prev) => [...prev, { type: "ai", content: aiContent }]);
     } catch (err: any) {
@@ -140,12 +145,11 @@ const AIChatTool: React.FC<{
   const sendTopicsPrompt = async () => {
   setShowTopicsButton(false);
   const msg = await sendMessage(`List the main topics for ${selection.grade} ${selection.subject}`);
-  console.log("nessage to sned ", msg)
 };
 
   return (
-<div className="flex  flex-col md:flex-row gap-1 bg-white">
-      <div className="hidden md:block w-64 border-r border-gray-200">
+<div className="flex h-screen bg-white gap-4">
+<div className="hidden md:block w-64 border-r border-gray-200">
         <ChatHistory onSelectChat={handleSelectChat} />
       </div>
      
@@ -165,7 +169,8 @@ const AIChatTool: React.FC<{
           </div>
         </div>
       )}
-      <div className="flex-1 flex flex-col bg-white rounded-xl shadow-sm border border-gray-200">
+
+      <div className="flex-1 flex flex-col bg-white rounded-xl shadow-sm border border-gray-200 h-full overflow-y-auto">
               <div className="p-6 border-b border-gray-200 flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <button
@@ -188,35 +193,42 @@ const AIChatTool: React.FC<{
                   ← Back to Tools
                 </button>
               </div>
-        <div className="p-6 space-y-6 flex-1 overflow-y-auto">
-          {messages.map((message, index) => (
-            <div
-              key={index}
-              className={`flex ${
-                message.type === "user" ? "justify-end" : "justify-start"
-              }`}
-            >
-              <div
-                className={`max-w-xs lg:max-w-md px-4 py-3 rounded-xl ${
-                  message.type === "user"
-                    ? "bg-purple-600 text-white"
-                    : "bg-gray-100 text-gray-900"
-                }`}
-              >
-                <p
-                  className="text-sm whitespace-pre-line"
-                  dangerouslySetInnerHTML={{
-                    __html: highlightAIText(
-                      message.content
-                        .replace(/Grade:.*\nSubject:.*\nQuestion:/g, "")
-                        .trim()
-                    ),
-                  }}
-                />
-              </div>
-            </div>
-          ))}
+<div
+  
+  className="flex-1 overflow-y-auto p-6 space-y-6"
+>
+  {messages.map((message, index) => (
+    <div
+      key={index}
+      className={`flex ${
+        message.type === "user" ? "justify-end" : "justify-start"
+      }`}
+    >
+      <div
+        className={`max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg px-4 py-3 rounded-2xl shadow-sm
+          ${message.type === "user"
+            ? "bg-purple-600 text-white rounded-br-none"
+            : "bg-gray-100 text-gray-900 rounded-bl-none"
+        }`}
+      >
+        <div className="prose prose-sm max-w-none">
+          <ReactMarkdown
+            remarkPlugins={[remarkMath]}
+            rehypePlugins={[rehypeKatex]}
+          >
+            {message.content}
+          </ReactMarkdown>
         </div>
+      </div>
+    </div>
+    
+  ))}
+  <div ref={messagesEndRef} />
+
+</div>
+
+
+
         <div className="p-4 md:p-6 border-t border-gray-200">
       {showTopicsButton && (
             <div className="mb-3">
@@ -229,7 +241,7 @@ const AIChatTool: React.FC<{
               </button>
             </div>
           )}
-  <div className="flex items-center gap-2">
+  <div  className="flex items-center gap-2">
     <input
       type="text"
       value={inputMessage}
@@ -240,6 +252,7 @@ const AIChatTool: React.FC<{
                  text-gray-900 font-normal"
       onKeyPress={(e) => e.key === "Enter" && !loading && sendMessage()}
       disabled={loading}
+
     />
    <button
   onClick={() => sendMessage()}

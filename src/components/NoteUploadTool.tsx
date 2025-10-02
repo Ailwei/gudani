@@ -176,7 +176,7 @@ const cleanSummary = summary
 
   return (
     <div className="flex h-screen gap-2">
-      <div className="hidden md:block w-64 border-r border-gray-200 overflow-y-auto">
+      <div className="hidden md:block w-64 border-r border-gray-200">
         <SummaryList
           onSelectSummary={(summary) => {
             setSummary(summary.summary);
