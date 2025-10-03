@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Save, Menu, X } from "lucide-react";
 import axios from "axios";
 import QuizList from "./Quzes";
@@ -28,6 +28,15 @@ interface QuizData {
   id?: string
 }
 
+interface Topic {
+  topic: string;
+  chunks: {
+    name: string;
+    concepts: string[];
+  }[];
+}
+
+
 const QuizGeneratorTool: React.FC<{
   selection: UserSelection;
   onBack: () => void;
@@ -41,13 +50,50 @@ const QuizGeneratorTool: React.FC<{
   const [showResults, setShowResults] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [topics, setTopics] = useState<Topic[]>([]);
 
-  const generateQuiz = async () => {
+
+
+
+
+useEffect(() => {
+  const fetchTopics = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await axios.get("/api/getTopics", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      setTopics(res.data.topics);
+    } catch (err) {
+      console.error("Failed to fetch topics:", err);
+    }
+  };
+
+  fetchTopics();
+}, []);
+
+
+ 
+
+  const generateQuiz = async (selectedTopic?: string) => {
+            const topicName = selectedTopic || topic;
+            console.log("totoot", topicName)
+
+      
+      if (!topicName) {
+    setErrorMessage("Missing required fields: topic, grade, or subject.");
+    return;
+  }
     setIsGenerating(true);
     setShowResults(false);
     setSelectedAnswers({});
     setErrorMessage(null);
     setQuiz(null);
+
+
+
+  const selectedTopicObj = topics.find((t) => t.topic === topicName);
 
     try {
       const token = localStorage.getItem("token");
@@ -56,7 +102,8 @@ const QuizGeneratorTool: React.FC<{
         {
           grade: selection.grade,
           subject: selection.subject,
-          topic,
+          topic:selectedTopic,
+          chunks: selectedTopicObj?.chunks || [],
           useSyllabus: true,
         },
         {
@@ -104,6 +151,7 @@ const QuizGeneratorTool: React.FC<{
           grade: quiz.grade,
           subject: quiz.subject,
           topic: quiz.topic,
+          
           questions: quiz.questions.map((q, index) => ({
             id: q.id,
             question: q.question,
@@ -118,7 +166,6 @@ const QuizGeneratorTool: React.FC<{
           headers: { Authorization: `Bearer ${token}` },
         }
       );
-      console.log("Saved quiz:", res.data);
       alert("Quiz saved successfully!");
       handleCloseQuiz();
     } catch (err: any) {
@@ -229,6 +276,25 @@ const QuizGeneratorTool: React.FC<{
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               What topic would you like to be quizzed on?
+              <div className="flex flex-wrap gap-2">
+    {topics.map((t) => (
+      <button
+        key={t.topic}
+        type="button"
+        onClick={() => {
+          setTopic(t.topic);
+          generateQuiz(t.topic);
+        }}
+        className={`px-3 py-1 rounded-full border text-sm ${
+          topic === t.topic
+            ? "bg-purple-600 text-white border-purple-600"
+            : "bg-gray-100 text-gray-700 border-gray-300 hover:bg-purple-100"
+        }`}
+      >
+        {t.topic}
+      </button>
+    ))}
+  </div>
             </label>
             <input
               type="text"
@@ -240,7 +306,9 @@ const QuizGeneratorTool: React.FC<{
           </div>
 
           <button
-            onClick={generateQuiz}
+          key={topic}
+            onClick={() => generateQuiz(topic)}
+            type="button"
             disabled={!topic.trim() || isGenerating}
             className="w-full bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
@@ -274,7 +342,9 @@ const QuizGeneratorTool: React.FC<{
                     {index + 1}. {q.question}
                   </p>
                   {q.diagram && (
-                    <Image
+                    <Image 
+                    width="44"
+                    height="44"
                       src={q.diagram}
                       alt="diagram"
                       className="mb-3 max-h-48 object-contain"
