@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { verifyToken } from "@/utils/veriffyToken";
 import { db } from "@/lib/prisma";
 
-export async function GET(request: NextRequest) {
+export async function POST(request: NextRequest) {
   try {
     const authHeader = request.headers.get("authorization");
 
@@ -19,13 +19,24 @@ export async function GET(request: NextRequest) {
         { status: 401 }
       );
     }
+    
+    const { subject, grade } = await request.json();
 
-    const rawData = await db.syllabusChunk.findMany({
+    if (!subject || !grade) {
+      return NextResponse.json(
+        { error: "Missing required fields: subject or grade" },
+        { status: 400 }
+      );
+    }    const rawData = await db.syllabusChunk.findMany({
+      where: {
+        grade,
+        subject,
+      },
       select: {
         id: true,
         topic: true,
         chunk: true,
-        concepts: true, // ✅ must exist in your schema
+        concepts: true,
       },
     });
 
@@ -47,7 +58,6 @@ export async function GET(request: NextRequest) {
 
       const topicObj = topicMap.get(entry.topic)!;
 
-      // find if chunk already exists
       let chunkObj = topicObj.chunks.find((c) => c.name === entry.chunk);
       if (!chunkObj) {
         chunkObj = { name: entry.chunk, concepts: [] };
