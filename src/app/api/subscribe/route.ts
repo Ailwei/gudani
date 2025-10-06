@@ -35,7 +35,6 @@ export async function POST(req: NextRequest) {
 
       await db.user.update({ where: { id: userId }, data: { paystackCustomerId: customerCode } });
     }
-
     const authRes = await axios.get(`https://api.paystack.co/customer/${customerCode}`, {
       headers: { Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}` },
     });
