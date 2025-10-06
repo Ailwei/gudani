@@ -60,9 +60,16 @@ useEffect(() => {
   const fetchTopics = async () => {
     try {
       const token = localStorage.getItem("token");
-      const res = await axios.get("/api/getTopics", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await axios.post(
+        "/api/getTopics",
+        {
+          grade: selection.grade,
+          subject: selection.subject
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
 
       setTopics(res.data.topics);
     } catch (err) {
@@ -71,7 +78,8 @@ useEffect(() => {
   };
 
   fetchTopics();
-}, []);
+}, [selection.grade, selection.subject]);
+
 
 
  
