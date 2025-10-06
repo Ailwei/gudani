@@ -1,38 +1,34 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { loadStripe } from "@stripe/stripe-js";
-import { Elements } from "@stripe/react-stripe-js";
 import CheckoutForm from "./checkOutForm";
-import axios from "axios";
-
-const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
 
 export default function CheckoutPage() {
-  const [clientSecret, setClientSecret] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
   const [planType, setPlanType] = useState<string | null>(null);
+  const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const storedUserId = localStorage.getItem("userId");
     const storedPlanType = localStorage.getItem("planType");
+    const storedEmail = localStorage.getItem("userEmail");
+    console.log(userEmail)
 
-    if (storedUserId && storedPlanType) {
+    if (storedUserId && storedPlanType && storedEmail) {
       setUserId(storedUserId);
       setPlanType(storedPlanType);
-
-      axios.post("/api/subscribe", { userId: storedUserId, planType: storedPlanType })
-        .then(res => setClientSecret(res.data.clientSecret))
-        .catch(console.error);
+      setUserEmail(storedEmail);
     }
+    setLoading(false);
   }, []);
 
-  if (!userId || !planType) return <div>Loading user info...</div>;
-  if (!clientSecret) return <div>Loading checkout...</div>;
+  if (loading) return <div>Loading user info...</div>;
+  if (!userId || !planType || !userEmail) return <div>Missing user info</div>;
 
   return (
-    <Elements stripe={stripePromise} options={{ clientSecret }}>
-      <CheckoutForm userId={userId} planType={planType} />
-    </Elements>
+    <div className="min-h-screen flex justify-center items-center">
+      <CheckoutForm userId={userId} planType={planType} userEmail={userEmail} />
+    </div>
   );
 }

@@ -59,8 +59,7 @@ const FlashcardsTool: React.FC<FlashcardsToolProps> = ({
             Authorization: `Bearer ${token}`
           }
         });
-        setTopics(res.data.topics);
-        
+        setTopics(res.data.topics);        
       } catch(error){
         console.error(error);
 
