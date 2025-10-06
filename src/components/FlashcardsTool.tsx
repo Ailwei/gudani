@@ -22,6 +22,14 @@ interface FlashcardSet {
   cards: Flashcard[];
 }
 
+interface Topic {
+  topic: string;
+  chunks: {
+    name: string;
+    concepts: string[];
+  }[];
+}
+
 interface FlashcardsToolProps {
   selection: UserSelection;
   onBack: () => void;
@@ -39,34 +47,27 @@ const FlashcardsTool: React.FC<FlashcardsToolProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [isSavedSet, setIsSavedSet] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [topics, setTopics] = useState<FlashcardSet[]>([]);
-
+  const [topics,setTopics] = useState<Topic[]>([])
 
 
   useEffect(() => {
-  const fetchTopics = async () => {
-    try {
-      const token = localStorage.getItem("token");
-      const res = await axios.post(
-        "/api/getTopics",
-        {
-          grade: selection.grade,
-          subject: selection.subject
-        },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+    const fetchTopics = async () => {
+      try{
+        const token = localStorage.getItem("token")
+        const res = await axios.get("/api/getTopics", {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+        setTopics(res.data.topics);        
+      } catch(error){
+        console.error(error);
 
-      setTopics(res.data.topics);
-      console.log("topics", res.data.topics)
-    } catch (err) {
-      console.error("Failed to fetch topics:", err);
+      }
     }
-  };
-
-  fetchTopics();
-}, [selection.grade, selection.subject]);
+    fetchTopics();
+  } , [])
+  
 
   const handleTopicSelect = (set: FlashcardSet) => {
     setTopic(set.topic);
@@ -236,9 +237,8 @@ const handlePrev = () => {
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                 What topic would you like generate flashcards?
-
-                       <div className="flex flex-wrap gap-2">
+                  Topic for flashcards
+                 <div className="flex flex-wrap gap-2">
     {topics.map((t) => (
       <button
         key={t.topic}

@@ -31,6 +31,8 @@ const [plan, setPlan] = useState("FREE");
       const res = await axios.post('/api/auth/login', { email, password });
       if (res.data.token) {
         localStorage.setItem("token", res.data.token);
+        localStorage.setItem("email", res.data.email);
+
       }
       if(plan === "PREMIUM"){
         router.push("checkout");
