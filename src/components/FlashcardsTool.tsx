@@ -67,7 +67,6 @@ const FlashcardsTool: React.FC<FlashcardsToolProps> = ({
     }
     fetchTopics();
   } , [])
-  
   const handleTopicSelect = (set: FlashcardSet) => {
     setTopic(set.topic);
     setFlashcards(set.cards);
