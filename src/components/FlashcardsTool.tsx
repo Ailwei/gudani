@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Save, Menu, X } from "lucide-react";
 import axios from "axios";
 import FlashcardList from "./getFlashCard";
@@ -39,6 +39,34 @@ const FlashcardsTool: React.FC<FlashcardsToolProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [isSavedSet, setIsSavedSet] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [topics, setTopics] = useState<FlashcardSet[]>([]);
+
+
+
+  useEffect(() => {
+  const fetchTopics = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await axios.post(
+        "/api/getTopics",
+        {
+          grade: selection.grade,
+          subject: selection.subject
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      setTopics(res.data.topics);
+      console.log("topics", res.data.topics)
+    } catch (err) {
+      console.error("Failed to fetch topics:", err);
+    }
+  };
+
+  fetchTopics();
+}, [selection.grade, selection.subject]);
 
   const handleTopicSelect = (set: FlashcardSet) => {
     setTopic(set.topic);
@@ -208,7 +236,27 @@ const handlePrev = () => {
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Topic for flashcards
+                 What topic would you like generate flashcards?
+
+                       <div className="flex flex-wrap gap-2">
+    {topics.map((t) => (
+      <button
+        key={t.topic}
+        type="button"
+        onClick={() => {
+          setTopic(t.topic);
+          generateFlashcardsForTopic(t.topic);
+        }}
+        className={`px-3 py-1 rounded-full border text-sm ${
+          topic === t.topic
+            ? "bg-purple-600 text-white border-purple-600"
+            : "bg-gray-100 text-gray-700 border-gray-300 hover:bg-purple-100"
+        }`}
+      >
+        {t.topic}
+      </button>
+    ))}
+  </div>
                 </label>
                 <input
                   type="text"
