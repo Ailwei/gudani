@@ -234,7 +234,6 @@ const handlePrev = () => {
                 <h3 className="text-lg font-semibold text-gray-900">
                   Flashcards: {topic}
                 </h3>
-                
                 {!isSavedSet && (
                   <div className="flex justify-center space-x-2 mt-4">
                     <button
