@@ -238,7 +238,7 @@ const handlePrev = () => {
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Topic for flashcards
+What topic would you like to create flashcards?
                  <div className="flex flex-wrap gap-2">
     {topics.map((t) => (
       <button
