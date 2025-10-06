@@ -93,28 +93,32 @@ export default function PlanSelector({ userId, onClose, onUpgradeClick, activePl
   const handleSelectPlan = (plan: Plan) => setSelectedPlan(plan);
 
   const handleSubscribe = async () => {
-    if (!selectedPlan) return;
+  if (!selectedPlan) return;
 
-    setLoading(true);
-    try {
-      const response = await axios.post("/api/subscribe", {
-        userId,
-        planType: selectedPlan.id,
-      });
+  setLoading(true);
+  try {
+    const email = localStorage.getItem("email");
+    if (!email) throw new Error("User email not found");
 
-      if (response.data.url) window.location.href = response.data.url;
-      setPlanType(selectedPlan.id);
-      setSelectedPlan(selectedPlan);
-    } catch (err: any) {
-      const errorMessage = err.response?.data?.error || "Something went wrong";
-      alert(errorMessage);
-    } finally {
-      setLoading(false);
+    const response = await axios.post("/api/subscribe", {
+      userId,
+      planType: selectedPlan.id,
+      email,
+    });
+
+    if (response.data.url) {
+      window.location.href = response.data.url; 
     }
-  };
 
-  if (fetching) {
+    setPlanType(selectedPlan.id);
+    setSelectedPlan(selectedPlan);
+  } catch (err: any) {
+    const errorMessage = err.response?.data?.error || err.message || "Something went wrong";
+    alert(errorMessage);
+  } finally {
+    setLoading(false);
   }
+};
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center px-4 sm:px-6 py-12">
