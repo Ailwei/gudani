@@ -1,33 +1,47 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { loadStripe } from "@stripe/stripe-js";
-import { Elements } from "@stripe/react-stripe-js";
+import { PaystackButton } from "react-paystack";
+import axios from "axios";
 
+interface CheckoutFormProps {
+  userId: string;
+  planType: string;
+  userEmail: string;
+}
 
-const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
+export default function CheckoutForm({ userId, planType, userEmail }: CheckoutFormProps) {
+  const publicKey = process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY!;
 
-export default function CheckoutPage({ userId, planType }: { userId: string; planType: string }) {
-  const [clientSecret, setClientSecret] = useState<string | null>(null);
-
-  useEffect(() => {
-    async function fetchClientSecret() {
-      const res = await fetch("/api/checkout-intent", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId, planType }),
+  const onSuccess = async (reference: any) => {
+    try {
+      await axios.post("/api/verify", {
+        reference: reference.reference,
+        userId,
+        planType,
       });
-      const data = await res.json();
-      setClientSecret(data.clientSecret);
+      alert("Subscription successful!");
+    } catch (err) {
+      console.error("Verification failed:", err);
+      alert("Subscription verification failed.");
     }
-    fetchClientSecret();
-  }, [userId, planType]);
+  };
 
-  if (!clientSecret) return <div>Loading...</div>;
+  const onClose = () => {
+    console.log("Payment closed");
+  };
+
+  if (!userEmail) return <div>Loading...</div>;
 
   return (
-    <Elements stripe={stripePromise} options={{ clientSecret }}>
-      
-    </Elements>
+    <PaystackButton
+      email={userEmail}
+      publicKey={publicKey}
+      plan={planType}
+      amount={0}
+      text="Subscribe Now"
+      onSuccess={onSuccess}
+      onClose={onClose}
+      className="px-4 py-2 bg-green-600 text-white rounded"
+    />
   );
 }

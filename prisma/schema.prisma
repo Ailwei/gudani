@@ -18,7 +18,7 @@ model user {
   userRole         usersRole      @default(USER)
   lastReset        DateTime?
   tokensUsed       Int            @default(0)
-  stripeCustomerId String?        @unique
+  paystackCustomerId  String?     @unique
   activities       Activity[]
   ChatHistory      Chat[]
   FlashcardSet     FlashcardSet[]
@@ -42,7 +42,7 @@ model PlanConfig {
   dailyLimit    Int?
   monthlyLimit  Int?
   price         Int?
-  stripePriceId String?
+  paystackPlanCode String?
   Subscription  Subscription[]
 }
 
@@ -149,11 +149,12 @@ model Subscription {
   startDate            DateTime           @default(now())
   endDate              DateTime?
   status               SubscriptionStatus @default(ACTIVE)
-  stripeSubscriptionId String?            @unique
+  paystackSubscriptionId String? @unique
   cancelAtPeriodEnd    Boolean            @default(false)
   cancellationDate     DateTime?
   pastDueAmount        Float?             @default(0)
   pastDueCurrency      String?
+  emailToken     String?  
   paymentStatus        PaymentStatus      @default(PENDING)
   plan                 PlanConfig         @relation(fields: [planId], references: [id])
   user                 user               @relation(fields: [userId], references: [id], onDelete: Cascade)

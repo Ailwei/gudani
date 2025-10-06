@@ -6,23 +6,23 @@ async function main() {
     {
       type: PlanType.FREE,
       dailyLimit: 1000,
-      monthlyLimit: 300,
+      monthlyLimit: 30000,
       price: 0,
-      stripePriceId: null,
+      paystackPlanCode: null,
     },
     {
       type: PlanType.STANDARD,
-      dailyLimit: 5000,
-      monthlyLimit: 15000,
+      dailyLimit: 10000,
+      monthlyLimit: 150000,
       price: 50,
-      stripePriceId: "price_1S2b6NRuuRix8vquD9SqCTvM",
+      paystackPlanCode: "PLN_78if9xrucw07445"
     },
     {
       type: PlanType.PREMIUM,
-      dailyLimit: 100000,
-      monthlyLimit: 30000,
+      dailyLimit: 15000,
+      monthlyLimit: 450000,
       price: 120,
-      stripePriceId: "price_1S2b6zRuuRix8vquhRTIhKw7",
+      paystackPlanCode: "PLN_ki7fcog4lx0fexr"
     },
   ];
 
