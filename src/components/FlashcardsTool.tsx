@@ -59,7 +59,6 @@ const FlashcardsTool: React.FC<FlashcardsToolProps> = ({
       );
 
       setTopics(res.data.topics);
-      console.log("topics", res.data.topics)
     } catch (err) {
       console.error("Failed to fetch topics:", err);
     }
