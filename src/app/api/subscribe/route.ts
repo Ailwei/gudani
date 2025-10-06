@@ -1,158 +1,114 @@
 import { NextRequest, NextResponse } from "next/server";
-import { stripe } from "@/lib/stripe";
+import axios from "axios";
 import { db } from "@/lib/prisma";
-import { PlanType } from "@/generated/prisma";
+import { PlanType, PaymentStatus, SubscriptionStatus } from "@/generated/prisma";
 import { getLatestUserSubscription } from "@/lib/getLatestSubscription";
+
 export async function POST(req: NextRequest) {
   try {
     const { userId, planType } = await req.json();
-
-    if (!planType || typeof planType !== "string") {
-      return NextResponse.json({ error: "Missing or invalid planType" }, { status: 400 });
+    if (!userId || !planType) {
+      return NextResponse.json({ error: "Missing userId or planType" }, { status: 400 });
     }
 
     const normalizedPlanType = planType.toUpperCase();
-    const targetPlan = await db.planConfig.findFirst({
-      where: { type: normalizedPlanType as PlanType },
-    });
 
-    if (!targetPlan) {
-      return NextResponse.json({ error: "Plan not found" }, { status: 400 });
+    const plan = await db.planConfig.findFirst({ where: { type: normalizedPlanType as PlanType } });
+    if (!plan || !plan.paystackPlanCode || !plan.price) {
+      return NextResponse.json({ error: "Invalid plan or missing Paystack plan code/price" }, { status: 400 });
     }
 
     const user = await db.user.findUnique({ where: { id: userId } });
-    if (!user) {
-      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    if (!user || !user.email) {
+      return NextResponse.json({ error: "User not found or missing email" }, { status: 404 });
     }
 
-    const currentSub = await getLatestUserSubscription(userId);
-    const currentPlanType = currentSub?.plan?.type;
+    let customerCode = user.paystackCustomerId;
 
-    if (currentPlanType === normalizedPlanType) {
-      return NextResponse.json({ error: "You're already on this plan" }, { status: 400 });
+    if (!customerCode) {
+      const res = await axios.post(
+        "https://api.paystack.co/customer",
+        { email: user.email, first_name: user.firstName, last_name: user.lastName },
+        { headers: { Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}` } }
+      );
+      customerCode = res.data.data.customer_code;
+
+      await db.user.update({ where: { id: userId }, data: { paystackCustomerId: customerCode } });
     }
 
-    if (normalizedPlanType === "FREE") {
-      if (!currentSub) {
-        return NextResponse.json({ error: "No active subscription to downgrade." }, { status: 400 });
-      }
-
-      if (currentSub.stripeSubscriptionId) {
-        await stripe.subscriptions.cancel(currentSub.stripeSubscriptionId);
-      }
-      const updated = await db.subscription.update({
-        where: { id: currentSub.id },
-        data: {
-          planId: targetPlan.id,
-          stripeSubscriptionId: null,
-          status: "ACTIVE",
-          startDate: new Date(),
-          endDate: null,
-           cancelAtPeriodEnd: false,
-           cancellationDate: null,
-        },
-      });
-      return NextResponse.json({ message: "Downgraded to Free", subscription: updated });
-    }
-    if (currentSub?.stripeSubscriptionId) {
-      const stripeSub = await stripe.subscriptions.retrieve(currentSub.stripeSubscriptionId);
-      const itemId = stripeSub.items.data[0].id;
-
-      await stripe.subscriptions.update(currentSub.stripeSubscriptionId, {
-        items: [{ id: itemId, price: targetPlan.stripePriceId ?? undefined }],
-        metadata: {
-          userId,
-          planType: normalizedPlanType,
-          planId: targetPlan.id,
-        },
-      });
-      const updated = await db.subscription.update({
-        where: { id: currentSub.id },
-        data: {
-          planId: targetPlan.id,
-          status: "ACTIVE",
-          startDate: new Date(),
-        },
-      });
-      return NextResponse.json({ message: "Plan updated", subscription: updated });
-    }
-
-    let customerId = user.stripeCustomerId;
-    if (!customerId) {
-      const customer = await stripe.customers.create({
-        email: user.email ?? undefined,
-        name: `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim(),
-        metadata: { userId },
-      });
-      customerId = customer.id;
-
-      await db.user.update({
-        where: { id: userId },
-        data: { stripeCustomerId: customerId },
-      });
-    }
-
-    if (!targetPlan.stripePriceId) {
-      return NextResponse.json({ error: "Plan is missing Stripe price ID" }, { status: 400 });
-    }
-
-    const customer = await stripe.customers.retrieve(customerId, {
-      expand: ["invoice_settings.default_payment_method"],
+    const authRes = await axios.get(`https://api.paystack.co/customer/${customerCode}`, {
+      headers: { Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}` },
     });
-    const defaultPm = (customer as any).invoice_settings?.default_payment_method;
+    const authorizations = authRes.data.data.authorizations || [];
+    const primaryAuth = authorizations.length > 0 ? authorizations[0] : null;
 
-    if (defaultPm) {
-      const subscription = await stripe.subscriptions.create({
-        customer: customerId,
-        items: [{ price: targetPlan.stripePriceId }],
-        default_payment_method: defaultPm.id,
-        metadata: {
-          userId,
-          planId: targetPlan.id,
-          planType: normalizedPlanType,
+    if (!primaryAuth) {
+      const amountInKobo = plan.price * 100;
+      const initRes = await axios.post(
+        "https://api.paystack.co/transaction/initialize",
+        {
+          email: user.email,
+          amount: amountInKobo,
+          metadata: { userId, planType: normalizedPlanType, planId: plan.id },
+          callback_url: `${process.env.NEXT_PUBLIC_APP_URL}/api/verify?planId=${plan.id}`,
         },
-      });
-
-      const saved = await db.subscription.create({
-        data: {
-          userId,
-          planId: targetPlan.id,
-          stripeSubscriptionId: subscription.id,
-          status: "ACTIVE",
-          startDate: new Date(),
-          cancelAtPeriodEnd: false,
-        },
-      });
+        { headers: { Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}` } }
+      );
 
       return NextResponse.json({
-        message: "Subscribed with saved card",
-        subscription: saved,
+        requiresPayment: true,
+        url: initRes.data.data.authorization_url,
+        reference: initRes.data.data.reference,
       });
     }
-    const session = await stripe.checkout.sessions.create({
-      mode: "subscription",
-      payment_method_types: ["card"],
-      customer: customerId,
-      line_items: [{ price: targetPlan.stripePriceId, quantity: 1 }],
-      success_url: `${process.env.NEXT_PUBLIC_APP_URL}/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard`,
-      metadata: {
-        userId,
-        planId: targetPlan.id,
-        planType: normalizedPlanType,
-      },
-      subscription_data: {
-        metadata: {
-          userId,
-          planId: targetPlan.id,
-          planType: normalizedPlanType,
-        },
-      },
-    });
 
-    return NextResponse.json({ url: session.url });
+    const subRes = await axios.post(
+      "https://api.paystack.co/subscription",
+      { customer: customerCode, plan: plan.paystackPlanCode, authorization: primaryAuth.authorization_code },
+      { headers: { Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}` } }
+    );
+
+    const subData = subRes.data.data;
+    const existingSub = await getLatestUserSubscription(userId);
+
+    if (existingSub) {
+      await db.subscription.update({
+        where: { id: existingSub.id },
+        data: {
+          planId: plan.id,
+          paystackSubscriptionId: subData.subscription_code,
+          emailToken: subData.email_token,
+          status: SubscriptionStatus.ACTIVE,
+          paymentStatus: PaymentStatus.PAID,
+          startDate: new Date(),
+          endDate: subData.next_payment_date ? new Date(subData.next_payment_date) : null,
+        },
+      });
+    } else {
+      await db.subscription.create({
+        data: {
+          userId,
+          planId: plan.id,
+          paystackSubscriptionId: subData.subscription_code,
+          emailToken : subData.email_token,
+          status: SubscriptionStatus.ACTIVE,
+          paymentStatus: PaymentStatus.PAID,
+          startDate: new Date(),
+          endDate: subData.next_payment_date ? new Date(subData.next_payment_date) : null,
+        },
+      });
+    }
+
+    return NextResponse.json({
+     requiresPayment: false,
+      subscriptionCode: subData.subscription_code,
+      emailToken: subData.email_token,
+      customerCode: customerCode,
+      authorizations,
+      subscriptionData: subData,
+    });
   } catch (err: any) {
-    console.error("Subscribe route error:", err);
-    return NextResponse.json({ error: err.message || "Internal server error" }, { status: 500 });
+    console.error("Subscribe error:", err.response?.data || err.message);
+    return NextResponse.json({ error: err.response?.data?.message || err.message || "Internal server error" }, { status: 500 });
   }
 }
