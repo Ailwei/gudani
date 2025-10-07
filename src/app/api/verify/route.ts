@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import axios from "axios";
 import { db } from "@/lib/prisma";
 import { PaymentStatus, SubscriptionStatus } from "@/generated/prisma";
+import { getLatestUserSubscription } from "@/lib/getLatestSubscription";
 
 export async function GET(req: NextRequest) {
   const reference =
@@ -70,21 +71,39 @@ export async function GET(req: NextRequest) {
     );
 
     const subData = subRes.data.data;
+    const existingSub = await getLatestUserSubscription(userId);
 
-    await db.subscription.create({
-      data: {
-        userId,
-        planId: plan.id,
-        paystackSubscriptionId: subData.subscription_code,
-        emailToken: subData.email_token,
-        status: SubscriptionStatus.ACTIVE,
-        paymentStatus: PaymentStatus.PAID,
-        startDate: new Date(),
-        endDate: subData.next_payment_date
-          ? new Date(subData.next_payment_date)
-          : null,
-      },
-    });
+   if (existingSub) {
+      await db.subscription.update({
+        where: { id: existingSub.id },
+        data: {
+          planId: plan.id,
+          paystackSubscriptionId: subData.subscription_code,
+          emailToken: subData.email_token,
+          status: SubscriptionStatus.ACTIVE,
+          paymentStatus: PaymentStatus.PAID,
+          startDate: new Date(),
+          endDate: subData.next_payment_date
+            ? new Date(subData.next_payment_date)
+            : null,
+        },
+      });
+    } else {
+      await db.subscription.create({
+        data: {
+          userId,
+          planId: plan.id,
+          paystackSubscriptionId: subData.subscription_code,
+          emailToken: subData.email_token,
+          status: SubscriptionStatus.ACTIVE,
+          paymentStatus: PaymentStatus.PAID,
+          startDate: new Date(),
+          endDate: subData.next_payment_date
+            ? new Date(subData.next_payment_date)
+            : null,
+        },
+      });
+    }
     return NextResponse.redirect(`${baseUrl}/verify-success`);
   } catch (err: any) {
     console.error("Paystack verification error:", err.response?.data || err);
