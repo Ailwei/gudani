@@ -32,7 +32,7 @@ export async function POST(req: NextRequest) {
         where: { id: subscription.id },
         data: {
           status: SubscriptionStatus.ACTIVE,
-          paymentStatus: PaymentStatus.CANCELLED,
+          paymentStatus: PaymentStatus.PENDING,
         },
       });
 

@@ -32,7 +32,7 @@ export async function GET(req: NextRequest) {
   pastDueCurrency: subscription.pastDueCurrency ?? null,
   startDate: subscription.startDate,
   endDate: subscription.endDate,
-  stripeSubscriptionId: subscription.stripeSubscriptionId,
+  paystackSubscriptionId: subscription.paystackSubscriptionId,
   cancelAtPeriodEnd: subscription.cancelAtPeriodEnd,
   cancellationDate: subscription.cancellationDate,
 });

@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import CheckoutForm from "./checkOutForm";
+import dynamic from "next/dynamic";
+
+const CheckoutForm = dynamic(() => import("./checkOutForm"), { ssr: false });
 
 export default function CheckoutPage() {
   const [userId, setUserId] = useState<string | null>(null);
@@ -13,15 +15,14 @@ export default function CheckoutPage() {
     const storedUserId = localStorage.getItem("userId");
     const storedPlanType = localStorage.getItem("planType");
     const storedEmail = localStorage.getItem("userEmail");
-    console.log(userEmail)
-
+    
     if (storedUserId && storedPlanType && storedEmail) {
       setUserId(storedUserId);
       setPlanType(storedPlanType);
       setUserEmail(storedEmail);
     }
     setLoading(false);
-  }, []);
+  }, [userEmail]);
 
   if (loading) return <div>Loading user info...</div>;
   if (!userId || !planType || !userEmail) return <div>Missing user info</div>;

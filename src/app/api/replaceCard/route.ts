@@ -19,7 +19,7 @@ export async function POST(req: NextRequest) {
 
     let dbUser = await db.user.findUnique({ where: { id: user.userId } });
 
-    let customerId = dbUser?.stripeCustomerId ?? null;
+    let customerId = dbUser?.paystackCustomerId ?? null;
 
     if (!customerId) {
       const customer = await stripe.customers.create({
@@ -31,7 +31,7 @@ export async function POST(req: NextRequest) {
 
       await db.user.update({
         where: { id: user.userId },
-        data: { stripeCustomerId: customerId },
+        data: { paystackCustomerId: customerId },
       });
       dbUser = await db.user.findUnique({ where: { id: user.userId } });
     }
