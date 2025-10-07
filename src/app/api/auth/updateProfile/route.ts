@@ -25,11 +25,11 @@ export async function POST(request: NextRequest) {
     const updatedUser = await db.user.update({
       where: { id: user.userId },
       data: { firstName, lastName, email },
-      select: { id: true, firstName: true, lastName: true, email: true, stripeCustomerId: true },
+      select: { id: true, firstName: true, lastName: true, email: true, paystackCustomerId: true },
     });
 
-    if (updatedUser.stripeCustomerId) {
-      await stripe.customers.update(updatedUser.stripeCustomerId, {
+    if (updatedUser.paystackCustomerId) {
+      await stripe.customers.update(updatedUser.paystackCustomerId, {
         email,
         name: fullName,
       });

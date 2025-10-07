@@ -17,7 +17,7 @@ export async function DELETE(req: NextRequest) {
   if (!paymentMethodId) return NextResponse.json({ error: "paymentMethodId is required" }, { status: 400 });
 
   const user = await db.user.findUnique({ where: { id: userData.userId } });
-  if (!user?.stripeCustomerId) return NextResponse.json({ error: "Stripe customer not found" }, { status: 404 });
+  if (!user?.paystackCustomerId) return NextResponse.json({ error: "Stripe customer not found" }, { status: 404 });
 
   await stripe.paymentMethods.detach(paymentMethodId);
 

@@ -21,12 +21,12 @@ export async function GET(request: NextRequest) {
     where: { id: tokenData.userId },
   });
 
-  if (!user || !user.stripeCustomerId) {
+  if (!user || !user.paystackCustomerId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const paymentMethods = await stripe.paymentMethods.list({
-    customer: user.stripeCustomerId,
+    customer: user.paystackCustomerId,
     type: "card",
   });
 console.log(paymentMethods)
