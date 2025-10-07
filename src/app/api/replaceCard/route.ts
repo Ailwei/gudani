@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { stripe } from "@/lib/stripe";
 import { db } from "@/lib/prisma";
 import { verifyToken } from "@/utils/veriffyToken";
+import axios from "axios";
 
 export async function POST(req: NextRequest) {
   try {
@@ -11,77 +11,49 @@ export async function POST(req: NextRequest) {
     }
 
     const token = authHeader.split(" ")[1];
-    const user = verifyToken(token);
+    const user = await verifyToken(token);
     if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     const body = await req.json();
-    let { paymentMethodId, card } = body;
+    const { card } = body; // card object with number, exp_month, exp_year, cvc (if you want to tokenize)
 
     let dbUser = await db.user.findUnique({ where: { id: user.userId } });
+    if (!dbUser) return NextResponse.json({ error: "User not found" }, { status: 404 });
 
-    let customerId = dbUser?.paystackCustomerId ?? null;
+    let customerId = dbUser.paystackCustomerId;
 
+    // Create Paystack customer if it doesn't exist
     if (!customerId) {
-      const customer = await stripe.customers.create({
-        email: dbUser?.email ?? undefined,
-        metadata: { userId: user.userId },
-      });
+      const PAYSTACK_SECRET_KEY = process.env.PAYSTACK_SECRET_KEY!;
+      const response = await axios.post(
+        "https://api.paystack.co/customer",
+        {
+          email: dbUser.email,
+          first_name: dbUser.firstName,
+          last_name: dbUser.lastName,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${PAYSTACK_SECRET_KEY}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
-      customerId = customer.id;
+      customerId = response.data.data.id;
 
       await db.user.update({
         where: { id: user.userId },
         data: { paystackCustomerId: customerId },
       });
-      dbUser = await db.user.findUnique({ where: { id: user.userId } });
     }
-
-    if (!paymentMethodId && card) {
-      const newPm = await stripe.paymentMethods.create({
-        type: "card",
-        card: {
-          number: card.number,
-          exp_month: card.exp_month,
-          exp_year: card.exp_year,
-          cvc: card.cvc,
-        },
-      });
-      paymentMethodId = newPm.id;
-    }
-
-    if (!paymentMethodId) {
-      return NextResponse.json(
-        { error: "Please provide card details or paymentMethodId" },
-        { status: 400 }
-      );
-    }
-
-    await stripe.paymentMethods.attach(paymentMethodId, {
-      customer: customerId,
-    });
-
-    await stripe.customers.update(customerId, {
-      invoice_settings: { default_payment_method: paymentMethodId },
-    });
-
-    const paymentMethods = await stripe.paymentMethods.list({
-      customer: customerId,
-      type: "card",
-    });
-
-    for (const pm of paymentMethods.data) {
-      if (pm.id !== paymentMethodId) {
-        await stripe.paymentMethods.detach(pm.id);
-      }
-    }
-
     return NextResponse.json({
       success: true,
-      message: "Card replaced successfully",
-      paymentMethodId,
+      message: "Paystack customer ready",
+      paystackCustomerId: customerId,
     });
   } catch (err: any) {
-    console.error(err);
+    console.error("Paystack card management error:", err.message);
     return NextResponse.json(
       { error: err.message || "Internal server error" },
       { status: 500 }

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/prisma";
 import { verifyToken } from "@/utils/veriffyToken";
-import { stripe } from "@/lib/stripe";
+import axios from "axios";
 
 export async function POST(request: NextRequest) {
   try {
@@ -29,12 +29,21 @@ export async function POST(request: NextRequest) {
     });
 
     if (updatedUser.paystackCustomerId) {
-      await stripe.customers.update(updatedUser.paystackCustomerId, {
-        email,
-        name: fullName,
+      const PAYSTACK_SECRET_KEY = process.env.PAYSTACK_SECRET_KEY!;
+      await axios({
+        method: "put",
+        url: `https://api.paystack.co/customer/${updatedUser.paystackCustomerId}`,
+        headers: {
+          Authorization: `Bearer ${PAYSTACK_SECRET_KEY}`,
+          "Content-Type": "application/json",
+        },
+        data: {
+          email,
+          first_name: firstName,
+          last_name: lastName,
+        },
       });
     }
-
     return NextResponse.json({ user: updatedUser, message: "Profile updated successfully." }, { status: 200 });
   } catch (error: any) {
     console.error("Profile update error:", error);
