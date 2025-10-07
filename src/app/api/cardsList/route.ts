@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/prisma";
-import { stripe } from "@/lib/stripe";
 import { verifyToken } from "@/utils/veriffyToken";
+import axios from "axios";
 
 export async function GET(request: NextRequest) {
   const authHeader = request.headers.get("authorization");
@@ -22,13 +22,28 @@ export async function GET(request: NextRequest) {
   });
 
   if (!user || !user.paystackCustomerId) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json({ error: "User not found or missing Paystack customer ID" }, { status: 404 });
   }
 
-  const paymentMethods = await stripe.paymentMethods.list({
-    customer: user.paystackCustomerId,
-    type: "card",
-  });
-console.log(paymentMethods)
-  return NextResponse.json({ cards: paymentMethods.data });
+  try {
+    const PAYSTACK_SECRET_KEY = process.env.PAYSTACK_SECRET_KEY!;
+    const response = await axios.get(
+      `https://api.paystack.co/customer/${user.paystackCustomerId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${PAYSTACK_SECRET_KEY}`,
+        },
+      }
+    );
+
+    const cards = response.data.data?.authorization || [];
+
+    return NextResponse.json({ cards });
+  } catch (error: any) {
+    console.error("Paystack fetch cards error:", error.message);
+    return NextResponse.json(
+      { error: "Failed to fetch cards.", details: error.message },
+      { status: 500 }
+    );
+  }
 }
