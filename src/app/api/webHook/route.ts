@@ -46,7 +46,7 @@ export async function POST(req: NextRequest) {
             userId: subscription.userId,
             planId: freePlan.id,
             status: SubscriptionStatus.ACTIVE,
-            paymentStatus: PaymentStatus.FREE,
+            paymentStatus: PaymentStatus.PENDING,
             startDate: new Date(),
           },
         });
