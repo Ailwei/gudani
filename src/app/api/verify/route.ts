@@ -52,7 +52,6 @@ export async function GET(req: NextRequest) {
 
     const plan = await db.planConfig.findUnique({ where: { id: planId } });
     if (!plan || !plan.paystackPlanCode) {
-      console.error("Plan not found or missing paystackPlanCode");
       return NextResponse.redirect(`${baseUrl}/verify-failed`);
     }
 
