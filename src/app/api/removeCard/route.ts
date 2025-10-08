@@ -24,7 +24,6 @@ export async function DELETE(req: NextRequest) {
   try {
     const PAYSTACK_SECRET_KEY = process.env.PAYSTACK_SECRET_KEY!;
     
-    // Disable the card (authorization) in Paystack
     await axios.post(
       `https://api.paystack.co/authorization/deactivate`,
       { authorization_code: paymentMethodId },

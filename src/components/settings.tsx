@@ -6,8 +6,7 @@ import SubscriptionDetails from "./subscriptionDetails";
 import ProfileUpdate from "@/components/updateProfile";
 import DeleteAccount from "./deleteAccount";
 import BillingDetails from "./billing";
-import StripeWrapper from "@/components/StripeWrapper";
-;
+
 
 const settingsLinks = [
   { label: "Profile", value: "profile" },
@@ -27,7 +26,7 @@ export default function SettingsPage({ onClose }: SettingsPageProps) {
     <>
       {activeTab === "profile" && <ProfileUpdate />}
       {activeTab === "subscription" && <SubscriptionDetails />}
-      {activeTab === "billing" && (<StripeWrapper><BillingDetails /></StripeWrapper>)}
+      {activeTab === "billing" && <BillingDetails />}
       {activeTab === "deleteAccount" && (
         <div className="text-red-600 font-semibold">
           <DeleteAccount onDelete={() => (window.location.href = "/login")} />

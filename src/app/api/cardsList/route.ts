@@ -36,9 +36,9 @@ export async function GET(request: NextRequest) {
       }
     );
 
-    const cards = response.data.data?.authorization || [];
-
-    return NextResponse.json({ cards });
+   const cards = response.data.data?.authorizations || [];
+   return NextResponse.json({ cards });
+   
   } catch (error: any) {
     console.error("Paystack fetch cards error:", error.message);
     return NextResponse.json(

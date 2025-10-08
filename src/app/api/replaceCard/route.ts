@@ -14,18 +14,16 @@ export async function POST(req: NextRequest) {
     const user = await verifyToken(token);
     if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-    const body = await req.json();
-    const { card } = body; // card object with number, exp_month, exp_year, cvc (if you want to tokenize)
-
-    let dbUser = await db.user.findUnique({ where: { id: user.userId } });
+    const dbUser = await db.user.findUnique({ where: { id: user.userId } });
     if (!dbUser) return NextResponse.json({ error: "User not found" }, { status: 404 });
 
-    let customerId = dbUser.paystackCustomerId;
+    const PAYSTACK_SECRET_KEY = process.env.PAYSTACK_SECRET_KEY!;
+    const NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY = process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY!;
 
-    // Create Paystack customer if it doesn't exist
-    if (!customerId) {
-      const PAYSTACK_SECRET_KEY = process.env.PAYSTACK_SECRET_KEY!;
-      const response = await axios.post(
+    let customerCode = dbUser.paystackCustomerId;
+
+    if (!customerCode) {
+      const createCustomerRes = await axios.post(
         "https://api.paystack.co/customer",
         {
           email: dbUser.email,
@@ -40,20 +38,22 @@ export async function POST(req: NextRequest) {
         }
       );
 
-      customerId = response.data.data.id;
+      customerCode = createCustomerRes.data.data.customer_code;
 
       await db.user.update({
         where: { id: user.userId },
-        data: { paystackCustomerId: customerId },
+        data: { paystackCustomerId: customerCode },
       });
     }
+
     return NextResponse.json({
       success: true,
-      message: "Paystack customer ready",
-      paystackCustomerId: customerId,
+      email: dbUser.email,
+      paystackPublicKey: NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY,
+      customerCode,
     });
   } catch (err: any) {
-    console.error("Paystack card management error:", err.message);
+    console.error("Paystack replace card error:", err.message);
     return NextResponse.json(
       { error: err.message || "Internal server error" },
       { status: 500 }
