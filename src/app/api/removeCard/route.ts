@@ -33,12 +33,9 @@ export async function POST(req: NextRequest) {
     },
   }
 );
-console.log("Paystack authorizations:", authRes.data.data.authorizations);
-
 
     const authorizations = authRes.data.data.authorizations || [];
     const authorization = authorizations.find((a: any) => a.authorization_code === paymentMethodId);
-
 
     if (!authorization) {
       return NextResponse.json({ error: "Card not found for this customer" }, { status: 404 });
@@ -54,12 +51,12 @@ console.log("Paystack authorizations:", authRes.data.data.authorizations);
     },
   }
 );
-console.log("Deactivation response:", res.data);
-
 
     return NextResponse.json({ success: true, message: "Card removed" });
   } catch (error: any) {
-    console.error("Paystack remove card error:", error.response?.data || error.message);    return NextResponse.json(
+    console.error("Paystack remove card error:", error.response?.data || error.message);
+   
+     return NextResponse.json(
       { error: "Failed to remove card.", details: error.message },
       { status: 500 }
     );
