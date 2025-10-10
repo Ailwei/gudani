@@ -1,17 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/prisma";
 import bcrypt from "bcrypt";
+import { registerSchema } from "@/schemas/auth";
 
-interface RegisterInput {
-  firstName: string;
-  lastName: string;
-  email: string;
-  password: string;
-}
 
 export async function POST(req: NextRequest) {
   try {
-    const body: RegisterInput = await req.json();
+    const body = await req.json();
+     const parsed = registerSchema.safeParse(body);
+
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: parsed.error.issues.map(e => e.message).join(", ") },
+        { status: 400 }
+      );
+    }
+    const data = parsed.data;
 
     const existing = await db.user.findUnique({ where: { email: body.email } });
     if (existing) {
@@ -25,13 +29,13 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const hashedPassword = await bcrypt.hash(body.password, 10);
+    const hashedPassword = await bcrypt.hash(data.password, 10);
 
     const user = await db.user.create({
       data: {
-        firstName: body.firstName,
-        lastName: body.lastName,
-        email: body.email.toLowerCase().trim(),
+        firstName: data.firstName,
+        lastName: data.lastName,
+        email: data.email.toLowerCase().trim(),
         password: hashedPassword,
         Subscription: {
           create: {
