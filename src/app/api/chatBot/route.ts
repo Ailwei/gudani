@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
 
     const userId = String(user.userId);
     const body = await request.json();
-    const { prompt, chatId, grade, subject, useSyllabus } = body;
+    const { prompt, chatId, grade, subject, useSyllabus, limit } = body;
 
     if (!prompt || !userId || !grade || !subject || useSyllabus === undefined) {
       return NextResponse.json(
@@ -39,7 +39,15 @@ export async function POST(request: NextRequest) {
         { status: 500 }
       );
     }
-const syllabusChunks = await getSyllabusChunks(grade, subject);
+// Fetch relevant chunks based on the user prompt
+let syllabusChunks = await getSyllabusChunks(grade, subject, prompt);
+
+
+if (syllabusChunks.length === 0 && useSyllabus) {
+  syllabusChunks = (await getSyllabusChunks(grade, subject)).slice(0, 3);
+}
+
+console.log("syllabus chunks used:", syllabusChunks.length);
 
 const syllabusText = syllabusChunks
   .map((topicItem: any) => {
@@ -49,6 +57,11 @@ const syllabusText = syllabusChunks
     return `Topic: ${topicItem.topic}\n${allChunks}`;
   })
   .join("\n\n");
+
+console.log("Syllabus text length:", syllabusText.length);
+
+
+
 
     const toknsToUse = calculateTokens(prompt, syllabusText)
     console.log("toekn to use", toknsToUse)

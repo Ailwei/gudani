@@ -49,19 +49,17 @@ Respond with only "yes" or "no".
     `;
 
     let syllabusText = "";
-        if (useSyllabus && grade && subject) {
-          const syllabusChunks = await getSyllabusChunks(grade, subject);
-          
-          syllabusText = syllabusChunks.map((c: any) => c.chunk).join("\n\n");
-          console.log(
-      "Syllabus chunks being sent with prompt:",
-      syllabusChunks.map((c: any) => c.chunk)
-    );
-    console.log("Full user prompt sent to AI:", 
-      `${syllabusText ? `Syllabus:\n${syllabusText}\n\n` : ""}${prompt}`
-    );
-    
-        }
+    if (useSyllabus && grade && subject) {
+      const syllabusChunks = await getSyllabusChunks(grade, subject, topic, 5);
+
+      syllabusText = syllabusChunks
+        .map(group =>
+          group.chunks.map(ch => ch.chunk).join("\n\n")
+        )
+        .join("\n\n");
+        syllabusChunks.flatMap(group => group.chunks.map(ch => ch.chunk))
+    }
+
     const validationToken = calculateTokens(prompt, syllabusText)
     const validationConsumed = await checkAndConsumeTokens(userId, validationToken)
 

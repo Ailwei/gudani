@@ -1,4 +1,3 @@
-import { db } from "@/lib/prisma";
 import { syllabusDataSchema } from "@/schemas/syllaubs";
 
 export function chunkTextByWords(text: string, maxWords = 150): string[] {
@@ -46,10 +45,33 @@ export async function saveSyllabusChunks(
   return totalChunks;
 }
 
-export async function getSyllabusChunks(grade: string, subject: string) {
+import { db } from "@/lib/prisma";
+
+export async function getSyllabusChunks(
+  grade: string,
+  subject: string,
+  query?: string,     
+  limit: number = 8 
+) {
+  const whereClause: any = { grade, subject };
+
+  if (query && query.trim().length > 0) {
+    const words = query
+      .split(/\s+/)
+      .map((w) => w.trim())
+      .filter(Boolean);
+
+    whereClause.OR = [
+      { chunk: { contains: query, mode: "insensitive" } },
+      { topic: { contains: query, mode: "insensitive" } },
+      { concepts: { hasSome: words } },
+    ];
+  }
+
   const rows = await db.syllabusChunk.findMany({
-    where: { grade, subject },
+    where: whereClause,
     orderBy: [{ topic: "asc" }, { order: "asc" }],
+    ...(query ? { take: limit } : {}),
   });
 
   const grouped: {
