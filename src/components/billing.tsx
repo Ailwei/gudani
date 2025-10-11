@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Image from "next/image";
 import Script from "next/script";
+import { da } from "zod/v4/locales";
 
 const cardLogos: Record<string, string> = {
   visa: "/card-logos/visa.svg",
@@ -13,11 +14,12 @@ const cardLogos: Record<string, string> = {
 };
 
 interface Card {
-  id: string;
+  id?: string;
   brand: string;
   last4: string;
   exp_month: number;
   exp_year: number;
+  authorization_code: string;
 }
 
 export default function BillingDetails() {
@@ -30,9 +32,11 @@ export default function BillingDetails() {
     try {
       const token = localStorage.getItem("token");
       const res = await axios.get("/api/cardsList", {
+        
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = res.data;
+      console.log("card", res.data)
       if (data.cards && data.cards.length > 0) {
         const first = data.cards[0];
         setCard({
@@ -40,7 +44,7 @@ export default function BillingDetails() {
           last4: first.last4,
           exp_month: first.exp_month,
           exp_year: first.exp_year,
-          id: first.authorization_Code,
+          authorization_code: first.authorization_code,
         });
       } else setCard(null);
     } catch (err) {
@@ -54,12 +58,22 @@ export default function BillingDetails() {
   const handleRemove = async () => {
     if (!card || !confirm("Are you sure you want to remove this card?")) return;
     try {
-      const token = localStorage.getItem("token");
-      const res = await axios.delete("/api/removeCard", {
-        data: { paymentMethodId: card.id },
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const token = localStorage.getItem("token")
+
+      const res = await axios.post(
+  "/api/removeCard",
+  { paymentMethodId: card.authorization_code } ,
+  {
+
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },  
+  }
+);
+console.log("poo", res.data)
+
       if (res.data.success) {
+
         alert("Card removed successfully!");
         setCard(null);
       } else alert(res.data.error || "Failed to remove card");
