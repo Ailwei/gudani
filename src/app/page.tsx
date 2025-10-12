@@ -282,11 +282,10 @@ const StudySmartAILanding: React.FC = () => {
               <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-6">R0<span className="text-sm sm:text-lg text-gray-500">/month</span></div>
               <ul className="space-y-3 mb-8">
                 {[
-                  "Limited AI questions",
-                  "Limited quizzes",
-                  "Limited flashcards",
-                  "Limited PDF/notes summaries",
-                  "No saving"
+                  "Limited daily tokens",
+                  "No Saving",
+                  "No copy/export Summary",
+                  "Access to all tools",
                 ].map((feature, index) => (
                   <li key={index} className="flex items-center">
                     <CheckCircle className="w-5 h-5 text-green-500 mr-3" />
@@ -308,11 +307,12 @@ const StudySmartAILanding: React.FC = () => {
               <div className="text-2xl sm:text-3xl md:text-4xl font-bold mb-6">R50<span className="text-sm sm:text-lg opacity-75">/month</span></div>
               <ul className="space-y-3 mb-8">
                 {[
-                  "100 flashcards, Quizzes",
-                  "Unlimited Al Questions",
-                  "50 PDF/Notes summary",
-                  "Saving",
-                  "Export/Copy summary"
+                  "High daily token limit",
+                  "Save flashcards, quizzes, summaries",
+                  "Export or copy summaries",
+                  "ChatBot"
+
+                  
                 ].map((feature, index) => (
                   <li key={index} className="flex items-center">
                     <CheckCircle className="w-5 h-5 text-green-400 mr-3" />
@@ -337,11 +337,10 @@ const StudySmartAILanding: React.FC = () => {
               <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-6">R120<span className="text-sm sm:text-lg text-gray-500">/month</span></div>
               <ul className="space-y-3 mb-8">
                 {[
-                  "Unlimited flashcards, quizzes",
-                  "Unlimited AI questions",
-                  "100 PDF/Notes Summary",
-                  "Saving",
-                  "Export/Copy summary"
+                  "Unlimited daily tokens",
+                  "Save quizzes, flashcards , summaries",
+                  "Export/Copy summary",
+                  "ChatBot"
 
                 ].map((feature, index) => (
                   <li key={index} className="flex items-center">
