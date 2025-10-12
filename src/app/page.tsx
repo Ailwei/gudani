@@ -63,9 +63,8 @@ const StudySmartAILanding: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50">
-      <nav className={`fixed top-0 w-full z-50 transition-all duration-300 ${
-        isScrolled ? 'bg-white/80 backdrop-blur-lg shadow-lg' : 'bg-transparent'
-      }`}>
+      <nav className={`fixed top-0 w-full z-50 transition-all duration-300 ${isScrolled ? 'bg-white/80 backdrop-blur-lg shadow-lg' : 'bg-transparent'
+        }`}>
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div
@@ -184,11 +183,11 @@ const StudySmartAILanding: React.FC = () => {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12 sm:mb-16">
               <Link href="/register">
-  <button className="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-6 sm:px-8 md:px-10 py-3 sm:py-4 rounded-2xl text-base sm:text-lg font-bold hover:from-purple-700 hover:to-blue-700 transition-all duration-300 transform hover:scale-105 shadow-2xl flex items-center w-full sm:w-auto justify-center">
-    Start Learning Free
-    <ArrowRight className="ml-2 sm:ml-3 w-5 sm:w-6 h-5 sm:h-6" />
-  </button>
-</Link>
+                <button className="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-6 sm:px-8 md:px-10 py-3 sm:py-4 rounded-2xl text-base sm:text-lg font-bold hover:from-purple-700 hover:to-blue-700 transition-all duration-300 transform hover:scale-105 shadow-2xl flex items-center w-full sm:w-auto justify-center">
+                  Start Learning Free
+                  <ArrowRight className="ml-2 sm:ml-3 w-5 sm:w-6 h-5 sm:h-6" />
+                </button>
+              </Link>
               <button className="border-2 border-gray-300 text-gray-700 px-6 sm:px-8 md:px-10 py-3 sm:py-4 rounded-2xl text-base sm:text-lg font-bold hover:border-purple-600 hover:text-purple-600 transition-all duration-300 w-full sm:w-auto">
                 Watch Demo
               </button>
@@ -248,16 +247,14 @@ const StudySmartAILanding: React.FC = () => {
               return (
                 <div
                   key={index}
-                  className={`p-6 sm:p-8 rounded-2xl transition-all duration-500 cursor-pointer transform hover:scale-105 ${
-                    activeFeature === index
+                  className={`p-6 sm:p-8 rounded-2xl transition-all duration-500 cursor-pointer transform hover:scale-105 ${activeFeature === index
                       ? 'bg-gradient-to-br from-white to-purple-50 shadow-2xl border-2 border-purple-200'
                       : 'bg-white hover:shadow-xl border-2 border-gray-100'
-                  }`}
+                    }`}
                   onMouseEnter={() => setActiveFeature(index)}
                 >
-                  <div className={`w-12 sm:w-16 h-12 sm:h-16 bg-gradient-to-r ${feature.gradient} rounded-xl flex items-center justify-center mb-4 sm:mb-6 mx-auto transition-transform duration-300 ${
-                    activeFeature === index ? 'scale-110' : ''
-                  }`}>
+                  <div className={`w-12 sm:w-16 h-12 sm:h-16 bg-gradient-to-r ${feature.gradient} rounded-xl flex items-center justify-center mb-4 sm:mb-6 mx-auto transition-transform duration-300 ${activeFeature === index ? 'scale-110' : ''
+                    }`}>
                     <Icon className="w-6 sm:w-8 h-6 sm:h-8 text-white" />
                   </div>
                   <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-4 text-center">{feature.title}</h3>
@@ -285,10 +282,11 @@ const StudySmartAILanding: React.FC = () => {
               <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-6">R0<span className="text-sm sm:text-lg text-gray-500">/month</span></div>
               <ul className="space-y-3 mb-8">
                 {[
-                  "5 AI questions per day",
-                  "Basic flashcards",
-                  "Simple quizzes",
-                  "Note summaries (limited)"
+                  "Limited AI questions",
+                  "Limited quizzes",
+                  "Limited flashcards",
+                  "Limited PDF/notes summaries",
+                  "No saving"
                 ].map((feature, index) => (
                   <li key={index} className="flex items-center">
                     <CheckCircle className="w-5 h-5 text-green-500 mr-3" />
@@ -297,9 +295,9 @@ const StudySmartAILanding: React.FC = () => {
                 ))}
               </ul>
               <Link href="/register">
-              <button className="w-full bg-gray-100 text-gray-900 py-3 rounded-xl font-semibold hover:bg-gray-200 transition-colors">
-                Get Started Free
-              </button>
+                <button className="w-full bg-gray-100 text-gray-900 py-3 rounded-xl font-semibold hover:bg-gray-200 transition-colors">
+                  Get Started Free
+                </button>
               </Link>
             </div>
             <div className="bg-gradient-to-br from-purple-600 to-blue-600 rounded-2xl p-6 sm:p-8 text-white relative transform sm:scale-100 lg:scale-105 shadow-2xl">
@@ -310,10 +308,11 @@ const StudySmartAILanding: React.FC = () => {
               <div className="text-2xl sm:text-3xl md:text-4xl font-bold mb-6">R50<span className="text-sm sm:text-lg opacity-75">/month</span></div>
               <ul className="space-y-3 mb-8">
                 {[
-                  "Limited flashcards, quizzes, and summaries",
-                  "More AI questions per day",
-                  "Progress tracking",
-                  "Grade-specific content"
+                  "100 flashcards, Quizzes",
+                  "Unlimited Al Questions",
+                  "50 PDF/Notes summary",
+                  "Saving",
+                  "Export/Copy summary"
                 ].map((feature, index) => (
                   <li key={index} className="flex items-center">
                     <CheckCircle className="w-5 h-5 text-green-400 mr-3" />
@@ -321,10 +320,10 @@ const StudySmartAILanding: React.FC = () => {
                   </li>
                 ))}
               </ul>
-            
+
               <button onClick={() => {
-                 localStorage.setItem("planType", "STANDARD");
-                 window.location.href = "/register"
+                localStorage.setItem("planType", "STANDARD");
+                window.location.href = "/register"
 
               }} className="w-full bg-white text-purple-600 py-3 rounded-xl font-semibold hover:bg-gray-100 transition-colors">
                 Start Standard
@@ -338,10 +337,12 @@ const StudySmartAILanding: React.FC = () => {
               <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-6">R120<span className="text-sm sm:text-lg text-gray-500">/month</span></div>
               <ul className="space-y-3 mb-8">
                 {[
-                  "Unlimited flashcards, quizzes, and summaries",
+                  "Unlimited flashcards, quizzes",
                   "Unlimited AI questions",
-                  "Advanced features",
-                  "Priority support"
+                  "100 PDF/Notes Summary",
+                  "Saving",
+                  "Export/Copy summary"
+
                 ].map((feature, index) => (
                   <li key={index} className="flex items-center">
                     <CheckCircle className="w-5 h-5 text-green-500 mr-3" />
@@ -349,13 +350,13 @@ const StudySmartAILanding: React.FC = () => {
                   </li>
                 ))}
               </ul>
-  
-  <button onClick={() => {
-      localStorage.setItem("planType", "PREMIUM");
-    window.location.href = "/register"
-  }} className="w-full bg-blue-600 text-white py-3 rounded-xl font-semibold hover:bg-blue-700 transition-colors">
-    Start Premium
-  </button>
+
+              <button onClick={() => {
+                localStorage.setItem("planType", "PREMIUM");
+                window.location.href = "/register"
+              }} className="w-full bg-blue-600 text-white py-3 rounded-xl font-semibold hover:bg-blue-700 transition-colors">
+                Start Premium
+              </button>
 
             </div>
           </div>
@@ -372,9 +373,9 @@ const StudySmartAILanding: React.FC = () => {
           </p>
           <div className="flex justify-center">
             <Link href="/register">
-            <button className="bg-white text-purple-600 px-6 sm:px-8 md:px-10 py-3 sm:py-4 md:py-5 rounded-2xl text-base sm:text-lg md:text-xl font-bold hover:bg-gray-100 transition-all duration-300 transform hover:scale-105 shadow-2xl">
-              Start Free Today
-            </button>
+              <button className="bg-white text-purple-600 px-6 sm:px-8 md:px-10 py-3 sm:py-4 md:py-5 rounded-2xl text-base sm:text-lg md:text-xl font-bold hover:bg-gray-100 transition-all duration-300 transform hover:scale-105 shadow-2xl">
+                Start Free Today
+              </button>
             </Link>
           </div>
         </div>
@@ -402,7 +403,7 @@ const StudySmartAILanding: React.FC = () => {
             <div>
               <h4 className="font-semibold mb-4 text-sm sm:text-base">Support</h4>
               <ul className="space-y-2 text-gray-400 text-sm sm:text-base">
-                <li><a  className="hover:text-white transition-colors">Help Center</a></li>
+                <li><a className="hover:text-white transition-colors">Help Center</a></li>
                 <li><a href="#" className="hover:text-white transition-colors">Contact</a></li>
                 <li><a href="#" className="hover:text-white transition-colors">Community</a></li>
               </ul>
