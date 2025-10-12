@@ -230,17 +230,7 @@ useEffect(() => {
 
 
         <div className="p-4 md:p-6 border-t border-gray-200">
-      {showTopicsButton && (
-            <div className="mb-3">
-              <button
-                onClick={sendTopicsPrompt}
-                className="rounded-lg bg-blue-600 text-white px-4 py-2 hover:bg-blue-700 transition-colors sm:w-auto"
-                disabled={loading}
-              >
-              Topics
-              </button>
-            </div>
-          )}
+    
   <div  className="flex items-center gap-2">
     <input
       type="text"
