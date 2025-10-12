@@ -148,7 +148,7 @@ useEffect(() => {
 };
 
   return (
-<div className="flex h-screen bg-white gap-4">
+<div className="flex min-h-screen bg-white gap-4">
 <div className="hidden md:block w-64 border-r border-gray-200">
         <ChatHistory onSelectChat={handleSelectChat} />
       </div>
@@ -170,8 +170,8 @@ useEffect(() => {
         </div>
       )}
 
-      <div className="flex-1 flex flex-col bg-white rounded-xl shadow-sm border border-gray-200 h-full overflow-y-auto">
-              <div className="p-6 border-b border-gray-200 flex items-center justify-between">
+<div className="flex-1 flex flex-col min-h-full">
+                <div className="p-6 border-b border-gray-200 flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <button
                     className="md:hidden text-gray-600"
