@@ -49,28 +49,28 @@ const FlashcardsTool: React.FC<FlashcardsToolProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [isSavedSet, setIsSavedSet] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [topics,setTopics] = useState<Topic[]>([])
+  const [topics, setTopics] = useState<Topic[]>([])
   const planType = useSubscriptionStore((state) => state.planType);
-  
+
 
 
   useEffect(() => {
     const fetchTopics = async () => {
-      try{
+      try {
         const token = localStorage.getItem("token")
         const res = await axios.get("/api/getTopics", {
           headers: {
             Authorization: `Bearer ${token}`
           }
         });
-        setTopics(res.data.topics);        
-      } catch(error){
+        setTopics(res.data.topics);
+      } catch (error) {
         console.error(error);
 
       }
     }
     fetchTopics();
-  } , [])
+  }, [])
   const handleTopicSelect = (set: FlashcardSet) => {
     setTopic(set.topic);
     setFlashcards(set.cards);
@@ -114,8 +114,8 @@ const FlashcardsTool: React.FC<FlashcardsToolProps> = ({
     } catch (err: any) {
       setError(
         err?.response?.data?.error ||
-          err.message ||
-          "Failed to generate flashcards."
+        err.message ||
+        "Failed to generate flashcards."
       );
     } finally {
       setIsGenerating(false);
@@ -123,20 +123,20 @@ const FlashcardsTool: React.FC<FlashcardsToolProps> = ({
   };
 
   const handleNext = () => {
-  setCurrentCard((prev) => {
-    const nextIndex = Math.min(prev + 1, flashcards.length - 1);
-    setShowAnswer(false);
-    return nextIndex;
-  });
-};
+    setCurrentCard((prev) => {
+      const nextIndex = Math.min(prev + 1, flashcards.length - 1);
+      setShowAnswer(false);
+      return nextIndex;
+    });
+  };
 
-const handlePrev = () => {
-  setCurrentCard((prev) => {
-    const prevIndex = Math.max(prev - 1, 0);
-    setShowAnswer(false);
-    return prevIndex;
-  });
-};
+  const handlePrev = () => {
+    setCurrentCard((prev) => {
+      const prevIndex = Math.max(prev - 1, 0);
+      setShowAnswer(false);
+      return prevIndex;
+    });
+  };
 
   const handleShowAnswer = () => setShowAnswer(!showAnswer);
 
@@ -150,9 +150,9 @@ const handlePrev = () => {
   };
 
   const handleSaveFlashcards = async () => {
-     if(planType === "FREE"){
-    alert("Saving quizzes is not available on the Free plan. Please upgrade to unlock this feature.");
-    return;      
+    if (planType === "FREE") {
+      alert("Saving quizzes is not available on the Free plan. Please upgrade to unlock this feature.");
+      return;
     }
     if (!flashcards.length) return;
 
@@ -182,14 +182,14 @@ const handlePrev = () => {
     }
   };
   const handleCloseFlashcards = () => {
-  setFlashcards([]);
-  setTopic("");
-  setCurrentCard(0);
-  setShowAnswer(false);
-  setError(null);
-  setIsSavedSet(false);
+    setFlashcards([]);
+    setTopic("");
+    setCurrentCard(0);
+    setShowAnswer(false);
+    setError(null);
+    setIsSavedSet(false);
 
-};
+  };
 
   return (
     <div className="flex h-screen gap-2">
@@ -238,31 +238,30 @@ const handlePrev = () => {
         <div className="p-6 space-y-6 flex-1 overflow-y-auto">
           {flashcards.length === 0 ? (
             <>
-            <div>
-              {error && <p className="text-red-600 text-sm mt-2">{error}</p>}
+              <div>
+                {error && <p className="text-red-600 text-sm mt-2">{error}</p>}
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Topic for flashcards
-                 <div className="flex flex-wrap gap-2">
-    {topics.map((t) => (
-      <button
-        key={t.topic}
-        type="button"
-        onClick={() => {
-          setTopic(t.topic);
-          generateFlashcardsForTopic(t.topic);
-        }}
-        className={`px-3 py-1 rounded-full border text-sm ${
-          topic === t.topic
-            ? "bg-purple-600 text-white border-purple-600"
-            : "bg-gray-100 text-gray-700 border-gray-300 hover:bg-purple-100"
-        }`}
-      >
-        {t.topic}
-      </button>
-    ))}
-  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {topics.map((t) => (
+                      <button
+                        key={t.topic}
+                        type="button"
+                        onClick={() => {
+                          setTopic(t.topic);
+                          generateFlashcardsForTopic(t.topic);
+                        }}
+                        className={`px-3 py-1 rounded-full border text-sm ${topic === t.topic
+                            ? "bg-purple-600 text-white border-purple-600"
+                            : "bg-gray-100 text-gray-700 border-gray-300 hover:bg-purple-100"
+                          }`}
+                      >
+                        {t.topic}
+                      </button>
+                    ))}
+                  </div>
                 </label>
                 <input
                   type="text"
@@ -288,36 +287,35 @@ const handlePrev = () => {
                 <h3 className="text-lg font-semibold text-gray-900">
                   Flashcards: {topic}
                 </h3>
-                
+
                 {!isSavedSet && (
                   <div className="flex justify-center space-x-2 mt-4">
                     <button
-                            onClick={handleSaveFlashcards}
-                            disabled={planType === "FREE"}
-                            className={`flex items-center text-sm ${
-                              planType === "FREE"
-                                ? "text-gray-400 cursor-not-allowed"
-                                : "text-purple-600 hover:text-purple-700"
-                            }`}
-                          >
-                            <Save className="w-4 h-4 mr-1" />
-                            Save 
-                          </button>
+                      onClick={handleSaveFlashcards}
+                      disabled={planType === "FREE"}
+                      className={`flex items-center text-sm ${planType === "FREE"
+                          ? "text-gray-400 cursor-not-allowed"
+                          : "text-purple-600 hover:text-purple-700"
+                        }`}
+                    >
+                      <Save className="w-4 h-4 mr-1" />
+                      Save
+                    </button>
                     <button
                       onClick={handleGenerateNewSet}
                       className="text-purple-600 hover:text-purple-700 text-sm"
                     >
                       Generate New Set
                     </button>
-                      <button
-      onClick={handleCloseFlashcards}
-      className="text-gray-600 hover:text-gray-800 text-sm flex items-center"
-    >
-      <X className="w-6 h-6" />
-    </button>
+                    <button
+                      onClick={handleCloseFlashcards}
+                      className="text-gray-600 hover:text-gray-800 text-sm flex items-center"
+                    >
+                      <X className="w-6 h-6" />
+                    </button>
                   </div>
                 )}
-              
+
               </div>
 
               <div className="bg-gradient-to-br from-purple-50 to-blue-50 rounded-xl p-8 text-center min-h-48 flex items-center justify-center">
@@ -353,8 +351,8 @@ const handlePrev = () => {
                 </button>
               </div>
               <span className="text-sm text-gray-500">
-                  {currentCard + 1} / {flashcards.length}
-                </span>
+                {currentCard + 1} / {flashcards.length}
+              </span>
             </div>
           )}
         </div>

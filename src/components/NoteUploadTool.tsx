@@ -110,7 +110,7 @@ const NoteUploadTool: React.FC<{
   };
 
   const handleSaveSummary = async () => {
-    if(planType === "FREE"){
+    if (planType === "FREE") {
       alert("Saving flashcards is not available on the Free plan. Upgrade to unlock this feature");
       return
     }
@@ -131,15 +131,15 @@ const NoteUploadTool: React.FC<{
           summary,
           topic,
           summaryId
-          
+
         },
         {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
 
-     if (res.status >= 200 && res.status < 300) {
-      setSummaryId(res.data.summaryId || null);
+      if (res.status >= 200 && res.status < 300) {
+        setSummaryId(res.data.summaryId || null);
         alert("Summary saved successfully");
         handleCloseSummary();
       }
@@ -150,7 +150,7 @@ const NoteUploadTool: React.FC<{
   };
 
   const handleCopySummary = async () => {
-    if(planType === "FREE"){
+    if (planType === "FREE") {
       alert("Saving flashcards is not available on the Free plan. Upgrade to unlock this feature");
       return
     }
@@ -164,7 +164,7 @@ const NoteUploadTool: React.FC<{
   };
 
   const handleExportSummary = () => {
-     if(planType === "FREE"){
+    if (planType === "FREE") {
       alert("Saving flashcards is not available on the Free plan. Upgrade to unlock this feature");
       return
     }
@@ -174,19 +174,19 @@ const NoteUploadTool: React.FC<{
   };
 
   const handleCloseSummary = () => {
-  setSummary("");
-  setTopic("");
-  setPastedNotes("");
-  setExtractedText("");
-  setFile(null);
-  setError("");
-  setIsGenerating(false);
-  setSummaryId(null);
+    setSummary("");
+    setTopic("");
+    setPastedNotes("");
+    setExtractedText("");
+    setFile(null);
+    setError("");
+    setIsGenerating(false);
+    setSummaryId(null);
   }
- 
-const cleanSummary = summary
-  .replace(/\n\s*/g, "\n") 
-  .replace(/\n{2,}/g, "\n"); 
+
+  const cleanSummary = summary
+    .replace(/\n\s*/g, "\n")
+    .replace(/\n{2,}/g, "\n");
 
 
   return (
@@ -309,53 +309,50 @@ const cleanSummary = summary
                 </h3>
                 <div className="flex space-x-2">
                   <button
-                                              onClick={handleCopySummary}
-                                              disabled={planType === "FREE"}
-                                              className={`flex items-center text-sm ${
-                                                planType === "FREE"
-                                                  ? "text-gray-400 cursor-not-allowed"
-                                                  : "text-purple-600 hover:text-purple-700"
-                                              }`}
-                                            >
-                                              <Save className="w-4 h-4 mr-1" />
-                                              Copy
-                                            </button>
+                    onClick={handleCopySummary}
+                    disabled={planType === "FREE"}
+                    className={`flex items-center text-sm ${planType === "FREE"
+                        ? "text-gray-400 cursor-not-allowed"
+                        : "text-purple-600 hover:text-purple-700"
+                      }`}
+                  >
+                    <Save className="w-4 h-4 mr-1" />
+                    Copy
+                  </button>
                   <button
-                                              onClick={handleSaveSummary}
-                                              disabled={planType === "FREE"}
-                                              className={`flex items-center text-sm ${
-                                                planType === "FREE"
-                                                  ? "text-gray-400 cursor-not-allowed"
-                                                  : "text-purple-600 hover:text-purple-700"
-                                              }`}
-                                            >
-                                              <Save className="w-4 h-4 mr-1" />
-                                              Save 
-                                            </button>
-                                    <button
-                                              onClick={handleSaveSummary}
-                                              disabled={planType === "FREE"}
-                                              className={`flex items-center text-sm ${
-                                                planType === "FREE"
-                                                  ? "text-gray-400 cursor-not-allowed"
-                                                  : "text-purple-600 hover:text-purple-700"
-                                              }`}
-                                            >
+                    onClick={handleSaveSummary}
+                    disabled={planType === "FREE"}
+                    className={`flex items-center text-sm ${planType === "FREE"
+                        ? "text-gray-400 cursor-not-allowed"
+                        : "text-purple-600 hover:text-purple-700"
+                      }`}
+                  >
+                    <Save className="w-4 h-4 mr-1" />
+                    Save
+                  </button>
+                  <button
+                    onClick={handleSaveSummary}
+                    disabled={planType === "FREE"}
+                    className={`flex items-center text-sm ${planType === "FREE"
+                        ? "text-gray-400 cursor-not-allowed"
+                        : "text-purple-600 hover:text-purple-700"
+                      }`}
+                  >
                     <Download className="w-4 h-4 mr-1" />
                     Export
                   </button>
-                    <button
-          onClick={handleCloseSummary}
-          className="text-gray-600 hover:text-gray-800 p-1 rounded-md"
-          title="Close summary"
-        >
-          <X className="w-6 h-6" />
-        </button>
+                  <button
+                    onClick={handleCloseSummary}
+                    className="text-gray-600 hover:text-gray-800 p-1 rounded-md"
+                    title="Close summary"
+                  >
+                    <X className="w-6 h-6" />
+                  </button>
                 </div>
               </div>
               <div className="bg-gray-50 rounded-lg p-4 max-h-80 overflow-y-auto">
-                <p 
-                className="text-gray-800 whitespace-pre-wrap"><ReactMarkdown>{cleanSummary}</ReactMarkdown>
+                <p
+                  className="text-gray-800 whitespace-pre-wrap"><ReactMarkdown>{cleanSummary}</ReactMarkdown>
                 </p>
               </div>
             </div>
