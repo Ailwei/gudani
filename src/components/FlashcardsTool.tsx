@@ -3,8 +3,8 @@ import React, { useEffect, useState } from "react";
 import { Save, Menu, X } from "lucide-react";
 import axios from "axios";
 import FlashcardList from "./getFlashCard";
+import GradeSubjectSelector from "./GradeSubjectSelector";
 import { useSubscriptionStore } from "@/lib/susbcriptionStore";
-
 
 interface UserSelection {
   grade: string;
@@ -58,7 +58,11 @@ const FlashcardsTool: React.FC<FlashcardsToolProps> = ({
     const fetchTopics = async () => {
       try {
         const token = localStorage.getItem("token")
-        const res = await axios.get("/api/getTopics", {
+        const res = await axios.post("/api/getTopics",{
+          grade: selection.grade,
+          subject: selection.subject
+        }
+          , {
           headers: {
             Authorization: `Bearer ${token}`
           }
