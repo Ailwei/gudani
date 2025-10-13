@@ -69,11 +69,16 @@ Each flashcard must have:
 - "back": string (answer)
 `;
 
-    let syllabusText = "";
-    if (useSyllabus && grade && subject) {
-      const syllabusChunks = await getSyllabusChunks(grade, subject);
-      syllabusText = syllabusChunks.map((c: any) => c.chunk).join("\n\n");
-    }
+   let syllabusText = "";
+if (useSyllabus && grade && subject) {
+  const syllabusChunks = await getSyllabusChunks(grade, subject, topic, 5);
+
+  syllabusText = syllabusChunks
+    .map(group => group.chunks.map(ch => ch.chunk).join("\n\n"))
+    .join("\n\n");
+    syllabusChunks.flatMap(group => group.chunks.map(ch => ch.chunk))
+}
+
 
     const fullPrompt = `${syllabusText ? `Syllabus:\n${syllabusText}\n\n` : ""}${basePrompt}`;
 
