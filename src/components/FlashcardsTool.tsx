@@ -3,6 +3,8 @@ import React, { useEffect, useState } from "react";
 import { Save, Menu, X } from "lucide-react";
 import axios from "axios";
 import FlashcardList from "./getFlashCard";
+import { useSubscriptionStore } from "@/lib/susbcriptionStore";
+
 
 interface UserSelection {
   grade: string;
@@ -48,6 +50,8 @@ const FlashcardsTool: React.FC<FlashcardsToolProps> = ({
   const [isSavedSet, setIsSavedSet] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [topics,setTopics] = useState<Topic[]>([])
+  const planType = useSubscriptionStore((state) => state.planType);
+  
 
 
   useEffect(() => {
@@ -146,6 +150,10 @@ const handlePrev = () => {
   };
 
   const handleSaveFlashcards = async () => {
+     if(planType === "FREE"){
+    alert("Saving quizzes is not available on the Free plan. Please upgrade to unlock this feature.");
+    return;      
+    }
     if (!flashcards.length) return;
 
     try {
@@ -284,15 +292,20 @@ const handlePrev = () => {
                 {!isSavedSet && (
                   <div className="flex justify-center space-x-2 mt-4">
                     <button
-                      className="flex items-center text-purple-600 hover:text-purple-700 text-sm"
-                      onClick={handleSaveFlashcards}
-                    >
-                      <Save className="w-4 h-4 mr-1" />
-                      Save Set
-                    </button>
+                            onClick={handleSaveFlashcards}
+                            disabled={planType === "FREE"}
+                            className={`flex items-center text-sm ${
+                              planType === "FREE"
+                                ? "text-gray-400 cursor-not-allowed"
+                                : "text-purple-600 hover:text-purple-700"
+                            }`}
+                          >
+                            <Save className="w-4 h-4 mr-1" />
+                            Save 
+                          </button>
                     <button
                       onClick={handleGenerateNewSet}
-                      className="text-gray-600 hover:text-gray-700 text-sm"
+                      className="text-purple-600 hover:text-purple-700 text-sm"
                     >
                       Generate New Set
                     </button>
