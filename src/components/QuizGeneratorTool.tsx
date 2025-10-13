@@ -3,6 +3,7 @@ import { Save, Menu, X } from "lucide-react";
 import axios from "axios";
 import QuizList from "./Quzes";
 import Image from "next/image";
+import { useSubscriptionStore } from "@/lib/susbcriptionStore";
 
 interface UserSelection {
   grade: string;
@@ -51,6 +52,8 @@ const QuizGeneratorTool: React.FC<{
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [topics, setTopics] = useState<Topic[]>([]);
+  const planType = useSubscriptionStore((state) => state.planType);
+
 
 
 
@@ -86,8 +89,6 @@ useEffect(() => {
 
   const generateQuiz = async (selectedTopic?: string) => {
             const topicName = selectedTopic || topic;
-            console.log("totoot", topicName)
-
       
       if (!topicName) {
     setErrorMessage("Missing required fields: topic, grade, or subject.");
@@ -149,6 +150,11 @@ useEffect(() => {
   };
 
   const handleSaveQuiz = async () => {
+  if (planType === "FREE") {
+    alert("Saving quizzes is not available on the Free plan. Please upgrade to unlock this feature.");
+    return;
+  }
+
     if (!quiz) return;
     try {
       const token = localStorage.getItem("token");
@@ -331,12 +337,18 @@ useEffect(() => {
                 </h3>
                 <div className="flex items-center gap-4 justify-between">
                   <button
-                    className="flex items-center text-purple-600 hover:text-purple-700 text-sm"
-                    onClick={handleSaveQuiz}
-                  >
-                    <Save className="w-4 h-4 mr-1" />
-                    Save Quiz
-                  </button>
+        onClick={handleSaveQuiz}
+        disabled={planType === "FREE"}
+        className={`flex items-center text-sm ${
+          planType === "FREE"
+            ? "text-gray-400 cursor-not-allowed"
+            : "text-purple-600 hover:text-purple-700"
+        }`}
+      >
+        <Save className="w-4 h-4 mr-1" />
+        Save Quiz
+      </button>
+
                   <button onClick={handleCloseQuiz} className="text-gray-600 hover:text-gray-800">
                     <X className="w-6 h-6" />
                   </button>
