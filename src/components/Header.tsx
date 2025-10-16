@@ -82,7 +82,7 @@ const Header: React.FC<HeaderProps> = ({
   };
 
   const handlePlans = () =>{
-    router.push("/plans")
+    onUpgradeClick();
   }
 
   const renderPlanLabel = () => {
