@@ -205,7 +205,7 @@ useEffect(() => {
       }`}
     >
       <div
-        className={`max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg px-4 py-3 rounded-2xl shadow-sm
+  className={`px-4 py-3 rounded-2xl shadow-sm break-words whitespace-pre-wrap max-w-[85%] w-fit
           ${message.type === "user"
             ? "bg-purple-600 text-white rounded-br-none"
             : "bg-gray-100 text-gray-900 rounded-bl-none"
