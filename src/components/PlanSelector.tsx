@@ -3,6 +3,8 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { X, CheckCircle } from "lucide-react";
+import { useSubscriptionStore } from "@/lib/susbcriptionStore";
+
 
 export enum PlanType {
   FREE = "FREE",
@@ -62,33 +64,27 @@ export default function PlanSelector({ userId, onClose, onUpgradeClick, activePl
   ];
 
   const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
-  const [planType, setPlanType] = useState<PlanType | null>(null);
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
+  const { setPlanType, planType, fetchSubscription } = useSubscriptionStore();
+
+
 
   useEffect(() => {
-  const fetchSubscription = async () => {
-    try {
-      const token = localStorage.getItem("token");
-      const response = await axios.get("/api/subscriptionDetails", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+  const token = localStorage.getItem("token");
+  if (!token) return;
 
-      const currentType: PlanType = response.data.planType;
-      setPlanType(currentType);
+  fetchSubscription(token).then(() => {
+    const initialSelectedPlan = activePlan
+      ? plans.find(p => p.id === activePlan)
+      : plans.find(p => p.id === planType);
+
+    setSelectedPlan(initialSelectedPlan || null);
+    setFetching(false);
+  });
+}, [activePlan, fetchSubscription]);
 
 
-      const initialSelectedPlan = activePlan ? plans.find(p => p.id === activePlan) : plans.find(p => p.id === currentType);
-      setSelectedPlan(initialSelectedPlan || null);
-    } catch (err) {
-      setPlanType(PlanType.FREE);
-      setSelectedPlan(activePlan ? plans.find(p => p.id === activePlan) || null : plans[0]);
-    } finally {
-      setFetching(false);
-    }
-  };
-  fetchSubscription();
-}, [activePlan]);
 
   const handleSelectPlan = (plan: Plan) => setSelectedPlan(plan);
 
@@ -107,10 +103,11 @@ export default function PlanSelector({ userId, onClose, onUpgradeClick, activePl
     });
 
     if (response.data.url) {
-      window.location.href = response.data.url; 
+      window.location.href = response.data.url;
     }
 
     setPlanType(selectedPlan.id);
+
     setSelectedPlan(selectedPlan);
   } catch (err: any) {
     const errorMessage = err.response?.data?.error || err.message || "Something went wrong";
@@ -119,6 +116,7 @@ export default function PlanSelector({ userId, onClose, onUpgradeClick, activePl
     setLoading(false);
   }
 };
+
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center px-4 sm:px-6 py-12">
