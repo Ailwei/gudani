@@ -21,28 +21,13 @@ export default function SubscriptionDetails() {
   const [subscription, setSubscription] = useState<Subscription | null>(null);
   const [loading, setLoading] = useState(true);
   const setPlanType = useSubscriptionStore((state) => state.setPlanType);
+const { fetchSubscription } = useSubscriptionStore();
 
-  useEffect(() => {
-    async function fetchSubscription() {
-      try {
-        const token = localStorage.getItem("token");
-        if (!token) throw new Error("Missing auth token");
+useEffect(() => {
+  const token = localStorage.getItem("token");
+  if (token) fetchSubscription(token);
+}, [fetchSubscription]);
 
-        const res = await axios.get("/api/subscriptionDetails", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-
-        setSubscription(res.data);
-        setPlanType(res.data.planType || "FREE");
-      } catch (err: any) {
-        console.error("Failed to fetch subscription:", err.response?.data || err.message);
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchSubscription();
-  }, [setPlanType]);
 
   if (loading) return <p className="text-gray-600">Loading subscription...</p>;
   if (!subscription) return <p className="text-gray-600">No active subscription found.</p>;
@@ -67,7 +52,7 @@ export default function SubscriptionDetails() {
           cancelAtPeriodEnd: true,
           cancellationDate: subscription.endDate,
         });
-        setPlanType("FREE");
+        setPlanType("FREE" as any);
       }
     } catch (err: any) {
       alert("Failed to cancel subscription");
