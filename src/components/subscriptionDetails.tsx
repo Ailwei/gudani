@@ -1,33 +1,16 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import axios from "axios";
 import { useSubscriptionStore } from "@/lib/susbcriptionStore";
 
-type Subscription = {
-  planType: string;
-  status: string;
-  startDate: string;
-  endDate: string | null;
-  stripeSubscriptionId: string | null;
-  cancelAtPeriodEnd?: boolean;
-  cancellationDate?: string | null;
-  paymentStatus: "PAID" | "FAILED" | "UNPAID";
-  pastDueAmount: number;
-  pastDueCurrency: string | null;
-};
-
 export default function SubscriptionDetails() {
-  const [subscription, setSubscription] = useState<Subscription | null>(null);
-  const [loading, setLoading] = useState(true);
-  const setPlanType = useSubscriptionStore((state) => state.setPlanType);
-const { fetchSubscription } = useSubscriptionStore();
+  const { subscription, loading, fetchSubscription, setPlanType } = useSubscriptionStore();
 
-useEffect(() => {
-  const token = localStorage.getItem("token");
-  if (token) fetchSubscription(token);
-}, [fetchSubscription]);
-
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) fetchSubscription(token);
+  }, [fetchSubscription]);
 
   if (loading) return <p className="text-gray-600">Loading subscription...</p>;
   if (!subscription) return <p className="text-gray-600">No active subscription found.</p>;
@@ -45,13 +28,10 @@ useEffect(() => {
       const res = await axios.post("/api/cancel-subscription", null, {
         headers: { Authorization: `Bearer ${token}` },
       });
+
       if (res.data.success) {
         alert("Subscription cancellation scheduled");
-        setSubscription({
-          ...subscription,
-          cancelAtPeriodEnd: true,
-          cancellationDate: subscription.endDate,
-        });
+        await fetchSubscription(token);
         setPlanType("FREE" as any);
       }
     } catch (err: any) {
