@@ -148,7 +148,7 @@ useEffect(() => {
 };
 
   return (
-<div className="flex min-h-screen bg-white gap-4">
+<div className="flex min-h-screen bg-gray-50 gap-2">
 <div className="hidden md:block w-64 border-r border-gray-200">
         <ChatHistory onSelectChat={handleSelectChat} />
       </div>
@@ -170,7 +170,7 @@ useEffect(() => {
         </div>
       )}
 
-<div className="flex-1 flex flex-col min-h-full">
+  <div className="flex-1 flex flex-col bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
                 <div className="p-6 border-b border-gray-200 flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <button
@@ -211,14 +211,27 @@ useEffect(() => {
             : "bg-gray-100 text-gray-900 rounded-bl-none"
         }`}
       >
-        <div className="prose prose-sm max-w-none">
-          <ReactMarkdown
-            remarkPlugins={[remarkMath]}
-            rehypePlugins={[rehypeKatex]}
-          >
-            {message.content}
-          </ReactMarkdown>
-        </div>
+<div className="message-content max-w-full break-words whitespace-pre-wrap">
+  <ReactMarkdown
+    remarkPlugins={[remarkMath]}
+    rehypePlugins={[rehypeKatex]}
+    components={{
+      em: ({node, ...props}) => (
+        <em
+          className="italic inline leading-[1.4] font-normal"
+          {...props}
+        />
+      ),
+      p: ({node, ...props}) => (
+        <p className="m-0 inline" {...props} />
+      )
+    }}
+  >
+    {message.content}
+  </ReactMarkdown>
+</div>
+
+
       </div>
     </div>
     
