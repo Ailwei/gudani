@@ -8,6 +8,7 @@ import { useSubscriptionStore } from "@/lib/susbcriptionStore";
 import { useUserStore } from "@/lib/userStore";
 import { PlanType } from "./PlanSelector";
 
+
 interface HeaderProps {
   variant?: "dashboard" | "landing";
   isLoggedIn?: boolean;
@@ -25,8 +26,9 @@ const Header: React.FC<HeaderProps> = ({
 }) => {
   const router = useRouter();
 
-  const { planType, setPlanType } = useSubscriptionStore();
-  const { firstName, lastName, setUser, clearUser } = useUserStore();
+   const { firstName, lastName, fetchUser, clearUser } = useUserStore();
+  const { planType, fetchSubscription } = useSubscriptionStore();
+
 
   const [loading, setLoading] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -35,34 +37,14 @@ const Header: React.FC<HeaderProps> = ({
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-    if (!token) return;
-
-    async function fetchData() {
-      try {
-        const userRes = await fetch("/api/auth/userDetails", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (userRes.ok) {
-          const data = await userRes.json();
-          setUser(data);
-        }
-
-        const subRes = await fetch("/api/subscriptionDetails", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (subRes.ok) {
-          const subData = await subRes.json();
-          setPlanType(subData.planType || "FREE");
-        }
-      } catch (err) {
-        console.error("Error fetching data:", err);
-      } finally {
-        setLoading(false);
-      }
+    if (!token) {
+      setLoading(false);
+      return;
     }
 
-    fetchData();
-  }, [setUser, setPlanType, userName]);
+    Promise.all([fetchUser(token), fetchSubscription(token)])
+      .finally(() => setLoading(false));
+  }, [fetchUser, fetchSubscription]);
 
   const handleLogoClick = () => {
   const token = localStorage.getItem("token");
@@ -82,7 +64,7 @@ const Header: React.FC<HeaderProps> = ({
   };
 
   const handlePlans = () =>{
-    router.push("/plans")
+    onUpgradeClick();
   }
 
   const renderPlanLabel = () => {
