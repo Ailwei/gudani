@@ -70,11 +70,12 @@ const AIChatTool: React.FC<{
             let content = m.content || "";
 
             if (m.role === "user") {
-              content = content
-                .replace(/^Grade:\s*.*$/im, "")
-                .replace(/^Subject:\s*.*$/im, "")
-                .replace(/^Question:\s*/im, "")
-                .trim();
+            content = content
+  .replace(/^Grade:\s*.*$/gim, "")
+  .replace(/^Subject:\s*.*$/gim, "")
+  .replace(/^Question:\s*/gim, "")
+  .trim();
+
             }
 
             if (m.role === "assistant") {
