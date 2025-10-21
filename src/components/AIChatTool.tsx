@@ -225,78 +225,30 @@ const AIChatTool: React.FC<{
                     : "bg-gray-100 text-gray-900 rounded-bl-none"
                   }`}
               >
-                <div className="message-content max-w-full break-words whitespace-pre-wrap">
-                  <ReactMarkdown
-                    remarkPlugins={[remarkMath]}
-                    rehypePlugins={[rehypeKatex]}
-                    components={{
-                      em: ({ node, ...props }) => (
-                        <em
-                          className="italic inline leading-[1.4] font-normal"
-                          {...props}
-                        />
-                      ),
-                      p: ({ node, ...props }) => (
-                        <p className="m-0 inline" {...props} />
-                      )
-                    }}
-                  >
-                    {message.content}
-                  </ReactMarkdown>
-                </div>
-                <button
-                  onClick={onBack}
-                  className="text-purple-600 hover:text-purple-700 font-medium"
-                >
-                  ← Back to Tools
-                </button>
-              </div>
-<div
-  
-  className="flex-1 overflow-y-auto p-6 space-y-6"
->
-  {messages.map((message, index) => (
-    <div
-      key={index}
-      className={`flex ${
-        message.type === "user" ? "justify-end" : "justify-start"
-      }`}
-    >
-      <div
-  className={`px-4 py-3 rounded-2xl shadow-sm break-words whitespace-pre-wrap max-w-[85%] w-fit
-          ${message.type === "user"
-            ? "bg-purple-600 text-white rounded-br-none"
-            : "bg-gray-100 text-gray-900 rounded-bl-none"
-        }`}
-      >
-<div className="message-content max-w-full break-words whitespace-pre-wrap">
-  <ReactMarkdown
-    remarkPlugins={[remarkMath]}
-    rehypePlugins={[rehypeKatex]}
-    components={{
-      em: ({node, ...props}) => (
-        <em
-          className="italic inline leading-[1.4] font-normal"
-          {...props}
-        />
-      ),
-      p: ({node, ...props}) => (
-        <p className="m-0 inline" {...props} />
-      )
-    }}
-  >
-    {message.content}
-  </ReactMarkdown>
-</div>
-
-
-              </div>
-            </div>
-
-          ))}
-          <div ref={messagesEndRef} />
-
+        <div className="message-content max-w-full break-words whitespace-pre-wrap">
+          <ReactMarkdown
+            remarkPlugins={[remarkMath]}
+            rehypePlugins={[rehypeKatex]}
+            components={{
+              em: ({ node, ...props }) => (
+                <em
+                  className="italic inline leading-[1.4] font-normal"
+                  {...props}
+                />
+              ),
+              p: ({ node, ...props }) => (
+                <p className="m-0 inline" {...props} />
+              )
+            }}
+          >
+            {message.content}
+          </ReactMarkdown>
         </div>
+      </div>
+    </div>
+  ))}
+  <div ref={messagesEndRef} />
+</div>
 
 
 
