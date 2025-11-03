@@ -10,6 +10,7 @@ export async function GET() {
       "Life Orientation",
       "Creative Arts",
       "Social Sciences",
+      "Natural Sciences",
       "Technology",
       "Economics And Management Sciences"
     ],
@@ -19,6 +20,7 @@ export async function GET() {
       "Life Orientation",
       "Creative Arts",
       "Social Sciences",
+      "Natural Sciences",
       "Technology",
       "Economics And Management Sciences"
 
