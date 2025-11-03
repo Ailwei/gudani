@@ -13,6 +13,7 @@ interface HeaderProps {
   variant?: "dashboard" | "landing";
   isLoggedIn?: boolean;
   userName?: string;
+  error: string;
   onUpgradeClick: () => void;
   onSettingsClick?: () => void;
 }
@@ -35,16 +36,41 @@ const Header: React.FC<HeaderProps> = ({
 
   const displayName = firstName ? `${firstName} ${lastName}` : userName || "";
 
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      setLoading(false);
-      return;
-    }
+useEffect(() => {
+  const token = localStorage.getItem("token");
 
-    Promise.all([fetchUser(token), fetchSubscription(token)])
-      .finally(() => setLoading(false));
-  }, [fetchUser, fetchSubscription]);
+  if (!token) {
+    handleLogout();
+    return;
+  }
+
+  const validateSession = async () => {
+    try {
+      const [userRes, subRes] = await Promise.all([
+        fetchUser(token),
+        fetchSubscription(token),
+      ]) as [any, any];
+
+  
+      if (
+        userRes?.error === "unauthorized" ||
+        subRes?.error === "unauthorized" ||
+        !userRes?.firstName 
+      ) {
+        console.warn("Session expired or invalid — logging out");
+        handleLogout();
+      }
+    } catch (error) {
+      console.error("Error validating session:", error);
+      handleLogout(); 
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  validateSession();
+}, [fetchUser, fetchSubscription]);
+
 
   const handleLogoClick = () => {
   const token = localStorage.getItem("token");
