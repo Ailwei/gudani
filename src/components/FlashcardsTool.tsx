@@ -85,6 +85,8 @@ const FlashcardsTool: React.FC<FlashcardsToolProps> = ({
     setSidebarOpen(false);
   };
 
+const inputRef = React.useRef<HTMLInputElement>(null);
+
   const generateFlashcardsForTopic = async (chosenTopic: string) => {
     if (!chosenTopic.trim()) return;
     setIsGenerating(true);
@@ -114,6 +116,7 @@ const FlashcardsTool: React.FC<FlashcardsToolProps> = ({
         setError("No flashcards generated. Try a different topic.");
       } else {
         setFlashcards(cards);
+        
       }
     } catch (err: any) {
       setError(
@@ -242,7 +245,7 @@ const FlashcardsTool: React.FC<FlashcardsToolProps> = ({
         <div className="p-6 space-y-6 flex-1 overflow-y-auto">
           {flashcards.length === 0 ? (
             <>
-              <div>
+            <div className="space-y-4">
                 {error && <p className="text-red-600 text-sm mt-2">{error}</p>}
               </div>
               <div>
@@ -255,6 +258,7 @@ const FlashcardsTool: React.FC<FlashcardsToolProps> = ({
                         type="button"
                         onClick={() => {
                           setTopic(t.topic);
+                          inputRef.current?.focus();
                           generateFlashcardsForTopic(t.topic);
                         }}
                         className={`px-3 py-1 rounded-full border text-sm ${topic === t.topic
@@ -268,6 +272,7 @@ const FlashcardsTool: React.FC<FlashcardsToolProps> = ({
                   </div>
                 </label>
                 <input
+                  ref={inputRef}
                   type="text"
                   value={topic}
                   onChange={(e) => setTopic(e.target.value)}
@@ -309,7 +314,7 @@ const FlashcardsTool: React.FC<FlashcardsToolProps> = ({
                       onClick={handleGenerateNewSet}
                       className="text-purple-600 hover:text-purple-700 text-sm"
                     >
-                      Generate New Set
+                      New Set
                     </button>
                     <button
                       onClick={handleCloseFlashcards}

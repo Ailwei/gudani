@@ -147,6 +147,7 @@ const StudySmartDashboard: React.FC = () => {
         variant="dashboard"
         onUpgradeClick={() => setShowPlans(true)}
         onSettingsClick={() => setShowSettings(prev => !prev)}
+        error={null}
       />
 
       <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 flex flex-col space-y-6">

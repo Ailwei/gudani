@@ -67,7 +67,7 @@ const AdminDashboardPage: React.FC = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-gray-50 via-white to-purple-50">
-<Header variant="dashboard" onUpgradeClick={() => {}} />
+<Header variant="dashboard" onUpgradeClick={() => {}} error={null}/>
 
       <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-8 py-10">
         <h2 className="text-4xl font-extrabold mb-10 text-gray-800 tracking-tight">

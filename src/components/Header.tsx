@@ -13,6 +13,7 @@ interface HeaderProps {
   variant?: "dashboard" | "landing";
   isLoggedIn?: boolean;
   userName?: string;
+  error: string | null;
   onUpgradeClick: () => void;
   onSettingsClick?: () => void;
 }
@@ -35,16 +36,29 @@ const Header: React.FC<HeaderProps> = ({
 
   const displayName = firstName ? `${firstName} ${lastName}` : userName || "";
 
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      setLoading(false);
-      return;
-    }
+useEffect(() => {
+  const token = localStorage.getItem("token");
 
-    Promise.all([fetchUser(token), fetchSubscription(token)])
-      .finally(() => setLoading(false));
-  }, [fetchUser, fetchSubscription]);
+  if (!token) {
+    handleLogout();
+    return;
+  }
+
+  const validateSession = async () => {
+    try {
+      await fetchUser(token);
+      await fetchSubscription(token);
+    } catch (error) {
+      console.error("Error validating session:", error);
+      handleLogout();
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  validateSession();
+}, [fetchUser, fetchSubscription]);
+
 
   const handleLogoClick = () => {
   const token = localStorage.getItem("token");
