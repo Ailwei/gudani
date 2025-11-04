@@ -53,6 +53,7 @@ const QuizGeneratorTool: React.FC<{
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [topics, setTopics] = useState<Topic[]>([]);
   const planType = useSubscriptionStore((state) => state.planType);
+  const [showQuiz, setShowQuiz] = useState(false);
 
 
 
@@ -85,7 +86,7 @@ useEffect(() => {
 
 
 
- 
+const inputRef = React.useRef<HTMLInputElement>(null);
 
   const generateQuiz = async (selectedTopic?: string) => {
             const topicName = selectedTopic || topic;
@@ -94,6 +95,7 @@ useEffect(() => {
     setErrorMessage("Missing required fields: topic, grade, or subject.");
     return;
   }
+    setTopic(topicName);
     setIsGenerating(true);
     setShowResults(false);
     setSelectedAnswers({});
@@ -102,10 +104,11 @@ useEffect(() => {
 
 
 
-  const selectedTopicObj = topics.find((t) => t.topic === topicName);
 
     try {
       const token = localStorage.getItem("token");
+      const selectedTopicObj = topics.find((t) => t.topic === topicName);
+
       const res = await axios.post(
         "/api/createQuiz",
         {
@@ -123,6 +126,7 @@ useEffect(() => {
       );
 
       setQuiz(res.data.quiz || null);
+      setShowQuiz(true);
     } catch (err: any) {
       const errorMsg =
         err.response?.data?.error ||
@@ -147,7 +151,18 @@ useEffect(() => {
     setQuiz(null);
     setSelectedAnswers({});
     setShowResults(false);
+    setShowQuiz(false);
+    setTopic("")
   };
+ const handleGenerateNewQuiz = () => {
+  setQuiz(null);
+  setSelectedAnswers({});
+  setShowResults(false);
+  setShowQuiz(false);
+  setTopic("");
+};
+
+
 
   const handleSaveQuiz = async () => {
   if (planType === "FREE") {
@@ -286,53 +301,56 @@ useEffect(() => {
               {errorMessage}
             </div>
           )}
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              What topic would you like to be quizzed on?
-              <div className="flex flex-wrap gap-2">
-    {topics.map((t) => (
-      <button
-        key={t.topic}
-        type="button"
-        onClick={() => {
-          setTopic(t.topic);
-          generateQuiz(t.topic);
-        }}
-        className={`px-3 py-1 rounded-full border text-sm ${
-          topic === t.topic
-            ? "bg-purple-600 text-white border-purple-600"
-            : "bg-gray-100 text-gray-700 border-gray-300 hover:bg-purple-100"
-        }`}
-      >
-        {t.topic}
-      </button>
-    ))}
-  </div>
-            </label>
-            <input
-              type="text"
-              value={topic}
-              onChange={(e) => setTopic(e.target.value)}
-              placeholder="e.g., Quadratic Equations, Photosynthesis, etc."
-              className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-purple-500 text-gray-900 font-normal"
-            />
-          </div>
-
-          <button
-          key={topic}
-            onClick={() => generateQuiz(topic)}
-            type="button"
-            disabled={!topic.trim() || isGenerating}
-            className="w-full bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-          >
-            {isGenerating ? "Generating Quiz..." : "Create MCQ Quiz"}
-          </button>
+          {!showQuiz ? (
+            <>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  What topic would you like to be quizzed on?
+                </label>
+                <div className="flex flex-wrap gap-2 mb-3">
+                  {topics.map((t) => (
+                    <button
+                      key={t.topic}
+                      type="button"
+                      onClick={() => {
+                        setTopic(t.topic);
+                        inputRef.current?.focus();
+                        generateQuiz(t.topic);
+                      }}
+                      className={`px-3 py-1 rounded-full border text-sm ${topic === t.topic
+                        ? "bg-purple-600 text-white border-purple-600"
+                        : "bg-gray-100 text-gray-700 border-gray-300 hover:bg-purple-100"}`}
+                    >
+                      {t.topic}
+                    </button>
+                  ))}
+                </div>
+                <input
+                  ref={inputRef}
+                  type="text"
+                  value={isGenerating ? `Generating quiz for ${topic}...` : topic}
+                  onChange={(e) => setTopic(e.target.value)}
+                  placeholder="e.g., Quadratic Equations, Photosynthesis, etc."
+                  className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-purple-500 text-gray-900 font-normal disabled:opacity-60"
+                  disabled={isGenerating}
+                />
+              </div>
+              <button
+                key={topic}
+                onClick={() => generateQuiz(topic)}
+                type="button"
+                disabled={!topic.trim() || isGenerating}
+                className="w-full bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                {isGenerating ? "Generating Quiz..." : "Create MCQ Quiz"}
+              </button>
+            </>
+          ) : null}
 
           {quiz && (
             <div className="border-t border-gray-200 pt-6">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-gray-900">
+                <h3   className="text-lg font-semibold text-gray-900">
                   Quiz: {quiz.topic}
                 </h3>
                 <div className="flex items-center gap-4 justify-between">
@@ -348,6 +366,12 @@ useEffect(() => {
         <Save className="w-4 h-4 mr-1" />
         Save Quiz
       </button>
+       <button
+                      onClick={handleGenerateNewQuiz}
+                      className="text-purple-600 hover:text-purple-700 text-sm"
+                    >
+                      New Quiz
+                    </button>
 
                   <button onClick={handleCloseQuiz} className="text-gray-600 hover:text-gray-800">
                     <X className="w-6 h-6" />

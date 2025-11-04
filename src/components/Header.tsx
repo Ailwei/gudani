@@ -13,7 +13,7 @@ interface HeaderProps {
   variant?: "dashboard" | "landing";
   isLoggedIn?: boolean;
   userName?: string;
-  error: string;
+  error: string | null;
   onUpgradeClick: () => void;
   onSettingsClick?: () => void;
 }
@@ -46,23 +46,11 @@ useEffect(() => {
 
   const validateSession = async () => {
     try {
-      const [userRes, subRes] = await Promise.all([
-        fetchUser(token),
-        fetchSubscription(token),
-      ]) as [any, any];
-
-  
-      if (
-        userRes?.error === "unauthorized" ||
-        subRes?.error === "unauthorized" ||
-        !userRes?.firstName 
-      ) {
-        console.warn("Session expired or invalid — logging out");
-        handleLogout();
-      }
+      await fetchUser(token);
+      await fetchSubscription(token);
     } catch (error) {
       console.error("Error validating session:", error);
-      handleLogout(); 
+      handleLogout();
     } finally {
       setLoading(false);
     }
